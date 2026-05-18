@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Smart Addict ML{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+    .content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 60px 24px 80px; }
+
+    .hero { text-align: center; margin-bottom: 72px; }
+    .hero-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 16px; border-radius: 50px; font-size: 0.8rem; font-weight: 600;
+        background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.15);
+        color: var(--accent-cyan); letter-spacing: 0.05em; text-transform: uppercase;
+        margin-bottom: 28px; animation: fadeInUp 0.6s ease forwards;
+    }
+    .hero-badge::before {
+        content: ''; width: 6px; height: 6px; border-radius: 50%;
+        background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan);
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    .hero h1 {
+        font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 900; letter-spacing: -0.03em;
+        line-height: 1.1; margin-bottom: 20px;
+        animation: fadeInUp 0.6s ease 0.1s forwards; opacity: 0;
+    }
+    .hero p {
+        font-size: 1.15rem; color: var(--text-secondary); max-width: 560px; margin: 0 auto 36px; line-height: 1.7;
+        animation: fadeInUp 0.6s ease 0.2s forwards; opacity: 0;
+    }
+    .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadeInUp 0.6s ease 0.3s forwards; opacity: 0; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 64px; }
+    .stat-card {
+        text-align: center; padding: 28px 20px; border-radius: 20px;
+        background: var(--bg-card); border: 1px solid var(--border-card);
+        backdrop-filter: blur(16px); transition: all 0.35s ease;
+        animation: fadeInUp 0.5s ease forwards; opacity: 0;
+    }
+    .stat-card:nth-child(1) { animation-delay: 0.3s; }
+    .stat-card:nth-child(2) { animation-delay: 0.4s; }
+    .stat-card:nth-child(3) { animation-delay: 0.5s; }
+    .stat-card:nth-child(4) { animation-delay: 0.6s; }
+    .stat-card:hover { transform: translateY(-4px); border-color: rgba(34, 211, 238, 0.2); }
+    .stat-number { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.02em; color: var(--accent-cyan); }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
+
+    .features-header { text-align: center; margin-bottom: 40px; }
+    .features-header h2 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .features-header p { color: var(--text-secondary); font-size: 1rem; }
+
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 56px; }
+    .feature-card {
+        padding: 32px; border-radius: 24px;
+        background: var(--bg-card); border: 1px solid var(--border-card);
+        backdrop-filter: blur(16px); transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative; overflow: hidden;
+        animation: fadeInUp 0.5s ease forwards; opacity: 0;
+    }
+    .feature-card:nth-child(1) { animation-delay: 0.35s; }
+    .feature-card:nth-child(2) { animation-delay: 0.45s; }
+    .feature-card:nth-child(3) { animation-delay: 0.55s; }
+    .feature-card:nth-child(4) { animation-delay: 0.65s; }
+    .feature-card:nth-child(5) { animation-delay: 0.75s; }
+    .feature-card:nth-child(6) { animation-delay: 0.85s; }
+    .feature-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        border-radius: 24px 24px 0 0; opacity: 0; transition: opacity 0.4s ease;
+    }
+    .feature-card:hover { transform: translateY(-6px); border-color: rgba(34, 211, 238, 0.18); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:nth-child(1)::before { background: linear-gradient(90deg, #22d3ee, #3b82f6); }
+    .feature-card:nth-child(2)::before { background: linear-gradient(90deg, #3b82f6, #a78bfa); }
+    .feature-card:nth-child(3)::before { background: linear-gradient(90deg, #a78bfa, #fb7185); }
+    .feature-card:nth-child(4)::before { background: linear-gradient(90deg, #fbbf24, #34d399); }
+    .feature-card:nth-child(5)::before { background: linear-gradient(90deg, #fb7185, #fbbf24); }
+    .feature-card:nth-child(6)::before { background: linear-gradient(90deg, #34d399, #22d3ee); }
+    .feature-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 20px; font-size: 1.5rem;
+    }
+    .feature-card:nth-child(1) .feature-icon { background: rgba(34, 211, 238, 0.1); }
+    .feature-card:nth-child(2) .feature-icon { background: rgba(59, 130, 246, 0.1); }
+    .feature-card:nth-child(3) .feature-icon { background: rgba(167, 139, 250, 0.1); }
+    .feature-card:nth-child(4) .feature-icon { background: rgba(251, 191, 36, 0.1); }
+    .feature-card:nth-child(5) .feature-icon { background: rgba(251, 113, 133, 0.1); }
+    .feature-card:nth-child(6) .feature-icon { background: rgba(52, 211, 153, 0.1); }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+    .feature-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.65; }
+
+    .cta-section {
+        text-align: center; padding: 48px; border-radius: 28px;
+        background: linear-gradient(135deg, rgba(34, 211, 238, 0.06), rgba(59, 130, 246, 0.06));
+        border: 1px solid rgba(34, 211, 238, 0.1);
+        animation: fadeInUp 0.5s ease 0.9s forwards; opacity: 0;
+    }
+    .cta-section h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 12px; }
+    .cta-section p { color: var(--text-secondary); margin-bottom: 28px; }
+
+    .stats-chart-section {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 56px;
+        animation: fadeInUp 0.5s ease 0.7s forwards; opacity: 0;
+    }
+    .stats-chart-card {
+        padding: 28px; border-radius: 22px;
+        background: var(--bg-card); border: 1px solid var(--border-card); backdrop-filter: blur(16px);
+    }
+    .stats-chart-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .recent-list { list-style: none; padding: 0; }
+    .recent-item { padding: 10px 0; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; }
+    .recent-item:last-child { border-bottom: none; }
+    .recent-model { font-weight: 600; }
+    .recent-badge { padding: 3px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; }
+    .recent-badge.r { background: rgba(52,211,153,0.12); color: var(--accent-emerald); }
+    .recent-badge.s { background: rgba(251,191,36,0.12); color: var(--accent-amber); }
+    .recent-badge.t { background: rgba(251,113,133,0.12); color: var(--accent-rose); }
+
+    @media (max-width: 768px) {
+        .content { padding: 40px 16px 60px; }
+        .features-grid { grid-template-columns: 1fr; }
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
+        .stats-chart-section { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_orbs %}<div class="orb orb-3"></div>{% endblock %}
+
+{% block content %}
+<main class="content">
+    <section class="hero">
+        <div class="hero-badge">Active System</div>
+        <h1>Deteksi Dini<br><span class="gradient-text">Kecanduan Smartphone</span></h1>
+        <p>Sistem prediksi berbasis Machine Learning yang menganalisis pola penggunaan smartphone untuk mendeteksi level kecanduan secara akurat.</p>
+        <div class="hero-actions">
+            <a href="{{ url_for('predict') }}" class="btn-primary">🚀 Mulai Prediksi</a>
+            <a href="{{ url_for('history_page') }}" class="btn-secondary">📊 Lihat History</a>
+        </div>
+    </section>
+
+    <section class="stats-row">
+        <div class="stat-card"><div class="stat-number">4</div><div class="stat-label">Model ML Tersedia</div></div>
+        <div class="stat-card"><div class="stat-number">9</div><div class="stat-label">Indikator Analisis</div></div>
+        <div class="stat-card"><div class="stat-number">3</div><div class="stat-label">Level Kecanduan</div></div>
+        <div class="stat-card"><div class="stat-number">2</div><div class="stat-label">Metode Input</div></div>
+    </section>
+
+    <section>
+        <div class="features-header"><h2>Fitur Utama</h2><p>Alat lengkap untuk memahami pola kecanduan smartphone</p></div>
+        <div class="features-grid">
+            <div class="feature-card"><div class="feature-icon">📊</div><h3>Prediksi Level Kecanduan</h3><p>Gunakan model machine learning untuk mendeteksi level kecanduan berdasarkan 9 indikator penggunaan harian.</p></div>
+            <div class="feature-card"><div class="feature-icon">📁</div><h3>Input Manual & CSV</h3><p>Masukkan data secara manual melalui form interaktif atau upload file CSV untuk prediksi cepat.</p></div>
+            <div class="feature-card"><div class="feature-icon">🕐</div><h3>History Prediksi</h3><p>Lihat riwayat semua prediksi yang telah dilakukan lengkap dengan detail model dan input.</p></div>
+            <div class="feature-card"><div class="feature-icon">🤖</div><h3>4 Algoritma ML</h3><p>Decision Tree, KNN, Neural Network, dan SVM — pilih model terbaik untuk analisis Anda.</p></div>
+            <div class="feature-card"><div class="feature-icon">⚡</div><h3>Deteksi Dini</h3><p>Kenali tanda-tanda kecanduan smartphone lebih awal untuk langkah pencegahan yang tepat.</p></div>
+            <div class="feature-card"><div class="feature-icon">🎓</div><h3>Edukasi</h3><p>Tingkatkan kesadaran tentang dampak penggunaan smartphone berlebihan pada kesehatan dan produktivitas.</p></div>
+        </div>
+    </section>
+
+    {% if predictions %}
+    <section class="stats-chart-section">
+        <div class="stats-chart-card">
+            <h3>📊 Distribusi Prediksi</h3>
+            <div style="max-width:280px;margin:0 auto"><canvas id="pieChart"></canvas></div>
+        </div>
+        <div class="stats-chart-card">
+            <h3>🕐 Prediksi Terbaru</h3>
+            <ul class="recent-list">
+                {% for entry in predictions|reverse %}{% if loop.index <= 6 %}
+                <li class="recent-item">
+                    <span class="recent-model">{{ entry.model_name }}</span>
+                    <span class="recent-badge {% if entry.result == 'Rendah' %}r{% elif entry.result == 'Sedang' %}s{% else %}t{% endif %}">{{ entry.result }}</span>
+                </li>
+                {% endif %}{% endfor %}
+            </ul>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="cta-section">
+        <h2>Siap untuk Mulai?</h2>
+        <p>Cukup jawab 9 pertanyaan atau upload data CSV untuk mendapatkan hasil prediksi.</p>
+        <a href="{{ url_for('predict') }}" class="btn-primary">Mulai Sekarang →</a>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% if predictions %}
+<script>
+    const statsData = {{ stats | tojson }};
+    const ctx = document.getElementById('pieChart');
+    if (ctx && (statsData.Rendah + statsData.Sedang + statsData.Tinggi) > 0) {
+        function getTC() { return document.documentElement.getAttribute('data-theme') === 'light' ? '#475569' : '#94a3b8'; }
+        Chart.defaults.color = getTC();
+        Chart.defaults.font.family = 'Inter, sans-serif';
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rendah', 'Sedang', 'Tinggi'],
+                datasets: [{
+                    data: [statsData.Rendah, statsData.Sedang, statsData.Tinggi],
+                    backgroundColor: ['rgba(52,211,153,0.7)', 'rgba(251,191,36,0.7)', 'rgba(251,113,133,0.7)'],
+                    borderColor: ['rgba(52,211,153,1)', 'rgba(251,191,36,1)', 'rgba(251,113,133,1)'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true, cutout: '60%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: '600' } } }
+                }
+            },
+            plugins: [{
+                id: 'centerTotal',
+                afterDraw(chart) {
+                    const { ctx, chartArea: { width, height, top, left } } = chart;
+                    const total = statsData.Rendah + statsData.Sedang + statsData.Tinggi;
+                    ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
+                    const cx=left+width/2, cy=top+height/2;
+                    ctx.font='900 24px Inter'; ctx.fillStyle=getTC(); ctx.fillText(total,cx,cy-4);
+                    ctx.font='500 10px Inter'; ctx.fillStyle='#64748b'; ctx.fillText('TOTAL',cx,cy+16);
+                    ctx.restore();
+                }
+            }]
+        });
+    }
+</script>
+{% endif %}
+{% endblock %}

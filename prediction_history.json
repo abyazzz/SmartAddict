@@ -1,0 +1,339 @@
+[
+    {
+        "timestamp": "2026-05-11T09:20:57.157342",
+        "model": "Decision Tree",
+        "input": [
+            4.0,
+            4.0,
+            3.0,
+            2.0,
+            3.0,
+            3.0,
+            2.0,
+            2.0,
+            2.0,
+            3.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-14T10:32:05.754928",
+        "model": "Decision Tree",
+        "input": [
+            8.0,
+            8.0,
+            2.0,
+            2.0,
+            1.0,
+            2.0,
+            1.0,
+            3.0,
+            3.0,
+            2.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-14T10:33:07.118934",
+        "model": "Neural Network",
+        "input": [
+            8.0,
+            8.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0,
+            3.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-14T10:33:48.255390",
+        "model": "Decision Tree",
+        "input": [
+            12.0,
+            12.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0,
+            4.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T06:38:08.995745",
+        "model": "Support Vector Machine",
+        "input": [
+            5.0,
+            3.0,
+            1.0,
+            1.0,
+            1.0,
+            2.0,
+            1.0,
+            2.0,
+            3.0,
+            1.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:10:42.511205",
+        "model": "Decision Tree",
+        "input": [
+            5.9,
+            6.6,
+            0.0,
+            25.0,
+            3.0,
+            4.0,
+            0.0,
+            1.0,
+            0.0,
+            37.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:10:57.841870",
+        "model": "Support Vector Machine",
+        "input": [
+            5.9,
+            6.6,
+            0.0,
+            25.0,
+            3.0,
+            4.0,
+            0.0,
+            1.0,
+            0.0,
+            37.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T07:14:17.702517",
+        "model": "Decision Tree",
+        "input": [
+            5.9,
+            6.6,
+            0.0,
+            25.0,
+            3.0,
+            4.0,
+            0.0,
+            1.0,
+            0.0,
+            37.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:17:17.979261",
+        "model": "Decision Tree",
+        "input": [
+            5.9,
+            6.6,
+            0.0,
+            25.0,
+            3.0,
+            4.0,
+            0.0,
+            1.0,
+            0.0,
+            37.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:18:33.957235",
+        "model": "Decision Tree",
+        "input": [
+            5.0,
+            3.0,
+            2.0,
+            1.0,
+            3.0,
+            2.0,
+            1.0,
+            2.0,
+            3.0,
+            1.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T07:18:50.684377",
+        "model": "Support Vector Machine",
+        "input": [
+            5.0,
+            3.0,
+            2.0,
+            1.0,
+            3.0,
+            2.0,
+            1.0,
+            2.0,
+            3.0,
+            1.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:26:18.260142",
+        "model": "K-Nearest Neighbors",
+        "input": [
+            5.0,
+            3.0,
+            2.0,
+            1.0,
+            3.0,
+            2.0,
+            1.0,
+            2.0,
+            3.0,
+            1.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:30:57.294836",
+        "model": "Neural Network",
+        "input": [
+            5.0,
+            3.0,
+            2.0,
+            1.0,
+            3.0,
+            2.0,
+            1.0,
+            2.0,
+            3.0,
+            1.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:40:17.439349",
+        "model": "Decision Tree",
+        "input": [
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "prediction": "Rendah"
+    },
+    {
+        "timestamp": "2026-05-18T07:42:19.495418",
+        "model": "Support Vector Machine",
+        "input": [
+            5.0,
+            2.0,
+            3.0,
+            3.0,
+            0.0,
+            2.0,
+            2.0,
+            1.0,
+            2.0,
+            2.0
+        ],
+        "prediction": "Tinggi"
+    },
+    {
+        "timestamp": "2026-05-18T07:50:49.465194",
+        "model": "Decision Tree",
+        "input": [
+            1.0,
+            1.0,
+            2.0,
+            3.0,
+            2.0,
+            2.0,
+            3.0,
+            2.0,
+            2.0,
+            2.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T08:05:26.666718",
+        "model": "Decision Tree",
+        "input": [
+            25.0,
+            1.0,
+            10.0,
+            6.0,
+            4.0,
+            4.0,
+            150.0,
+            100.0,
+            12.0,
+            2.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T08:20:00.722698",
+        "model": "Decision Tree",
+        "input": [
+            25.0,
+            1.0,
+            10.0,
+            6.0,
+            4.0,
+            4.0,
+            150.0,
+            100.0,
+            12.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T08:25:44.710183",
+        "model": "Decision Tree",
+        "input": [
+            20.0,
+            1.0,
+            5.0,
+            2.0,
+            1.0,
+            7.0,
+            50.0,
+            50.0,
+            6.0
+        ],
+        "prediction": "Sedang"
+    },
+    {
+        "timestamp": "2026-05-18T08:27:27.365365",
+        "model": "Decision Tree",
+        "input": [
+            20.0,
+            1.0,
+            5.0,
+            2.0,
+            1.0,
+            7.0,
+            50.0,
+            50.0,
+            6.0
+        ],
+        "prediction": "Sedang"
+    }
+]

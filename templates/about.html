@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Tentang Model - Smart Addict ML{% endblock %}
+{% block head %}
+<style>
+    .content { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 48px 24px 80px; }
+    .page-header { text-align: center; margin-bottom: 48px; animation: fadeInUp 0.5s ease forwards; }
+    .page-header h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 10px; }
+    .page-header p { color: var(--text-secondary); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+
+    .models-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px; }
+    .model-card {
+        padding: 32px; border-radius: 24px;
+        background: var(--bg-card); border: 1px solid var(--border-card);
+        backdrop-filter: blur(16px); position: relative; overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        animation: fadeInUp 0.5s ease forwards; opacity: 0;
+    }
+    .model-card:nth-child(1) { animation-delay: 0.1s; }
+    .model-card:nth-child(2) { animation-delay: 0.2s; }
+    .model-card:nth-child(3) { animation-delay: 0.3s; }
+    .model-card:nth-child(4) { animation-delay: 0.4s; }
+    .model-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        border-radius: 24px 24px 0 0; opacity: 0; transition: opacity 0.4s ease;
+    }
+    .model-card:hover { transform: translateY(-6px); border-color: rgba(34, 211, 238, 0.18); }
+    .model-card:hover::before { opacity: 1; }
+    .model-card:nth-child(1)::before { background: linear-gradient(90deg, #22d3ee, #3b82f6); }
+    .model-card:nth-child(2)::before { background: linear-gradient(90deg, #3b82f6, #a78bfa); }
+    .model-card:nth-child(3)::before { background: linear-gradient(90deg, #a78bfa, #fb7185); }
+    .model-card:nth-child(4)::before { background: linear-gradient(90deg, #fbbf24, #34d399); }
+
+    .model-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .model-name { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
+    .model-tag {
+        display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.72rem;
+        font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 16px;
+    }
+    .tag-tree { background: rgba(34, 211, 238, 0.1); color: var(--accent-cyan); }
+    .tag-knn { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+    .tag-nn { background: rgba(167, 139, 250, 0.1); color: var(--accent-purple); }
+    .tag-svm { background: rgba(251, 191, 36, 0.1); color: var(--accent-amber); }
+
+    .model-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 20px; }
+
+    .model-pros { list-style: none; padding: 0; }
+    .model-pros li {
+        padding: 6px 0 6px 20px; font-size: 0.84rem; color: var(--text-secondary);
+        position: relative; line-height: 1.5;
+    }
+    .model-pros li::before {
+        content: '✓'; position: absolute; left: 0; color: var(--accent-emerald); font-weight: 700;
+    }
+
+    .dataset-section {
+        padding: 36px; border-radius: 24px;
+        background: var(--bg-card); border: 1px solid var(--border-card);
+        animation: fadeInUp 0.5s ease 0.5s forwards; opacity: 0;
+    }
+    .dataset-section h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    .features-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .features-table th {
+        text-align: left; padding: 10px 14px; font-weight: 700; font-size: 0.78rem;
+        text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted);
+        border-bottom: 1px solid var(--border-card);
+    }
+    .features-table td { padding: 10px 14px; border-bottom: 1px solid var(--border-card); color: var(--text-secondary); }
+    .features-table tr:last-child td { border-bottom: none; }
+    .features-table .feat-name { color: var(--accent-cyan); font-weight: 600; font-family: 'Courier New', monospace; }
+
+    @media (max-width: 768px) {
+        .models-grid { grid-template-columns: 1fr; }
+        .content { padding: 32px 16px 60px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="page-header">
+        <h1>Tentang <span class="gradient-text">Model ML</span></h1>
+        <p>Penjelasan singkat algoritma Machine Learning yang digunakan dalam sistem prediksi kecanduan smartphone.</p>
+    </div>
+
+    <div class="models-grid">
+        <div class="model-card">
+            <div class="model-icon">🌳</div>
+            <div class="model-name">Decision Tree</div>
+            <div class="model-tag tag-tree">Supervised • Classification</div>
+            <p class="model-desc">Algoritma yang membuat keputusan dengan membagi data ke dalam cabang-cabang berdasarkan fitur yang paling informatif, membentuk struktur seperti pohon keputusan.</p>
+            <ul class="model-pros">
+                <li>Mudah diinterpretasi dan divisualisasi</li>
+                <li>Tidak perlu normalisasi data</li>
+                <li>Cepat dalam prediksi</li>
+            </ul>
+        </div>
+        <div class="model-card">
+            <div class="model-icon">📍</div>
+            <div class="model-name">K-Nearest Neighbors</div>
+            <div class="model-tag tag-knn">Instance-based • Lazy Learning</div>
+            <p class="model-desc">Mengklasifikasikan data baru berdasarkan "kedekatan" dengan data training yang sudah ada. Data baru akan masuk ke kelas yang paling banyak di antara K tetangga terdekat.</p>
+            <ul class="model-pros">
+                <li>Sederhana dan intuitif</li>
+                <li>Efektif untuk data non-linear</li>
+                <li>Tidak perlu fase training</li>
+            </ul>
+        </div>
+        <div class="model-card">
+            <div class="model-icon">🧠</div>
+            <div class="model-name">Neural Network</div>
+            <div class="model-tag tag-nn">Deep Learning • MLP</div>
+            <p class="model-desc">Terinspirasi dari otak manusia, terdiri dari lapisan-lapisan neuron buatan yang saling terhubung. Mampu mempelajari pola kompleks dan non-linear dari data.</p>
+            <ul class="model-pros">
+                <li>Menangkap pola kompleks</li>
+                <li>Fleksibel untuk berbagai tipe data</li>
+                <li>Akurasi tinggi pada data besar</li>
+            </ul>
+        </div>
+        <div class="model-card">
+            <div class="model-icon">⚔️</div>
+            <div class="model-name">Support Vector Machine</div>
+            <div class="model-tag tag-svm">Kernel Method • Maximum Margin</div>
+            <p class="model-desc">Mencari hyperplane optimal yang memisahkan kelas-kelas data dengan margin terbesar. Menggunakan kernel trick untuk menangani data non-linear.</p>
+            <ul class="model-pros">
+                <li>Efektif di ruang dimensi tinggi</li>
+                <li>Robust terhadap overfitting</li>
+                <li>Bekerja baik dengan data kecil</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="dataset-section">
+        <h2>📊 Fitur Dataset</h2>
+        <table class="features-table">
+            <thead><tr><th>#</th><th>Fitur</th><th>Deskripsi</th><th>Rentang</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td class="feat-name">age</td><td>Usia pengguna</td><td>10 - 60</td></tr>
+                <tr><td>2</td><td class="feat-name">gender</td><td>Jenis kelamin (0: Perempuan, 1: Laki-laki)</td><td>0 - 1</td></tr>
+                <tr><td>3</td><td class="feat-name">daily_screen_time_hours</td><td>Jam screen time per hari</td><td>0 - 24</td></tr>
+                <tr><td>4</td><td class="feat-name">social_media_hours</td><td>Jam media sosial per hari</td><td>0 - 24</td></tr>
+                <tr><td>5</td><td class="feat-name">gaming_hours</td><td>Jam bermain game per hari</td><td>0 - 24</td></tr>
+                <tr><td>6</td><td class="feat-name">sleep_hours</td><td>Jam tidur per hari</td><td>0 - 12</td></tr>
+                <tr><td>7</td><td class="feat-name">notifications_per_day</td><td>Jumlah notifikasi per hari</td><td>0 - 500</td></tr>
+                <tr><td>8</td><td class="feat-name">app_opens_per_day</td><td>Jumlah buka aplikasi per hari</td><td>0 - 500</td></tr>
+                <tr><td>9</td><td class="feat-name">weekend_screen_time</td><td>Jam screen time di weekend</td><td>0 - 24</td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+{% endblock %}

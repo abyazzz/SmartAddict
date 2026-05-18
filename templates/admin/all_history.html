@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Semua History - Admin{% endblock %}
+{% block head %}
+<style>
+    .content { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 48px 24px 80px; }
+    .page-header { margin-bottom: 28px; animation: fadeInUp 0.5s ease forwards; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-size: 1.8rem; font-weight: 900; }
+    .admin-badge { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: 700; background: rgba(251,191,36,0.1); color: var(--accent-amber); border: 1px solid rgba(251,191,36,0.15); }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    .count-badge { padding: 5px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.15); color: var(--accent-cyan); }
+    .btn-danger { padding: 7px 16px; border-radius: 50px; font-size: 0.78rem; font-weight: 600; background: rgba(251,113,133,0.08); border: 1px solid rgba(251,113,133,0.15); color: var(--accent-rose); cursor: pointer; font-family: inherit; }
+
+    .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; animation: fadeInUp 0.4s ease 0.1s forwards; opacity: 0; }
+    .filter-bar select, .filter-bar input { padding: 9px 14px; border-radius: 12px; font-size: 0.84rem; font-family: inherit; background: var(--bg-card); border: 1px solid var(--border-card); color: var(--text-primary); outline: none; }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent-cyan); }
+    .filter-bar input { flex: 1; min-width: 160px; }
+    .filter-bar select option { background: var(--bg-primary); }
+
+    .h-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; animation: fadeInUp 0.4s ease 0.15s forwards; opacity: 0; }
+    .h-table th { text-align: left; padding: 10px 12px; font-weight: 700; font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); border-bottom: 1px solid var(--border-card); }
+    .h-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-card); }
+    .h-table tr:hover td { background: rgba(34,211,238,0.03); }
+    .badge-sm { padding: 3px 10px; border-radius: 8px; font-size: 0.73rem; font-weight: 700; }
+    .badge-sm.r { background: rgba(52,211,153,0.12); color: var(--accent-emerald); }
+    .badge-sm.s { background: rgba(251,191,36,0.12); color: var(--accent-amber); }
+    .badge-sm.t { background: rgba(251,113,133,0.12); color: var(--accent-rose); }
+    .del-btn { background: none; border: none; cursor: pointer; font-size: 0.9rem; opacity: 0.5; transition: opacity 0.2s; }
+    .del-btn:hover { opacity: 1; }
+    .no-match { text-align: center; padding: 40px; color: var(--text-muted); display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="page-header">
+        <h1>Semua <span class="gradient-text">History</span> <span class="admin-badge">🛡️ ADMIN</span></h1>
+        <div class="header-actions">
+            <div class="count-badge">📊 <span id="vc">{{ predictions|length }}</span> prediksi</div>
+            {% if predictions %}
+            <form method="post" action="{{ url_for('admin_clear_all') }}" style="display:inline" onsubmit="return confirm('Hapus SEMUA history?')">
+                <button type="submit" class="btn-danger">🗑️ Hapus Semua</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}{% if messages %}{% for msg in messages %}<div style="padding:14px 20px;border-radius:14px;margin-bottom:20px;text-align:center;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--accent-emerald);font-size:0.9rem;font-weight:600">{{ msg }}</div>{% endfor %}{% endif %}{% endwith %}
+
+    {% if predictions %}
+    <div class="filter-bar">
+        <select id="fM" onchange="af()"><option value="">Semua Model</option><option>Decision Tree</option><option>K-Nearest Neighbors</option><option>Neural Network</option><option>Support Vector Machine</option></select>
+        <select id="fL" onchange="af()"><option value="">Semua Level</option><option value="Rendah">🟢 Rendah</option><option value="Sedang">🟡 Sedang</option><option value="Tinggi">🔴 Tinggi</option></select>
+        <input type="text" id="fS" placeholder="🔍 Cari user/model..." oninput="af()">
+    </div>
+    <div class="glass-card" style="overflow-x:auto">
+    <table class="h-table">
+        <thead><tr><th>User</th><th>Model</th><th>Hasil</th><th>Input</th><th>Waktu</th><th></th></tr></thead>
+        <tbody id="tb">
+            {% for p in predictions %}
+            <tr data-m="{{ p.model_name }}" data-l="{{ p.result }}" data-t="{{ p.user.username }} {{ p.model_name }} {{ p.result }}">
+                <td style="font-weight:600">{{ p.user.username }}</td>
+                <td>{{ p.model_name }}</td>
+                <td><span class="badge-sm {% if p.result == 'Rendah' %}r{% elif p.result == 'Sedang' %}s{% else %}t{% endif %}">{{ p.result }}</span></td>
+                <td style="font-size:0.72rem;color:var(--text-muted);font-family:monospace;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.input_list }}</td>
+                <td style="color:var(--text-muted);font-size:0.78rem">{{ p.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td><form method="post" action="{{ url_for('delete_prediction', pred_id=p.id) }}" onsubmit="return confirm('Hapus?')"><button class="del-btn">🗑</button></form></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <div class="no-match" id="nm">Tidak ada hasil yang cocok.</div>
+    {% else %}
+    <div style="text-align:center;padding:60px;color:var(--text-muted)">📭 Belum ada history prediksi.</div>
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function af(){const m=document.getElementById('fM').value.toLowerCase(),l=document.getElementById('fL').value.toLowerCase(),s=document.getElementById('fS').value.toLowerCase();let v=0;document.querySelectorAll('#tb tr').forEach(r=>{const mm=r.dataset.m.toLowerCase(),ll=r.dataset.l.toLowerCase(),tt=r.dataset.t.toLowerCase();const ok=(!m||mm.includes(m))&&(!l||ll===l)&&(!s||tt.includes(s));r.style.display=ok?'':'none';if(ok)v++});document.getElementById('vc').textContent=v;document.getElementById('nm').style.display=v===0?'block':'none'}
+</script>
+{% endblock %}

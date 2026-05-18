@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}Hasil Prediksi - Smart Addict ML{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    .content { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; }
+
+    .result-hero { text-align: center; margin-bottom: 32px; animation: fadeInUp 0.5s ease forwards; }
+    .result-hero .success-icon { font-size: 3rem; margin-bottom: 16px; animation: checkBounce 0.6s ease 0.2s forwards; opacity: 0; }
+    @keyframes checkBounce { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+    .result-hero h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; }
+
+    .level-badge {
+        display: inline-flex; align-items: center; gap: 10px;
+        padding: 14px 36px; border-radius: 16px; font-size: 1.6rem; font-weight: 900; margin-bottom: 8px;
+    }
+    .level-badge.rendah { background: rgba(52, 211, 153, 0.12); color: var(--accent-emerald); border: 1px solid rgba(52, 211, 153, 0.2); }
+    .level-badge.sedang { background: rgba(251, 191, 36, 0.12); color: var(--accent-amber); border: 1px solid rgba(251, 191, 36, 0.2); }
+    .level-badge.tinggi { background: rgba(251, 113, 133, 0.12); color: var(--accent-rose); border: 1px solid rgba(251, 113, 133, 0.2); }
+    .result-model { font-size: 0.88rem; color: var(--text-muted); margin-top: 8px; }
+
+    .summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; animation: fadeInUp 0.5s ease 0.15s forwards; opacity: 0; }
+    .summary-card { padding: 20px; border-radius: 16px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-card); }
+    .summary-value { font-size: 1.5rem; font-weight: 900; }
+    .summary-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+    .chart-card {
+        padding: 24px; border-radius: 22px; background: var(--bg-card); border: 1px solid var(--border-card);
+        backdrop-filter: blur(16px); animation: fadeInUp 0.5s ease forwards; opacity: 0;
+    }
+    .chart-card:nth-child(1) { animation-delay: 0.2s; }
+    .chart-card:nth-child(2) { animation-delay: 0.3s; }
+    .chart-card:nth-child(3) { animation-delay: 0.4s; }
+    .chart-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .chart-card.full { grid-column: 1 / -1; }
+
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: fadeInUp 0.5s ease 0.5s forwards; opacity: 0; }
+
+    .no-result { text-align: center; padding: 80px 24px; animation: fadeInUp 0.5s ease forwards; }
+    .no-result .empty-icon { font-size: 3.5rem; margin-bottom: 20px; }
+    .no-result h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+    .no-result p { color: var(--text-secondary); margin-bottom: 28px; }
+
+    .confetti-container { position: fixed; inset: 0; z-index: 100; pointer-events: none; overflow: hidden; }
+    .confetti { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confetti-fall linear forwards; }
+    @keyframes confetti-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+    @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } .summary-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block extra_orbs %}
+<div class="orb" style="width:400px;height:400px;top:20%;left:60%;background:#34d399;animation-delay:-3s;"></div>
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    {% if result %}
+    <div class="confetti-container" id="confetti"></div>
+
+    <div class="result-hero">
+        <div class="success-icon">✅</div>
+        <h1>Hasil <span class="gradient-text">Prediksi</span></h1>
+        {% set level_class = 'rendah' if result['diagnosis'] == 'Rendah' else ('sedang' if result['diagnosis'] == 'Sedang' else 'tinggi') %}
+        <div class="level-badge {{ level_class }}">
+            {% if level_class == 'rendah' %}🟢{% elif level_class == 'sedang' %}🟡{% else %}🔴{% endif %}
+            Level: {{ result['diagnosis'] }}
+        </div>
+        <div class="result-model">Model: <strong>{{ result['model'] }}</strong></div>
+    </div>
+
+    <div class="summary-row">
+        <div class="summary-card">
+            <div class="summary-value" style="color: var(--accent-cyan);">{{ result['values'][2] }}</div>
+            <div class="summary-label">Screen Time / Hari (jam)</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value" style="color: var(--accent-blue);">{{ result['values'][5] }}</div>
+            <div class="summary-label">Jam Tidur / Hari</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value" style="{% if result['prediction_raw'] == 0 %}color: var(--accent-emerald);{% elif result['prediction_raw'] == 1 %}color: var(--accent-amber);{% else %}color: var(--accent-rose);{% endif %}">
+                {{ result['diagnosis'] }}
+            </div>
+            <div class="summary-label">Level Kecanduan</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card"><div class="chart-title">📡 Profil Indikator Kecanduan</div><div><canvas id="radarChart"></canvas></div></div>
+        <div class="chart-card"><div class="chart-title">🎯 Level Kecanduan</div><div><canvas id="gaugeChart"></canvas></div></div>
+        <div class="chart-card full"><div class="chart-title">📊 Nilai Per Indikator</div><div style="height:260px"><canvas id="barChart"></canvas></div></div>
+    </div>
+
+    {% if result['comparison'] %}
+    <div class="chart-card full" style="animation-delay:0.5s">
+        <div class="chart-title">⚔️ Perbandingan Semua Model</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+            {% for comp in result['comparison'] %}
+            <div style="padding:16px;border-radius:14px;text-align:center;
+                background:{% if comp['model'] == result['model'] %}rgba(34,211,238,0.08){% else %}var(--bg-input){% endif %};
+                border:1px solid {% if comp['model'] == result['model'] %}rgba(34,211,238,0.2){% else %}var(--border-card){% endif %};">
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px">{{ comp['model'] }}</div>
+                <div style="font-size:1.4rem;font-weight:900;
+                    color:{% if comp['prediction_raw'] == 0 %}var(--accent-emerald){% elif comp['prediction_raw'] == 1 %}var(--accent-amber){% else %}var(--accent-rose){% endif %}">
+                    {{ comp['diagnosis'] }}
+                </div>
+                {% if comp['model'] == result['model'] %}
+                <div style="font-size:0.7rem;color:var(--accent-cyan);margin-top:4px;font-weight:600">★ Model Dipilih</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="actions">
+        <button onclick="exportPDF()" class="btn-primary" id="exportBtn">📥 Export PDF</button>
+        <a href="{{ url_for('predict') }}" class="btn-secondary">🔄 Prediksi Lagi</a>
+        <a href="{{ url_for('history_page') }}" class="btn-secondary">📋 History</a>
+        <a href="{{ url_for('dashboard') }}" class="btn-secondary">🏠 Dashboard</a>
+    </div>
+
+    {% else %}
+    <div class="no-result">
+        <div class="empty-icon">🔍</div>
+        <h2>Belum Ada Hasil Prediksi</h2>
+        <p>Silakan lakukan prediksi terlebih dahulu untuk melihat hasil di sini.</p>
+        <a href="{{ url_for('predict') }}" class="btn-primary">🚀 Mulai Prediksi</a>
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% if result %}
+<script>
+    const values = {{ result['values'] | tojson }};
+    const labels = ['Usia','Gender','Screen Time','Sosial Media','Gaming','Tidur','Notifikasi','Buka App','Weekend Screen'];
+    const predictionRaw = {{ result['prediction_raw'] }};
+    const diagnosis = "{{ result['diagnosis'] }}";
+
+    const cyan='rgba(34,211,238,1)',cyanFaded='rgba(34,211,238,0.15)',emerald='rgba(52,211,153,1)',amber='rgba(251,191,36,1)',rose='rgba(251,113,133,1)';
+
+    // Detect theme for chart text color
+    function getChartTextColor() { return document.documentElement.getAttribute('data-theme') === 'light' ? '#475569' : '#94a3b8'; }
+    function getGridColor() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(99,179,237,0.08)'; }
+
+    const txtColor = getChartTextColor();
+    const gridColor = getGridColor();
+    Chart.defaults.color = txtColor;
+    Chart.defaults.font.family = 'Inter, sans-serif';
+
+    new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: { labels: labels, datasets: [{ label: 'Nilai Input', data: values, backgroundColor: cyanFaded, borderColor: cyan, borderWidth: 2, pointBackgroundColor: cyan, pointBorderColor: 'var(--bg-primary)', pointBorderWidth: 2, pointRadius: 4 }] },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { r: { beginAtZero: true, grid: { color: gridColor }, angleLines: { color: gridColor }, pointLabels: { font: { size: 10, weight: '500' }, color: txtColor }, ticks: { display: false } } } }
+    });
+
+    const levelColors = [emerald, amber, rose];
+    const levelLabels = ['Rendah', 'Sedang', 'Tinggi'];
+    const gaugeValues = levelLabels.map((l, i) => i === predictionRaw ? 1 : 0.15);
+    new Chart(document.getElementById('gaugeChart'), {
+        type: 'doughnut',
+        data: { labels: levelLabels, datasets: [{ data: gaugeValues, backgroundColor: [predictionRaw===0?emerald:'rgba(52,211,153,0.12)', predictionRaw===1?amber:'rgba(251,191,36,0.12)', predictionRaw===2?rose:'rgba(251,113,133,0.12)'], borderColor: [predictionRaw===0?emerald:'rgba(52,211,153,0.2)', predictionRaw===1?amber:'rgba(251,191,36,0.2)', predictionRaw===2?rose:'rgba(251,113,133,0.2)'], borderWidth: 2 }] },
+        options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12, weight: '600' } } } } },
+        plugins: [{ id: 'centerText', afterDraw(chart) { const { ctx, chartArea: { width, height, top, left } } = chart; ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle'; const cx=left+width/2, cy=top+height/2; ctx.font='900 28px Inter'; ctx.fillStyle=levelColors[predictionRaw]; ctx.fillText(diagnosis,cx,cy-4); ctx.font='500 11px Inter'; ctx.fillStyle='#64748b'; ctx.fillText('LEVEL',cx,cy+20); ctx.restore(); } }]
+    });
+
+    const barColors = values.map((v,i) => { if(i<2) return cyan; if(v<=1) return emerald; if(v<=2) return amber; return rose; });
+    new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: { labels: labels, datasets: [{ label: 'Nilai', data: values, backgroundColor: barColors.map(c=>c.replace('1)','0.6)')), borderColor: barColors, borderWidth: 2, borderRadius: 8, borderSkipped: false }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10, weight: '500' }, maxRotation: 45, minRotation: 30 } }, y: { beginAtZero: true, grid: { color: gridColor }, ticks: { stepSize: 1, font: { size: 11 } } } } }
+    });
+
+    // Confetti
+    const container = document.getElementById('confetti');
+    const colors = ['#22d3ee','#3b82f6','#a78bfa','#34d399','#fb7185','#fbbf24'];
+    for(let i=0;i<35;i++){const el=document.createElement('div');el.classList.add('confetti');el.style.left=Math.random()*100+'%';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.animationDuration=(Math.random()*2+1.5)+'s';el.style.animationDelay=Math.random()*0.8+'s';el.style.width=(Math.random()*6+4)+'px';el.style.height=(Math.random()*6+4)+'px';container.appendChild(el);}
+    setTimeout(()=>container.remove(),4000);
+
+    // Export PDF
+    function exportPDF() {
+        const btn = document.getElementById('exportBtn');
+        btn.textContent = '⏳ Generating...';
+        btn.disabled = true;
+        const content = document.querySelector('.content');
+        html2canvas(content, { scale: 2, backgroundColor: '#06080f', useCORS: true }).then(canvas => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgW = 210, pageH = 297;
+            const imgH = canvas.height * imgW / canvas.width;
+            let y = 0;
+            while (y < imgH) {
+                if (y > 0) pdf.addPage();
+                pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, -y, imgW, imgH);
+                y += pageH;
+            }
+            pdf.save('prediksi_smartaddict.pdf');
+            btn.textContent = '📥 Export PDF';
+            btn.disabled = false;
+        });
+    }
+    window.exportPDF = exportPDF;
+</script>
+{% endif %}
+{% endblock %}

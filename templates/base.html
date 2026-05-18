@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -244,10 +244,13 @@
                 <a href="{{ url_for('admin_history') }}" {% if active_page == 'admin_history' %}class="active"{% endif %}><span class="nav-icon">📋</span>History</a>
                 <a href="{{ url_for('admin_users') }}" {% if active_page == 'admin_users' %}class="active"{% endif %}><span class="nav-icon">👥</span>Users</a>
                 <a href="{{ url_for('about') }}" {% if active_page == 'about' %}class="active"{% endif %}><span class="nav-icon">📖</span>About</a>
-                {% else %}
+                {% elif current_user.is_authenticated %}
                 <a href="{{ url_for('dashboard') }}" {% if active_page == 'dashboard' %}class="active"{% endif %}><span class="nav-icon">📊</span>Dashboard</a>
                 <a href="{{ url_for('predict') }}" {% if active_page == 'predict' %}class="active"{% endif %}><span class="nav-icon">🔍</span>Predict</a>
                 <a href="{{ url_for('history_page') }}" {% if active_page == 'history' %}class="active"{% endif %}><span class="nav-icon">📋</span>History</a>
+                <a href="{{ url_for('about') }}" {% if active_page == 'about' %}class="active"{% endif %}><span class="nav-icon">📖</span>About</a>
+                {% else %}
+                <a href="{{ url_for('dashboard') }}" {% if active_page == 'dashboard' %}class="active"{% endif %}><span class="nav-icon">📊</span>Dashboard</a>
                 <a href="{{ url_for('about') }}" {% if active_page == 'about' %}class="active"{% endif %}><span class="nav-icon">📖</span>About</a>
                 {% endif %}
             </div>
@@ -255,6 +258,8 @@
                 {% if current_user.is_authenticated %}
                 <span style="font-size:0.78rem;color:var(--text-muted);margin-right:4px">👤 {{ current_user.username }}</span>
                 <a href="{{ url_for('logout') }}" style="text-decoration:none;padding:8px 14px;border-radius:50px;font-size:0.78rem;font-weight:600;background:rgba(251,113,133,0.1);color:var(--accent-rose);border:1px solid rgba(251,113,133,0.15);transition:all 0.3s ease" onmouseover="this.style.background='rgba(251,113,133,0.2)'" onmouseout="this.style.background='rgba(251,113,133,0.1)'">Logout</a>
+                {% else %}
+                <a href="{{ url_for('login') }}" style="text-decoration:none;padding:8px 16px;border-radius:50px;font-size:0.78rem;font-weight:700;background:linear-gradient(135deg,#22d3ee,#3b82f6);color:#020617;transition:all 0.3s ease;box-shadow:0 2px 12px rgba(34,211,238,0.2)" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">Login</a>
                 {% endif %}
                 <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle tema">
                     <span id="themeIcon">🌙</span>
@@ -285,7 +290,7 @@
         }
         // Restore saved theme
         (function() {
-            const saved = localStorage.getItem('sa-theme') || 'dark';
+            const saved = localStorage.getItem('sa-theme') || 'light';
             setTheme(saved);
         })();
     </script>

@@ -87,9 +87,22 @@
 
     @media (max-width: 768px) {
         .content { padding: 32px 16px 60px; }
-        .history-card { grid-template-columns: 1fr auto; }
+        .page-header h1 { font-size: 1.6rem; }
+        .page-header p { font-size: 0.9rem; }
+        .history-card { grid-template-columns: 1fr auto; padding: 18px 20px; }
         .delete-btn { position: absolute; top: 12px; right: 12px; }
         .filter-bar { flex-direction: column; }
+        .filter-bar select, .filter-bar input { width: 100%; }
+        .history-model { font-size: 0.88rem; }
+        .history-input { font-size: 0.7rem; }
+        .result-badge { font-size: 0.8rem; padding: 6px 14px; }
+    }
+    @media (max-width: 480px) {
+        .content { padding: 24px 12px 48px; }
+        .page-header h1 { font-size: 1.4rem; }
+        .history-card { padding: 16px; border-radius: 14px; }
+        .count-badge { font-size: 0.72rem; }
+        .btn-danger { font-size: 0.72rem; }
     }
 </style>
 {% endblock %}

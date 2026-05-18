@@ -107,9 +107,7 @@ ml_models = load_ml_models()
 # ═══════ AUTH ROUTES ═══════
 @app.route("/")
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    return redirect(url_for('dashboard'))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -165,13 +163,14 @@ def logout():
 
 # ═══════ USER ROUTES ═══════
 @app.route("/dashboard")
-@login_required
 def dashboard():
-    user_preds = Prediction.query.filter_by(user_id=current_user.id).all()
+    user_preds = []
     stats = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
-    for p in user_preds:
-        if p.result in stats:
-            stats[p.result] += 1
+    if current_user.is_authenticated:
+        user_preds = Prediction.query.filter_by(user_id=current_user.id).all()
+        for p in user_preds:
+            if p.result in stats:
+                stats[p.result] += 1
     return render_template("dashboard.html", active_page='dashboard', predictions=user_preds, stats=stats)
 
 @app.route("/predict", methods=["GET", "POST"])

@@ -1,108 +1,458 @@
 {% extends "base.html" %}
-{% block title %}History - Smart Addict ML{% endblock %}
+{% block title %}RIWAYAT PREDIKSI - Smart Addict ML{% endblock %}
 {% block head %}
 <style>
-    .content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
-    .page-header { text-align: center; margin-bottom: 32px; animation: fadeInUp 0.5s ease forwards; }
-    .page-header h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 10px; }
-    .page-header p { color: var(--text-secondary); font-size: 1rem; }
-    .header-actions { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
-    .count-badge {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 5px 14px; border-radius: 50px; font-size: 0.78rem; font-weight: 600;
-        background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.15); color: var(--accent-cyan);
+    .content {
+        position: relative;
+        z-index: 1;
+        max-width: 950px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
     }
-    .btn-danger {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 7px 16px; border-radius: 50px; font-size: 0.78rem; font-weight: 600;
-        background: rgba(251, 113, 133, 0.08); border: 1px solid rgba(251, 113, 133, 0.15);
-        color: var(--accent-rose); cursor: pointer; font-family: inherit; transition: all 0.25s ease;
-    }
-    .btn-danger:hover { background: rgba(251, 113, 133, 0.15); }
 
-    .flash-msg {
-        padding: 14px 20px; border-radius: 14px; margin-bottom: 20px; text-align: center;
-        background: rgba(52, 211, 153, 0.08); border: 1px solid rgba(52, 211, 153, 0.2);
-        color: var(--accent-emerald); font-size: 0.9rem; font-weight: 600;
+    .page-header {
+        text-align: left;
+        margin-bottom: 40px;
+        border-left: 4px solid var(--m-red);
+        padding-left: 20px;
         animation: fadeInUp 0.4s ease forwards;
     }
 
-    .history-list { display: grid; gap: 14px; }
-    .history-card {
-        padding: 20px 24px; border-radius: 18px;
-        background: var(--bg-card); border: 1px solid var(--border-card);
-        backdrop-filter: blur(16px); transition: all 0.35s ease;
-        display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center;
-        animation: fadeInUp 0.4s ease forwards; opacity: 0;
-        position: relative; overflow: hidden;
+    .page-header h1 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        color: #ffffff;
     }
-    .history-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 18px 0 0 18px; }
-    .history-card:hover { transform: translateY(-3px); border-color: rgba(34, 211, 238, 0.18); }
-    .history-card.level-rendah::before { background: var(--accent-emerald); }
-    .history-card.level-sedang::before { background: var(--accent-amber); }
-    .history-card.level-tinggi::before { background: var(--accent-rose); }
 
-    .history-meta { display: flex; flex-direction: column; gap: 4px; }
-    .history-timestamp { font-size: 0.76rem; color: var(--text-muted); font-weight: 500; }
-    .history-model { font-size: 0.95rem; font-weight: 700; }
-    .history-input { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; font-family: 'Courier New', monospace; word-break: break-all; }
-
-    .result-badge { padding: 8px 18px; border-radius: 12px; font-size: 0.9rem; font-weight: 800; text-align: center; }
-    .result-badge.level-rendah { background: rgba(52, 211, 153, 0.12); color: var(--accent-emerald); }
-    .result-badge.level-sedang { background: rgba(251, 191, 36, 0.12); color: var(--accent-amber); }
-    .result-badge.level-tinggi { background: rgba(251, 113, 133, 0.12); color: var(--accent-rose); }
-
-    .delete-btn {
-        width: 32px; height: 32px; border-radius: 10px; border: 1px solid var(--border-card);
-        background: transparent; color: var(--text-muted); cursor: pointer;
-        display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
-        transition: all 0.25s ease;
+    .page-header p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
     }
-    .delete-btn:hover { border-color: rgba(251, 113, 133, 0.3); color: var(--accent-rose); background: rgba(251, 113, 133, 0.08); }
 
-    .empty-state {
-        text-align: center; padding: 64px 32px; border-radius: 24px;
-        background: var(--bg-card); border: 1px solid var(--border-card);
-        animation: fadeInUp 0.5s ease 0.1s forwards; opacity: 0;
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 24px;
+        flex-wrap: wrap;
     }
-    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 16px; }
-    .empty-state h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-    .empty-state p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 24px; }
+
+    .count-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 0px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        background: transparent;
+        border: 1px solid var(--m-blue-light);
+        color: var(--m-blue-light);
+    }
+
+    .btn-danger {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 0px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        background: transparent;
+        border: 1px solid var(--m-red);
+        color: var(--m-red);
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+        background: var(--m-red);
+        color: #ffffff;
+    }
+
+    .flash-msg {
+        padding: 16px 20px;
+        border-radius: 0px;
+        margin-bottom: 24px;
+        text-align: left;
+        background: rgba(0, 102, 177, 0.08);
+        border: 1px solid var(--m-blue-light);
+        color: #ffffff;
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        animation: fadeInUp 0.4s ease forwards;
+    }
 
     .filter-bar {
-        display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;
-        animation: fadeInUp 0.4s ease 0.1s forwards; opacity: 0;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        animation: fadeInUp 0.4s ease 0.1s forwards;
+        opacity: 0;
     }
+
     .filter-bar select, .filter-bar input {
-        padding: 9px 14px; border-radius: 12px; font-size: 0.84rem; font-family: inherit;
-        background: var(--bg-card); border: 1px solid var(--border-card);
-        color: var(--text-primary); outline: none; transition: all 0.25s ease;
-        backdrop-filter: blur(10px);
+        padding: 12px 16px;
+        border-radius: 0px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        font-family: inherit;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        color: var(--text-primary);
+        outline: none;
+        transition: all 0.25s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
-    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--accent-cyan); }
-    .filter-bar input { flex: 1; min-width: 180px; }
-    .filter-bar select { min-width: 140px; }
-    .filter-bar select option { background: var(--bg-primary); }
-    .no-match { text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.95rem; display: none; }
+
+    .filter-bar select:focus, .filter-bar input:focus {
+        border-color: #ffffff;
+    }
+
+    .filter-bar input {
+        flex: 1;
+        min-width: 220px;
+    }
+
+    .filter-bar select {
+        min-width: 160px;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 36px;
+    }
+
+    .filter-bar select option {
+        background: #000000;
+        color: #ffffff;
+    }
+
+    .history-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .history-card {
+        padding: 0;
+        border-radius: 0px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        animation: fadeInUp 0.4s ease forwards;
+        opacity: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .history-card::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: 4px;
+        z-index: 2;
+    }
+
+    .history-card:hover {
+        border-color: #3a3a3a;
+    }
+
+    .history-card.level-rendah::before { background: var(--m-blue-light); }
+    .history-card.level-sedang::before { background: var(--m-blue-dark); }
+    .history-card.level-tinggi::before { background: var(--m-red); }
+
+    .history-main-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 16px;
+        align-items: center;
+        padding: 16px 20px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        user-select: none;
+    }
+
+    .history-main-row:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .toggle-area {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .expand-icon {
+        font-size: 0.6rem;
+        color: var(--text-muted);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: rotate(0deg);
+        display: inline-block;
+    }
+
+    .history-card.expanded .expand-icon {
+        transform: rotate(90deg);
+        color: #ffffff;
+    }
+
+    .history-timestamp {
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+        font-weight: 800;
+        font-family: monospace;
+        letter-spacing: 1px;
+        white-space: nowrap;
+    }
+
+    .history-summary-text {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .history-details-panel {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #060606;
+        border-top: 0px solid #141414;
+    }
+
+    .history-card.expanded .history-details-panel {
+        max-height: 400px;
+        border-top: 1px solid #141414;
+    }
+
+    .history-card.expanded {
+        border-color: #444444;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .history-input-box {
+        padding: 20px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 8px;
+    }
+
+    .input-badge {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #0c0c0c;
+        border: 1px solid #1c1c1c;
+        border-radius: 0px;
+        padding: 8px 12px;
+        font-family: monospace;
+        font-size: 0.7rem;
+        transition: all 0.2s ease;
+    }
+
+    .input-badge:hover {
+        border-color: #333333;
+        background: #111111;
+    }
+
+    .input-badge .lbl {
+        color: var(--text-muted);
+        font-weight: 800;
+        margin-right: 6px;
+        text-transform: uppercase;
+    }
+
+    .input-badge .val {
+        color: #ffffff;
+        font-weight: 900;
+    }
+
+    .result-badge {
+        padding: 6px 14px;
+        border-radius: 0px;
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        min-width: 90px;
+        border: 1px solid transparent;
+    }
+
+    .result-badge.level-rendah {
+        border-color: var(--m-blue-light);
+        color: var(--m-blue-light);
+    }
+
+    .result-badge.level-sedang {
+        border-color: var(--m-blue-dark);
+        color: var(--m-blue-dark);
+    }
+
+    .result-badge.level-tinggi {
+        border-color: var(--m-red);
+        color: var(--m-red);
+    }
+
+    .delete-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 0px;
+        border: 1px solid var(--border-card);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        transition: all 0.2s ease;
+    }
+
+    .delete-btn:hover {
+        border-color: var(--m-red);
+        color: var(--m-red);
+        background: rgba(226, 39, 24, 0.05);
+    }
+
+    /* Pager style styling */
+    .pagination-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 32px;
+        animation: fadeInUp 0.4s ease 0.2s forwards;
+        opacity: 0;
+    }
+
+    .pager-btn {
+        background: transparent;
+        border: 1px solid var(--border-card);
+        color: var(--text-secondary);
+        padding: 8px 16px;
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 800;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.2s ease;
+    }
+
+    .pager-btn:hover:not(:disabled) {
+        border-color: #ffffff;
+        color: #ffffff;
+        background: rgba(255,255,255,0.03);
+    }
+
+    .pager-btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 6px;
+    }
+
+    .page-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--border-card);
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .page-num:hover {
+        border-color: #ffffff;
+        color: #ffffff;
+    }
+
+    .page-num.active {
+        border-color: var(--m-blue-light);
+        color: #ffffff;
+        background: rgba(0, 102, 177, 0.15);
+        box-shadow: 0 0 10px rgba(0, 102, 177, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+        border-radius: 0px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        animation: fadeInUp 0.5s ease 0.1s forwards;
+        opacity: 0;
+    }
+
+    .empty-state .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+        font-size: 1.2rem;
+        font-weight: 900;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #ffffff;
+    }
+
+    .empty-state p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .no-match {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px dashed var(--border-card);
+        display: none;
+    }
 
     @media (max-width: 768px) {
         .content { padding: 32px 16px 60px; }
         .page-header h1 { font-size: 1.6rem; }
-        .page-header p { font-size: 0.9rem; }
-        .history-card { grid-template-columns: 1fr auto; padding: 18px 20px; }
-        .delete-btn { position: absolute; top: 12px; right: 12px; }
+        .history-card { grid-template-columns: 1fr auto; padding: 20px; }
+        .delete-btn { grid-column: 2; margin-top: 10px; width: 100%; height: 38px; }
         .filter-bar { flex-direction: column; }
         .filter-bar select, .filter-bar input { width: 100%; }
-        .history-model { font-size: 0.88rem; }
-        .history-input { font-size: 0.7rem; }
-        .result-badge { font-size: 0.8rem; padding: 6px 14px; }
-    }
-    @media (max-width: 480px) {
-        .content { padding: 24px 12px 48px; }
-        .page-header h1 { font-size: 1.4rem; }
-        .history-card { padding: 16px; border-radius: 14px; }
-        .count-badge { font-size: 0.72rem; }
-        .btn-danger { font-size: 0.72rem; }
     }
 </style>
 {% endblock %}
@@ -110,13 +460,13 @@
 {% block content %}
 <main class="content">
     <div class="page-header">
-        <h1>History <span class="gradient-text">Prediksi</span></h1>
-        <p>Riwayat prediksi yang telah Anda lakukan.</p>
+        <h1>RIWAYAT PREDIKSI</h1>
+        <p>LOG DATA & KEPUTUSAN DIAGNOSIS KECANDUAN PENGGUNA</p>
         {% if predictions %}
         <div class="header-actions">
-            <div class="count-badge">📊 <span id="visibleCount">{{ predictions|length }}</span> prediksi</div>
-            <form method="post" action="{{ url_for('clear_my_history') }}" style="display:inline" onsubmit="return confirm('Yakin hapus semua history?')">
-                <button type="submit" class="btn-danger">🗑️ Hapus Semua</button>
+            <div class="count-badge">📊 <span id="visibleCount">{{ predictions|length }}</span> LOG RECORDED</div>
+            <form method="post" action="{{ url_for('clear_my_history') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT?')">
+                <button type="submit" class="btn-danger">🗑️ HAPUS SELURUH LOG</button>
             </form>
         </div>
         {% endif %}
@@ -133,44 +483,67 @@
     {% if predictions %}
     <div class="filter-bar">
         <select id="filterModel" onchange="applyFilters()">
-            <option value="">Semua Model</option>
-            <option value="Decision Tree">Decision Tree</option>
-            <option value="K-Nearest Neighbors">KNN</option>
-            <option value="Neural Network">Neural Network</option>
-            <option value="Support Vector Machine">SVM</option>
+            <option value="">SEMUA MODEL ML</option>
+            <option value="Decision Tree">DECISION TREE</option>
+            <option value="K-Nearest Neighbors">K-NEAREST NEIGHBORS</option>
+            <option value="Neural Network">NEURAL NETWORK</option>
+            <option value="Support Vector Machine">SUPPORT VECTOR MACHINE</option>
         </select>
         <select id="filterLevel" onchange="applyFilters()">
-            <option value="">Semua Level</option>
-            <option value="Rendah">🟢 Rendah</option>
-            <option value="Sedang">🟡 Sedang</option>
-            <option value="Tinggi">🔴 Tinggi</option>
+            <option value="">SEMUA LEVEL</option>
+            <option value="Rendah">🟦 RENDAH</option>
+            <option value="Sedang">🟪 SEDANG</option>
+            <option value="Tinggi">🟥 TINGGI</option>
         </select>
-        <input type="text" id="filterSearch" placeholder="🔍 Cari..." oninput="applyFilters()">
+        <input type="text" id="filterSearch" placeholder="🔍 CARI KUNCI RIWAYAT..." oninput="applyFilters()">
     </div>
 
     <div class="history-list" id="historyList">
         {% for entry in predictions %}
         {% set level_class = 'level-rendah' if entry.result == 'Rendah' else ('level-sedang' if entry.result == 'Sedang' else 'level-tinggi') %}
+        {% set inputs = entry.input_list %}
         <div class="history-card {{ level_class }}" style="animation-delay: {{ loop.index0 * 0.05 }}s" data-model="{{ entry.model_name }}" data-level="{{ entry.result }}" data-text="{{ entry.model_name }} {{ entry.result }} {{ entry.timestamp }}">
-            <div class="history-meta">
-                <div class="history-timestamp">🕐 {{ entry.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
-                <div class="history-model">{{ entry.model_name }}</div>
-                <div class="history-input">Input: {{ entry.input_list }}</div>
+            <div class="history-main-row" onclick="toggleCard(this.closest('.history-card'))">
+                <div class="toggle-area">
+                    <span class="expand-icon">▶</span>
+                    <span class="history-timestamp">🕐 {{ entry.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</span>
+                    <span class="history-summary-text">• Usia: {{ inputs[0] | round | int }} thn • Screen Time: {{ inputs[2] | round | int }} jam</span>
+                </div>
+                <div class="result-badge {{ level_class }}">{{ entry.result }}</div>
+                <form method="post" action="{{ url_for('delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')" onclick="event.stopPropagation()">
+                    <button type="submit" class="delete-btn" title="Hapus Log">🗑</button>
+                </form>
             </div>
-            <div class="result-badge {{ level_class }}">{{ entry.result }}</div>
-            <form method="post" action="{{ url_for('delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('Hapus entry ini?')">
-                <button type="submit" class="delete-btn" title="Hapus">🗑</button>
-            </form>
+            
+            <div class="history-details-panel">
+                <div class="history-input-box">
+                    <div class="input-badge"><span class="lbl">USIA</span><span class="val">{{ inputs[0] | round | int }} thn</span></div>
+                    <div class="input-badge"><span class="lbl">GENDER</span><span class="val">{{ 'LAKI-LAKI' if inputs[1]|round|int == 1 else 'PEREMPUAN' }}</span></div>
+                    <div class="input-badge"><span class="lbl">SCREEN TIME</span><span class="val">{{ inputs[2] | round | int }} jam</span></div>
+                    <div class="input-badge"><span class="lbl">MEDSOS</span><span class="val">{{ inputs[3] | round | int }} jam</span></div>
+                    <div class="input-badge"><span class="lbl">GAMING</span><span class="val">{{ inputs[4] | round | int }} jam</span></div>
+                    <div class="input-badge"><span class="lbl">TIDUR</span><span class="val">{{ inputs[5] | round | int }} jam</span></div>
+                    <div class="input-badge"><span class="lbl">NOTIF</span><span class="val">{{ inputs[6] | round | int }}</span></div>
+                    <div class="input-badge"><span class="lbl">BUKA APP</span><span class="val">{{ inputs[7] | round | int }} kali</span></div>
+                    <div class="input-badge"><span class="lbl">WEEKEND</span><span class="val">{{ inputs[8] | round | int }} jam</span></div>
+                </div>
+            </div>
         </div>
         {% endfor %}
     </div>
-    <div class="no-match" id="noMatch">Tidak ada hasil yang cocok dengan filter.</div>
+
+    <div class="pagination-container" id="paginationContainer">
+        <button class="pager-btn" id="prevBtn" onclick="changePage(-1)">◀ PREV</button>
+        <div class="page-numbers" id="pageNumbers"></div>
+        <button class="pager-btn" id="nextBtn" onclick="changePage(1)">NEXT ▶</button>
+    </div>
+    <div class="no-match" id="noMatch">TIDAK ADA DATA LOG YANG COCOK DENGAN FILTER.</div>
     {% else %}
     <div class="empty-state">
         <div class="empty-icon">📭</div>
-        <h3>Belum ada history prediksi</h3>
-        <p>Mulai prediksi pertama Anda untuk melihat riwayat di sini.</p>
-        <a href="{{ url_for('predict') }}" class="btn-primary">🚀 Mulai Prediksi</a>
+        <h3>BELUM ADA LOG RIWAYAT PREDIKSI</h3>
+        <p>SELESAIKAN PROSES PREDIKSI PERTAMA ANDA UNTUK MELIHAT LOG PREDIKSI DI SINI.</p>
+        <a href="{{ url_for('predict') }}" class="btn-primary">🚀 MULAI ANALISIS PREDIKSI</a>
     </div>
     {% endif %}
 </main>
@@ -178,22 +551,92 @@
 
 {% block scripts %}
 <script>
+let currentPage = 1;
+const itemsPerPage = 5;
+
+function toggleCard(card) {
+    card.classList.toggle('expanded');
+}
+
+function updatePagination() {
+    const cards = Array.from(document.querySelectorAll('.history-card'));
+    const visibleCards = cards.filter(card => card.getAttribute('data-filtered-out') !== 'true');
+    const totalPages = Math.ceil(visibleCards.length / itemsPerPage) || 1;
+    
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    
+    cards.forEach(card => {
+        card.style.display = 'none';
+    });
+    
+    visibleCards.forEach((card, index) => {
+        if (index >= startIndex && index < endIndex) {
+            card.style.display = '';
+        }
+    });
+    
+    const pageNumbersDiv = document.getElementById('pageNumbers');
+    if (pageNumbersDiv) {
+        pageNumbersDiv.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const span = document.createElement('span');
+            span.textContent = i;
+            span.className = 'page-num' + (i === currentPage ? ' active' : '');
+            span.onclick = () => { currentPage = i; updatePagination(); };
+            pageNumbersDiv.appendChild(span);
+        }
+    }
+    
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    if (prevBtn) prevBtn.disabled = currentPage === 1;
+    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+    
+    document.getElementById('visibleCount').textContent = visibleCards.length;
+    document.getElementById('noMatch').style.display = visibleCards.length === 0 ? 'block' : 'none';
+    
+    const pagerContainer = document.getElementById('paginationContainer');
+    if (pagerContainer) {
+        pagerContainer.style.display = totalPages <= 1 ? 'none' : 'flex';
+    }
+}
+
+function changePage(direction) {
+    currentPage += direction;
+    updatePagination();
+}
+
 function applyFilters() {
     const model = document.getElementById('filterModel').value.toLowerCase();
     const level = document.getElementById('filterLevel').value.toLowerCase();
     const search = document.getElementById('filterSearch').value.toLowerCase();
     const cards = document.querySelectorAll('.history-card');
-    let visible = 0;
+    
     cards.forEach(card => {
         const m = card.dataset.model.toLowerCase();
         const l = card.dataset.level.toLowerCase();
         const t = card.dataset.text.toLowerCase();
         const show = (!model || m.includes(model)) && (!level || l === level) && (!search || t.includes(search));
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
+        
+        if (show) {
+            card.removeAttribute('data-filtered-out');
+        } else {
+            card.setAttribute('data-filtered-out', 'true');
+            card.classList.remove('expanded'); // collapse cards that get filtered out
+        }
     });
-    document.getElementById('visibleCount').textContent = visible;
-    document.getElementById('noMatch').style.display = visible === 0 ? 'block' : 'none';
+    
+    currentPage = 1;
+    updatePagination();
 }
+
+// Initial Setup
+document.addEventListener('DOMContentLoaded', () => {
+    applyFilters();
+});
 </script>
 {% endblock %}

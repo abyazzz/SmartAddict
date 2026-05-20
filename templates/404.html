@@ -1,32 +1,62 @@
 {% extends "base.html" %}
-{% block title %}404 - Halaman Tidak Ditemukan{% endblock %}
+{% block title %}HALAMAN TIDAK DITEMUKAN - Smart Addict ML{% endblock %}
 
 {% block head %}
 <style>
     .content-404 {
-        position: relative; z-index: 1;
-        max-width: 600px; margin: 0 auto; padding: 40px 24px;
-        display: flex; flex-direction: column; align-items: center;
-        min-height: calc(100vh - 130px); justify-content: center; text-align: center;
+        position: relative; 
+        z-index: 1;
+        max-width: 600px; 
+        margin: 0 auto; 
+        padding: 40px 24px;
+        display: flex; 
+        flex-direction: column; 
+        align-items: center;
+        min-height: calc(100vh - 150px); 
+        justify-content: center; 
+        text-align: center;
         animation: fadeInUp 0.6s ease forwards;
     }
     .error-code {
-        font-size: clamp(6rem, 15vw, 10rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1;
-        background: linear-gradient(135deg, rgba(251, 113, 133, 0.3), rgba(251, 113, 133, 0.05));
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-        margin-bottom: 16px;
+        font-size: clamp(6rem, 15vw, 9rem); 
+        font-weight: 900; 
+        letter-spacing: -2px; 
+        line-height: 1;
+        color: #ffffff;
+        margin-bottom: 20px;
+        font-family: 'Inter', sans-serif;
     }
-    .error-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
-    .error-text { font-size: 1rem; color: var(--text-secondary); margin-bottom: 36px; max-width: 400px; }
+    .error-code span {
+        font-style: italic;
+    }
+    .error-title { 
+        font-size: 1.3rem; 
+        font-weight: 900; 
+        margin-bottom: 12px; 
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #ffffff;
+        border-bottom: 2px solid var(--m-blue-dark);
+        padding-bottom: 8px;
+    }
+    .error-text { 
+        font-size: 0.85rem; 
+        color: var(--text-secondary); 
+        margin-bottom: 40px; 
+        max-width: 450px; 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        line-height: 1.5;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="content-404">
     <div class="error-code">404</div>
-    <h1 class="error-title">Halaman Tidak Ditemukan</h1>
-    <p class="error-text">Maaf, halaman yang Anda cari tidak ada atau telah dipindahkan.</p>
-    <a href="{{ url_for('dashboard') }}" class="btn-primary">🏠 Kembali ke Dashboard</a>
+    <h1 class="error-title">HALAMAN TIDAK DITEMUKAN</h1>
+    <p class="error-text">Maaf, halaman yang Anda tuju tidak dapat ditemukan atau telah dihapus dari sistem.</p>
+    <a href="{{ url_for('dashboard') }}" class="btn-primary">🏠 KEMBALI KE BERANDA</a>
 </div>
 {% endblock %}
 

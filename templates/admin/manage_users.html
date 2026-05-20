@@ -1,55 +1,240 @@
 {% extends "base.html" %}
-{% block title %}Manage Users - Admin{% endblock %}
+{% block title %}KELOLA PENGGUNA - Smart Addict ML{% endblock %}
 {% block head %}
 <style>
-    .content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
-    .page-header { margin-bottom: 32px; animation: fadeInUp 0.5s ease forwards; }
-    .page-header h1 { font-size: 1.8rem; font-weight: 900; margin-bottom: 6px; }
-    .page-header p { color: var(--text-secondary); }
-    .admin-badge { display: inline-block; padding: 4px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: 700; background: rgba(251,191,36,0.1); color: var(--accent-amber); border: 1px solid rgba(251,191,36,0.15); margin-left: 8px; }
+    .content {
+        position: relative;
+        z-index: 1;
+        max-width: 950px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+    }
 
-    .users-grid { display: grid; gap: 14px; animation: fadeInUp 0.4s ease 0.1s forwards; opacity: 0; }
+    .page-header {
+        text-align: left;
+        margin-bottom: 40px;
+        border-left: 4px solid var(--m-red);
+        padding-left: 20px;
+        animation: fadeInUp 0.4s ease forwards;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .header-text h1 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        color: #ffffff;
+    }
+
+    .header-text p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .admin-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 0px;
+        font-size: 0.72rem;
+        font-weight: 900;
+        background: transparent;
+        color: var(--m-red);
+        border: 1px solid var(--m-red);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 32px;
+        animation: fadeInUp 0.4s ease 0.05s forwards;
+        opacity: 0;
+    }
+
+    .mini-stat {
+        padding: 20px;
+        border-radius: 0px;
+        text-align: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        position: relative;
+    }
+
+    .mini-stat::before {
+        content: '';
+        position: absolute;
+        bottom: -1px; left: -1px; right: -1px;
+        height: 2px;
+        background: transparent;
+    }
+
+    .mini-stat:nth-child(1)::before { background: var(--m-blue-light); }
+    .mini-stat:nth-child(2)::before { background: var(--m-blue-dark); }
+    .mini-stat:nth-child(3)::before { background: var(--m-red); }
+
+    .mini-stat .num {
+        font-size: 1.8rem;
+        font-weight: 900;
+        font-family: monospace;
+    }
+
+    .mini-stat .lbl {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 6px;
+        font-weight: 800;
+    }
+
+    .users-grid {
+        display: grid;
+        gap: 16px;
+        animation: fadeInUp 0.4s ease 0.1s forwards;
+        opacity: 0;
+    }
+
     .user-card {
-        padding: 20px 24px; border-radius: 18px;
-        background: var(--bg-card); border: 1px solid var(--border-card); backdrop-filter: blur(16px);
-        display: grid; grid-template-columns: auto 1fr auto auto; gap: 16px; align-items: center;
+        padding: 20px 24px;
+        border-radius: 0px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        display: grid;
+        grid-template-columns: auto 1fr auto auto;
+        gap: 20px;
+        align-items: center;
         transition: all 0.3s ease;
+        position: relative;
     }
-    .user-card:hover { transform: translateY(-2px); border-color: rgba(34,211,238,0.15); }
+
+    .user-card:hover {
+        border-color: #444444;
+    }
+
     .user-avatar {
-        width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem; font-weight: 800; background: rgba(34,211,238,0.1); color: var(--accent-cyan);
+        width: 44px;
+        height: 44px;
+        border-radius: 0px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 900;
+        background: #000000;
+        border: 1px solid var(--m-blue-light);
+        color: #ffffff;
+        font-family: monospace;
     }
-    .user-info .user-name { font-weight: 700; font-size: 0.95rem; }
-    .user-info .user-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-    .role-badge { padding: 4px 12px; border-radius: 50px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
-    .role-admin { background: rgba(251,191,36,0.1); color: var(--accent-amber); border: 1px solid rgba(251,191,36,0.15); }
-    .role-user { background: rgba(34,211,238,0.08); color: var(--accent-cyan); border: 1px solid rgba(34,211,238,0.12); }
-    .del-btn { background: rgba(251,113,133,0.08); border: 1px solid rgba(251,113,133,0.15); color: var(--accent-rose); padding: 7px 14px; border-radius: 50px; cursor: pointer; font-size: 0.78rem; font-weight: 600; font-family: inherit; transition: all 0.25s; }
-    .del-btn:hover { background: rgba(251,113,133,0.15); }
 
-    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; animation: fadeInUp 0.4s ease 0.05s forwards; opacity: 0; }
-    .mini-stat { padding: 16px; border-radius: 14px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-card); }
-    .mini-stat .num { font-size: 1.5rem; font-weight: 900; }
-    .mini-stat .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+    .user-info .user-name {
+        font-weight: 900;
+        font-size: 1rem;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
 
-    @media (max-width: 768px) { .user-card { grid-template-columns: 1fr; text-align: center; } .stats-row { grid-template-columns: 1fr; } }
+    .user-info .user-meta {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+        text-transform: uppercase;
+        font-family: monospace;
+        letter-spacing: 0.5px;
+    }
+
+    .role-badge {
+        padding: 6px 14px;
+        border-radius: 0px;
+        font-size: 0.68rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border: 1px solid transparent;
+        display: inline-block;
+    }
+
+    .role-admin {
+        border-color: var(--m-red);
+        color: var(--m-red);
+    }
+
+    .role-user {
+        border-color: var(--m-blue-light);
+        color: var(--m-blue-light);
+    }
+
+    .del-btn {
+        background: transparent;
+        border: 1px solid var(--m-red);
+        color: var(--m-red);
+        padding: 8px 16px;
+        border-radius: 0px;
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-weight: 900;
+        font-family: inherit;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.25s ease;
+    }
+
+    .del-btn:hover {
+        background: var(--m-red);
+        color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+        .user-card { grid-template-columns: 1fr; text-align: center; justify-items: center; padding: 24px; }
+        .stats-row { grid-template-columns: 1fr; }
+        .del-btn { width: 100%; }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="content">
     <div class="page-header">
-        <h1>Kelola <span class="gradient-text">Users</span> <span class="admin-badge">🛡️ ADMIN</span></h1>
-        <p>Lihat dan kelola semua pengguna terdaftar.</p>
+        <div class="header-text">
+            <h1>KELOLA DATA PENGGUNA</h1>
+            <p>PEMANTAUAN OTORITAS & PENGGUNA REGISTER SMARTADDICT ML</p>
+        </div>
+        <span class="admin-badge">🛡️ ADMIN MANAGEMENT</span>
     </div>
 
-    {% with messages = get_flashed_messages() %}{% if messages %}{% for msg in messages %}<div style="padding:14px 20px;border-radius:14px;margin-bottom:20px;text-align:center;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);color:var(--accent-emerald);font-size:0.9rem;font-weight:600">{{ msg }}</div>{% endfor %}{% endif %}{% endwith %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for msg in messages %}
+    <div style="padding:16px 20px; border-radius:0px; margin-bottom:24px; text-align:left; background:rgba(226, 39, 24, 0.08); border:1px solid var(--m-red); color:#ffffff; font-size:0.82rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;">
+        {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
 
     <div class="stats-row">
-        <div class="mini-stat"><div class="num" style="color:var(--accent-cyan)">{{ users|length }}</div><div class="lbl">Total Akun</div></div>
-        <div class="mini-stat"><div class="num" style="color:var(--accent-emerald)">{{ users|selectattr('role','equalto','user')|list|length }}</div><div class="lbl">User Biasa</div></div>
-        <div class="mini-stat"><div class="num" style="color:var(--accent-amber)">{{ users|selectattr('role','equalto','admin')|list|length }}</div><div class="lbl">Admin</div></div>
+        <div class="mini-stat">
+            <div class="num" style="color:var(--m-blue-light)">{{ users|length }}</div>
+            <div class="lbl">TOTAL AKUN REGISTER</div>
+        </div>
+        <div class="mini-stat">
+            <div class="num" style="color:var(--m-blue-dark)">{{ users|selectattr('role','equalto','user')|list|length }}</div>
+            <div class="lbl">AKUN PENGGUNA AKTIF</div>
+        </div>
+        <div class="mini-stat">
+            <div class="num" style="color:var(--m-red)">{{ users|selectattr('role','equalto','admin')|list|length }}</div>
+            <div class="lbl">OTORITAS ADMIN</div>
+        </div>
     </div>
 
     <div class="users-grid">
@@ -58,16 +243,18 @@
             <div class="user-avatar">{{ user.username[0]|upper }}</div>
             <div class="user-info">
                 <div class="user-name">{{ user.username }}</div>
-                <div class="user-meta">Bergabung: {{ user.created_at.strftime('%Y-%m-%d %H:%M') }} · {{ user.predictions|length }} prediksi</div>
+                <div class="user-meta">JOINED: {{ user.created_at.strftime('%Y-%m-%d | %H:%M UTC') }} · DIAGNOSIS COUNT: {{ user.predictions|length }} RUNS</div>
             </div>
-            <span class="role-badge {% if user.is_admin %}role-admin{% else %}role-user{% endif %}">{{ user.role }}</span>
-            {% if not user.is_admin %}
-            <form method="post" action="{{ url_for('admin_delete_user', user_id=user.id) }}" onsubmit="return confirm('Hapus user {{ user.username }}?')">
-                <button type="submit" class="del-btn">🗑 Hapus</button>
-            </form>
-            {% else %}
-            <div></div>
-            {% endif %}
+            <div>
+                <span class="role-badge {% if user.is_admin %}role-admin{% else %}role-user{% endif %}">{{ user.role | upper }}</span>
+            </div>
+            <div>
+                {% if not user.is_admin %}
+                <form method="post" action="{{ url_for('admin_delete_user', user_id=user.id) }}" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS AKUN USER {{ user.username | upper }}?')">
+                    <button type="submit" class="del-btn">🗑 HAPUS AKUN</button>
+                </form>
+                {% endif %}
+            </div>
         </div>
         {% endfor %}
     </div>

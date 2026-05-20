@@ -17,6 +17,14 @@ app = Flask(__name__)
 app.secret_key = 'smartaddict-ml-secret-2025'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///smartaddict.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+@app.after_request
+def add_no_cache(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
@@ -290,11 +298,31 @@ def history_page():
     user_preds = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.timestamp.desc()).all()
     return render_template("history.html", predictions=user_preds, active_page='history')
 
+def get_feature_averages():
+    all_preds = Prediction.query.all()
+    num_features = len(QUESTIONS)
+    sums = [0.0] * num_features
+    counts = [0] * num_features
+    for p in all_preds:
+        try:
+            vals = json.loads(p.input_values)
+            for i in range(min(len(vals), num_features)):
+                sums[i] += vals[i]
+                counts[i] += 1
+        except Exception:
+            pass
+    averages = []
+    for i in range(num_features):
+        avg = sums[i] / counts[i] if counts[i] > 0 else QUESTIONS[i]['default']
+        averages.append(round(avg, 2))
+    return averages
+
 @app.route("/thanks")
 @login_required
 def thanks():
     last = session.pop('last_prediction', None)
-    return render_template("thanks.html", result=last, questions=QUESTIONS, active_page='thanks')
+    averages = get_feature_averages()
+    return render_template("thanks.html", result=last, questions=QUESTIONS, averages=averages, active_page='thanks')
 
 @app.route("/about")
 def about():

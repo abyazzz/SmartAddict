@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Predict - Smart Addict ML{% endblock %}
+{% block title %}PREDIKSI - Smart Addict ML{% endblock %}
 {% block head %}
 <style>
     .content {
@@ -7,71 +7,82 @@
         z-index: 1;
         max-width: 1200px;
         margin: 0 auto;
-        padding: 32px 24px 60px;
+        padding: 40px 24px 80px;
     }
 
     .page-header {
-        text-align: center;
-        margin-bottom: 28px;
-        animation: fadeInUp 0.5s ease forwards;
+        text-align: left;
+        margin-bottom: 40px;
+        border-left: 4px solid var(--m-red);
+        padding-left: 20px;
+        animation: fadeInUp 0.4s ease forwards;
     }
 
     .page-header h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 900;
-        letter-spacing: -0.03em;
-        margin-bottom: 8px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        color: #ffffff;
     }
 
     .page-header p {
         color: var(--text-secondary);
-        font-size: 0.95rem;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
     }
 
     .alert {
         padding: 16px 20px;
-        border-radius: 16px;
-        margin-bottom: 20px;
+        border-radius: 0px;
+        margin-bottom: 30px;
         animation: fadeInUp 0.4s ease forwards;
+        background: rgba(226, 39, 24, 0.08);
+        border: 1px solid var(--m-red);
     }
 
-    .alert-error {
-        background: rgba(251, 113, 133, 0.08);
-        border: 1px solid rgba(251, 113, 133, 0.2);
-    }
-
-    .alert-error .alert-title {
-        color: var(--accent-rose);
-        font-weight: 700;
-        font-size: 0.9rem;
+    .alert-title {
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
-    .alert-error ul {
+    .alert ul {
         list-style: none;
         padding: 0;
     }
 
-    .alert-error li {
-        font-size: 0.85rem;
-        color: rgba(251, 113, 133, 0.85);
-        padding: 3px 0 3px 16px;
+    .alert li {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        padding: 4px 0 4px 16px;
         position: relative;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    .alert-error li::before {
-        content: '×';
+    .alert li::before {
+        content: '///';
         position: absolute;
         left: 0;
-        font-weight: 700;
-        color: var(--accent-rose);
+        font-weight: 900;
+        color: var(--m-red);
+        font-size: 0.75rem;
     }
 
     .two-col {
         display: grid;
-        grid-template-columns: 340px 1fr;
-        gap: 24px;
-        animation: fadeInUp 0.5s ease 0.1s forwards;
+        grid-template-columns: 360px 1fr;
+        gap: 30px;
+        animation: fadeInUp 0.4s ease 0.1s forwards;
         opacity: 0;
     }
 
@@ -79,55 +90,70 @@
         position: sticky;
         top: 100px;
         align-self: start;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
     .sidebar-card {
-        padding: 28px;
-        border-radius: 22px;
+        padding: 24px;
+        border-radius: 0px;
         background: var(--bg-card);
         border: 1px solid var(--border-card);
-        backdrop-filter: blur(16px);
+        position: relative;
     }
 
-    .sidebar-card+.sidebar-card {
-        margin-top: 16px;
+    .sidebar-card::before {
+        content: '';
+        position: absolute;
+        top: -1px; left: -1px; right: -1px;
+        height: 2px;
+        background: transparent;
+        transition: background 0.3s ease;
+    }
+    .sidebar-card:hover::before {
+        background: linear-gradient(90deg, var(--m-blue-light) 0%, var(--m-blue-dark) 100%);
     }
 
     .form-label {
         display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        margin-bottom: 10px;
-        letter-spacing: 0.03em;
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 12px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
     }
 
     .form-select {
         width: 100%;
-        padding: 12px 16px;
-        border-radius: 12px;
+        padding: 14px 16px;
+        border-radius: 0px;
         background: var(--bg-input);
         border: 1px solid var(--border-input);
         color: var(--text-primary);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 700;
         font-family: inherit;
         outline: none;
         cursor: pointer;
-        transition: all 0.25s ease;
+        transition: all 0.2s ease;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 14px center;
+        background-position: right 16px center;
     }
 
     .form-select:focus {
-        border-color: var(--accent-cyan);
-        box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
+        border-color: #ffffff;
+        background-color: #141414;
     }
 
     .form-select option {
-        background: var(--bg-primary);
+        background: #000000;
+        color: #ffffff;
     }
 
     .divider {
@@ -139,95 +165,110 @@
     .radio-group {
         display: flex;
         flex-direction: column;
-        gap: 8px;
-    }
-
-    .radio-option {
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: var(--bg-input);
-        border: 1px solid var(--border-input);
-        cursor: pointer;
-        transition: all 0.25s ease;
-        display: flex;
-        align-items: center;
         gap: 10px;
     }
 
+    .radio-option {
+        padding: 14px 16px;
+        border-radius: 0px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-input);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
     .radio-option:hover {
-        border-color: rgba(34, 211, 238, 0.25);
+        border-color: #444444;
+        background: #1a1a1a;
     }
 
     .radio-option.selected {
-        border-color: var(--accent-cyan);
-        background: rgba(34, 211, 238, 0.08);
+        border-color: #ffffff;
+        background: #ffffff;
     }
 
     .radio-option input {
         display: none;
     }
 
-    .radio-dot {
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        border: 2px solid var(--text-muted);
-        transition: all 0.25s ease;
-        flex-shrink: 0;
-    }
-
-    .radio-option.selected .radio-dot {
-        border-color: var(--accent-cyan);
-        background: var(--accent-cyan);
-        box-shadow: inset 0 0 0 3px var(--bg-primary);
-    }
-
     .radio-option span {
-        font-size: 0.88rem;
-        font-weight: 500;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-primary);
+        transition: color 0.2s ease;
+    }
+
+    .radio-option.selected span {
+        color: #000000;
+    }
+
+    .radio-status-indicator {
+        font-size: 0.75rem;
+        font-weight: 900;
+        color: var(--m-blue-light);
+    }
+    .radio-option.selected .radio-status-indicator {
+        color: #000000;
     }
 
     .file-upload-area {
-        padding: 24px 16px;
-        border-radius: 14px;
+        padding: 30px 20px;
+        border-radius: 0px;
         text-align: center;
-        border: 2px dashed rgba(99, 179, 237, 0.15);
-        background: rgba(15, 23, 42, 0.3);
-        transition: all 0.3s ease;
+        border: 1px dashed var(--border-input);
+        background: #070707;
+        transition: all 0.2s ease;
         cursor: pointer;
         margin-top: 16px;
     }
 
     .file-upload-area:hover {
-        border-color: rgba(34, 211, 238, 0.3);
+        border-color: #ffffff;
+        background: #111111;
     }
 
     .file-upload-area.has-file {
-        border-color: var(--accent-emerald);
-        background: rgba(52, 211, 153, 0.05);
+        border-color: var(--m-blue-light);
+        background: rgba(0, 102, 177, 0.05);
     }
 
     .file-upload-icon {
-        font-size: 2rem;
-        margin-bottom: 8px;
-    }
-
-    .file-upload-text {
-        font-size: 0.85rem;
+        font-size: 1.8rem;
+        margin-bottom: 12px;
         color: var(--text-secondary);
     }
 
+    .file-upload-text {
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #ffffff;
+    }
+
     .file-upload-hint {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: var(--text-muted);
-        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 6px;
     }
 
     .file-upload-name {
-        font-size: 0.85rem;
-        color: var(--accent-emerald);
-        font-weight: 600;
-        margin-top: 8px;
+        font-size: 0.78rem;
+        color: var(--m-blue-light);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 12px;
+        border: 1px solid var(--m-blue-light);
+        padding: 6px 12px;
+        display: inline-block;
     }
 
     .file-upload-area input[type="file"] {
@@ -236,111 +277,285 @@
 
     .submit-btn {
         width: 100%;
-        padding: 14px;
-        border-radius: 14px;
-        border: none;
-        font-size: 0.92rem;
-        font-weight: 700;
+        padding: 16px;
+        border-radius: 0px;
+        border: 1px solid #ffffff;
+        font-size: 0.85rem;
+        font-weight: 900;
         font-family: inherit;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 20px;
-        background: linear-gradient(135deg, #22d3ee, #3b82f6);
-        color: #020617;
-        box-shadow: 0 4px 24px rgba(34, 211, 238, 0.25);
+        background: transparent;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
 
     .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 32px rgba(34, 211, 238, 0.35);
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .submit-btn-accent {
+        width: 100%;
+        padding: 16px;
+        border-radius: 0px;
+        border: 1px solid var(--m-red);
+        font-size: 0.85rem;
+        font-weight: 900;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: transparent;
+        color: var(--m-red);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .submit-btn-accent:hover {
+        background: var(--m-red);
+        color: #ffffff;
     }
 
     .main-card {
-        padding: 28px;
-        border-radius: 22px;
+        padding: 32px;
+        border-radius: 0px;
         background: var(--bg-card);
         border: 1px solid var(--border-card);
-        backdrop-filter: blur(16px);
     }
 
     .main-card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 20px;
+        font-size: 1.1rem;
+        font-weight: 900;
+        margin-bottom: 30px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        justify-content: space-between;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-card);
+        padding-bottom: 16px;
+    }
+
+    .main-card-title-decor {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        letter-spacing: 1px;
     }
 
     .questions-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
     }
 
     .question-card {
-        padding: 16px 18px;
-        border-radius: 14px;
-        background: rgba(15, 23, 42, 0.4);
+        padding: 20px 24px;
+        border-radius: 0px;
+        background: #000000;
         border: 1px solid var(--border-card);
         transition: all 0.25s ease;
-    }
-
-    [data-theme="light"] .question-card {
-        background: rgba(241, 245, 249, 0.5);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
     }
 
     .question-card:hover {
-        border-color: rgba(34, 211, 238, 0.15);
+        border-color: #444;
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        flex-grow: 1;
+    }
+
+    .q-info {
+        flex: 1;
+        padding-right: 16px;
     }
 
     .q-number {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 8px;
-        font-size: 0.72rem;
-        font-weight: 800;
-        background: rgba(34, 211, 238, 0.1);
-        color: var(--accent-cyan);
-        margin-bottom: 8px;
+        font-size: 0.7rem;
+        font-weight: 900;
+        background: #111;
+        color: var(--text-secondary);
+        padding: 3px 8px;
+        border: 1px solid var(--border-card);
+        display: inline-block;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
     }
 
     .question-label {
-        font-size: 0.82rem;
-        font-weight: 600;
-        margin-bottom: 4px;
-        line-height: 1.4;
+        font-size: 0.9rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .question-desc {
-        font-size: 0.72rem;
-        color: var(--text-muted);
-        margin-bottom: 10px;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
     }
 
-    .question-input {
+    /* Range and typing synchronizer row */
+    .telemetry-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+        background: #080808;
+        padding: 12px 10px;
+        border: 1px solid #141414;
+    }
+
+    .slider-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Premium Cockpit Custom Range Slider */
+    input[type=range] {
+        -webkit-appearance: none;
         width: 100%;
-        padding: 10px 14px;
-        border-radius: 10px;
+        background: transparent;
+    }
+    input[type=range]:focus {
+        outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        cursor: pointer;
+        background: #222;
+        border: none;
+        transition: background 0.2s ease;
+    }
+    input[type=range]:hover::-webkit-slider-runnable-track {
+        background: #333;
+    }
+    input[type=range]::-webkit-slider-thumb {
+        height: 16px;
+        width: 8px;
+        background: var(--m-red);
+        cursor: pointer;
+        -webkit-appearance: none;
+        margin-top: -6px;
+        border-radius: 0px;
+        border: none;
+        transition: background 0.15s ease;
+    }
+    input[type=range]:hover::-webkit-slider-thumb {
+        background: #ffffff;
+    }
+    
+    input[type=range]::-moz-range-track {
+        width: 100%;
+        height: 4px;
+        cursor: pointer;
+        background: #222;
+        border: none;
+    }
+    input[type=range]::-moz-range-thumb {
+        height: 16px;
+        width: 8px;
+        background: var(--m-red);
+        cursor: pointer;
+        border: none;
+        border-radius: 0px;
+    }
+    input[type=range]:hover::-moz-range-thumb {
+        background: #ffffff;
+    }
+
+    /* Manual typing box on the right of the slider */
+    .m-manual-input-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .m-manual-input {
+        width: 64px;
+        background: #000000;
+        border: 1px solid #222;
+        color: #ffffff;
+        font-family: monospace;
+        font-weight: 700;
+        text-align: center;
+        padding: 8px;
+        font-size: 0.9rem;
+        border-radius: 0px;
+        -moz-appearance: textfield;
+        transition: border-color 0.2s ease, background 0.2s;
+    }
+    .m-manual-input::-webkit-outer-spin-button,
+    .m-manual-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .m-manual-input:focus {
+        border-color: #ffffff;
+        background: #111;
+        outline: none;
+    }
+
+    .question-select-wrap {
+        margin-top: 14px;
+    }
+
+    .question-select {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 0px;
         background: var(--bg-input);
         border: 1px solid var(--border-input);
         color: var(--text-primary);
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        font-weight: 700;
         font-family: inherit;
         outline: none;
-        transition: all 0.25s ease;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        appearance: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23ffffff' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+    }
+    .question-select:focus {
+        border-color: #ffffff;
     }
 
-    .question-input:focus {
-        border-color: var(--accent-cyan);
-        box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.12);
+    .question-select option {
+        background: #000;
+        color: #fff;
     }
-    select.question-input option {
-        background: var(--bg-card);
-        color: var(--text-primary);
+
+    /* Telemetry limits visual styling */
+    .slider-limit-label {
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        font-family: monospace;
+        padding: 0 8px;
+        user-select: none;
+    }
+
+    .telemetry-header-val {
+        font-size: 1rem;
+        font-weight: 900;
+        color: #ffffff;
+        font-family: monospace;
+        border-left: 2px solid var(--m-blue-light);
+        padding-left: 8px;
     }
 
     @media (max-width: 900px) {
@@ -351,9 +566,19 @@
         .sidebar {
             position: static;
         }
+    }
 
-        .questions-grid {
-            grid-template-columns: 1fr;
+    @media (max-width: 600px) {
+        .main-card {
+            padding: 16px;
+        }
+        .telemetry-row {
+            gap: 8px;
+            padding: 8px;
+        }
+        .m-manual-input {
+            width: 55px;
+            padding: 6px;
         }
     }
 </style>
@@ -362,13 +587,13 @@
 {% block content %}
 <main class="content">
     <div class="page-header">
-        <h1>Prediksi <span class="gradient-text">Level Kecanduan</span></h1>
-        <p>Pilih model, metode input, lalu isi data di sebelah kanan.</p>
+        <h1>PREDIKSI LEVEL KECANDUAN</h1>
+        <p>PILIH MODEL ML, METODE DATA INPUT, LALU ISI DATA PREDIKSI</p>
     </div>
 
     {% if errors %}
-    <div class="alert alert-error">
-        <div class="alert-title">⚠️ Ada beberapa masalah:</div>
+    <div class="alert">
+        <div class="alert-title">⚠️ TERJADI KESALAHAN PADA PROSES:</div>
         <ul>{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
     </div>
     {% endif %}
@@ -377,69 +602,94 @@
         <div class="two-col">
             <div class="sidebar">
                 <div class="sidebar-card">
-                    <label class="form-label">Model ML</label>
+                    <label class="form-label">MODEL ML UTAMA</label>
                     <select id="model" name="model" class="form-select">
                         {% for model in models %}<option value="{{ model }}" {% if model==selected_model %}selected{%
-                            endif %}>{{ model }}</option>{% endfor %}
+                            endif %}>{{ model | upper }}</option>{% endfor %}
                     </select>
                     <div class="divider"></div>
-                    <label class="form-label">Metode Input</label>
+                    <label class="form-label">METODE INPUT DATA</label>
                     <div class="radio-group">
                         <label
                             class="radio-option {% if request.form.get('input_method', 'manual') == 'manual' %}selected{% endif %}"
                             id="radio-manual" onclick="selectMethod('manual')">
                             <input type="radio" name="input_method" value="manual" {% if
                                 request.form.get('input_method', 'manual' )=='manual' %}checked{% endif %}>
-                            <span class="radio-dot"></span><span>📝 Input Manual</span>
+                            <span>📝 INPUT MANUAL</span>
+                            <div class="radio-status-indicator">ACTIVE</div>
                         </label>
                         <label
                             class="radio-option {% if request.form.get('input_method') == 'file' %}selected{% endif %}"
                             id="radio-file" onclick="selectMethod('file')">
                             <input type="radio" name="input_method" value="file" {% if
                                 request.form.get('input_method')=='file' %}checked{% endif %}>
-                            <span class="radio-dot"></span><span>📁 Upload CSV</span>
+                            <span>📁 UPLOAD CSV</span>
+                            <div class="radio-status-indicator">READY</div>
                         </label>
                     </div>
                 </div>
                 <div class="sidebar-card {% if request.form.get('input_method', 'manual') == 'manual' %}hidden{% endif %}"
                     id="file-section">
-                    <label class="form-label">Upload File CSV</label>
+                    <label class="form-label">DRAG & DROP CSV FILE</label>
                     <div class="file-upload-area" id="drop-area" onclick="document.getElementById('csv_file').click()">
                         <div class="file-upload-icon" id="upload-icon">📂</div>
-                        <div class="file-upload-text" id="upload-text">Klik atau drag file</div>
-                        <div class="file-upload-hint">CSV • 10 kolom numerik</div>
+                        <div class="file-upload-text" id="upload-text">CLICK TO SELECT FILE</div>
+                        <div class="file-upload-hint">FORMAT: CSV • 10 NUMERICAL COLUMNS</div>
                         <div class="file-upload-name" id="file-name" style="display:none"></div>
                         <input type="file" id="csv_file" name="csv_file" accept=".csv">
                     </div>
-                    <button type="submit" name="csv_submit" class="submit-btn">📊 Proses CSV</button>
+                    <button type="submit" name="csv_submit" class="submit-btn" style="margin-top: 16px;">PROSES FILE CSV</button>
                 </div>
                 <div id="manual-submit-section"
-                    class="{% if request.form.get('input_method') == 'file' %}hidden{% endif %}"
-                    style="margin-top: 16px;">
-                    <button type="submit" name="manual_submit" class="submit-btn">🔍 Proses Prediksi</button>
+                    class="{% if request.form.get('input_method') == 'file' %}hidden{% endif %}">
+                    <button type="submit" name="manual_submit" class="submit-btn-accent">MULAI ANALISIS PREDIKSI</button>
                 </div>
             </div>
 
             <div class="main-panel" id="manual-input" {% if request.form.get('input_method')=='file'
                 %}style="display:none" {% endif %}>
                 <div class="main-card">
-                    <div class="main-card-title">📋 Jawab 9 Pertanyaan</div>
+                    <div class="main-card-title">
+                        <span>🎛️ PANEL KONTROL PARAMETER PREDIKSI</span>
+                        <span class="main-card-title-decor">9/9 DATA PARAMETERS</span>
+                    </div>
                     <div class="questions-grid">
                         {% for question in questions %}
                         <div class="question-card">
-                            <div class="q-number">{{ loop.index }}</div>
-                            <div class="question-label">{{ question.label }}</div>
-                            <div class="question-desc">{{ question.description }}</div>
+                            <div class="question-header">
+                                <div class="q-info">
+                                    <div class="q-number">PARAMETER 0{{ loop.index }}</div>
+                                    <div class="question-label">{{ question.label }}</div>
+                                    <div class="question-desc">{{ question.description }}</div>
+                                </div>
+                                {% if question.type != 'select' %}
+                                <div class="telemetry-header-val" id="text-display-{{ question.key }}">0</div>
+                                {% endif %}
+                            </div>
+
                             {% if question.type == 'select' %}
-                            <select id="{{ question.key }}" name="{{ question.key }}" class="question-input">
-                                {% for option in question.options %}
-                                <option value="{{ option.value }}" {% if request.form.get(question.key, question.default|string) == option.value|string %}selected{% endif %}>{{ option.label }}</option>
-                                {% endfor %}
-                            </select>
+                            <div class="question-select-wrap">
+                                <select id="{{ question.key }}" name="{{ question.key }}" class="question-select">
+                                    {% for option in question.options %}
+                                    <option value="{{ option.value }}" {% if request.form.get(question.key, question.default|string) == option.value|string %}selected{% endif %}>{{ option.label | upper }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                             {% else %}
-                            <input type="number" id="{{ question.key }}" name="{{ question.key }}"
-                                min="{{ question.min }}" max="{{ question.max }}" step="{{ question.step }}"
-                                value="{{ request.form.get(question.key, question.default) }}" class="question-input" />
+                            <!-- Hidden input sent to backend (retains accurate float logic) -->
+                            <input type="hidden" name="{{ question.key }}" id="real-{{ question.key }}" value="{{ request.form.get(question.key, question.default) }}">
+
+                            <!-- Telemetry cockpit row -->
+                            <div class="telemetry-row">
+                                <span class="slider-limit-label">{{ question.min | int }}</span>
+                                <div class="slider-container">
+                                    <input type="range" class="m-range-slider" id="slider-{{ question.key }}" min="{{ question.min }}" max="{{ question.max }}" step="{{ question.step }}" value="{{ request.form.get(question.key, question.default) }}" oninput="updateValues('{{ question.key }}', this.value, 'slider')">
+                                </div>
+                                <span class="slider-limit-label">{{ question.max | int }}</span>
+                                <div class="m-manual-input-wrap">
+                                    <input type="number" class="m-manual-input" id="num-{{ question.key }}" min="{{ question.min }}" max="{{ question.max }}" step="any" value="{{ request.form.get(question.key, question.default) }}" oninput="updateValues('{{ question.key }}', this.value, 'manual')">
+                                </div>
+                            </div>
                             {% endif %}
                         </div>
                         {% endfor %}
@@ -449,20 +699,19 @@
 
             <div class="main-panel" id="csv-info" {% if request.form.get('input_method', 'manual' )=='manual'
                 %}style="display:none" {% endif %}>
-                <div class="main-card" style="text-align: center; padding: 60px 28px;">
-                    <div style="font-size: 4rem; margin-bottom: 20px;">📊</div>
-                    <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 10px;">Mode Upload CSV</h3>
+                <div class="main-card" style="text-align: center; padding: 80px 24px;">
+                    <div style="font-size: 3rem; margin-bottom: 24px; color: var(--m-blue-light)">📊</div>
+                    <h3 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase;">MODE EVALUASI FILE CSV</h3>
                     <p
-                        style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; max-width: 400px; margin: 0 auto;">
-                        Pilih file CSV di panel kiri, lalu klik "Proses CSV".<br>File harus memiliki <strong>10 kolom
-                            numerik</strong> sesuai fitur.
+                        style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.6; max-width: 450px; margin: 0 auto 30px; text-transform: uppercase; letter-spacing: 1px;">
+                        PILIH FILE CSV DI PANEL KIRI, LALU TEKAN TOMBOL "PROSES FILE CSV".<br>FILE HARUS TERDIRI DARI <strong>10 KOLOM NUMERIK</strong> SESUAI DENGAN MATRIKS FITUR SMARTADDICT.
                     </p>
                     <div
-                        style="margin-top: 24px; padding: 16px; border-radius: 12px; background: var(--code-bg); text-align: left; font-size: 0.78rem; color: var(--text-muted); font-family: 'Courier New', monospace;">
+                        style="padding: 20px; border-radius: 0px; background: #080808; border: 1px solid var(--border-card); text-align: left; font-size: 0.8rem; color: var(--text-muted); font-family: monospace; max-width: 500px; margin: 0 auto;">
                         <div
-                            style="color: var(--text-secondary); margin-bottom: 6px; font-family: Inter; font-weight: 600;">
-                            Contoh format CSV:</div>
-                        5, 3, 2, 1, 3, 2, 1, 2, 3, 1
+                            style="color: #ffffff; margin-bottom: 8px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">
+                            CONTOH STRUKTUR BARIS CSV:</div>
+                        <span style="color: var(--m-red)">5, 3, 2, 1, 3, 2, 1, 2, 3, 1</span>
                     </div>
                 </div>
             </div>
@@ -479,16 +728,96 @@
         const mi = document.getElementById('manual-input'), ci = document.getElementById('csv-info'),
             fs = document.getElementById('file-section'), ms = document.getElementById('manual-submit-section'),
             rm = document.getElementById('radio-manual'), rf = document.getElementById('radio-file');
-        if (m === 'manual') { mi.style.display = ''; ci.style.display = 'none'; fs.classList.add('hidden'); ms.classList.remove('hidden'); rm.classList.add('selected'); rf.classList.remove('selected'); rm.querySelector('input').checked = true; }
-        else { mi.style.display = 'none'; ci.style.display = ''; fs.classList.remove('hidden'); ms.classList.add('hidden'); rf.classList.add('selected'); rm.classList.remove('selected'); rf.querySelector('input').checked = true; }
+        if (m === 'manual') { 
+            mi.style.display = ''; 
+            ci.style.display = 'none'; 
+            fs.classList.add('hidden'); 
+            ms.classList.remove('hidden'); 
+            rm.classList.add('selected'); 
+            rf.classList.remove('selected'); 
+            rm.querySelector('input').checked = true; 
+        } else { 
+            mi.style.display = 'none'; 
+            ci.style.display = ''; 
+            fs.classList.remove('hidden'); 
+            ms.classList.add('hidden'); 
+            rf.classList.add('selected'); 
+            rm.classList.remove('selected'); 
+            rf.querySelector('input').checked = true; 
+        }
     }
+    
     document.getElementById('csv_file').addEventListener('change', function (e) {
         const fn = e.target.files[0]?.name;
-        if (fn) { document.getElementById('file-name').textContent = '✅ ' + fn; document.getElementById('file-name').style.display = ''; document.getElementById('upload-icon').textContent = '📄'; document.getElementById('upload-text').textContent = 'File siap'; document.getElementById('drop-area').classList.add('has-file'); }
+        if (fn) { 
+            document.getElementById('file-name').textContent = 'READY: ' + fn.toUpperCase(); 
+            document.getElementById('file-name').style.display = ''; 
+            document.getElementById('upload-icon').textContent = '📄'; 
+            document.getElementById('upload-text').textContent = 'FILE LOADED'; 
+            document.getElementById('drop-area').classList.add('has-file'); 
+        }
     });
+    
     const da = document.getElementById('drop-area');
-    ['dragenter', 'dragover'].forEach(e => da.addEventListener(e, ev => { ev.preventDefault(); da.style.borderColor = 'rgba(34,211,238,0.5)'; }));
-    ['dragleave', 'drop'].forEach(e => da.addEventListener(e, ev => { ev.preventDefault(); da.style.borderColor = ''; }));
-    da.addEventListener('drop', e => { if (e.dataTransfer.files[0]) { document.getElementById('csv_file').files = e.dataTransfer.files; document.getElementById('csv_file').dispatchEvent(new Event('change')); } });
+    ['dragenter', 'dragover'].forEach(e => da.addEventListener(e, ev => { 
+        ev.preventDefault(); 
+        da.style.borderColor = '#ffffff'; 
+    }));
+    ['dragleave', 'drop'].forEach(e => da.addEventListener(e, ev => { 
+        ev.preventDefault(); 
+        da.style.borderColor = ''; 
+    }));
+    da.addEventListener('drop', e => { 
+        if (e.dataTransfer.files[0]) { 
+            document.getElementById('csv_file').files = e.dataTransfer.files; 
+            document.getElementById('csv_file').dispatchEvent(new Event('change')); 
+        } 
+    });
+
+    // Custom Input Synchronization Logic
+    function updateValues(key, val, source) {
+        const realInput = document.getElementById('real-' + key);
+        const slider = document.getElementById('slider-' + key);
+        const numInput = document.getElementById('num-' + key);
+        const textDisplay = document.getElementById('text-display-' + key);
+        
+        let floatVal = parseFloat(val);
+        if (isNaN(floatVal)) {
+            floatVal = parseFloat(slider.getAttribute('min')) || 0;
+        }
+        
+        const minVal = parseFloat(slider.getAttribute('min'));
+        const maxVal = parseFloat(slider.getAttribute('max'));
+        
+        if (floatVal < minVal) floatVal = minVal;
+        if (floatVal > maxVal) floatVal = maxVal;
+        
+        // Update the real hidden input (retains exact float)
+        realInput.value = floatVal;
+        
+        // Synchronize Slider
+        if (source !== 'slider') {
+            slider.value = floatVal;
+        }
+        
+        // Synchronize Manual Text Input & Text Display (rounded to integers)
+        const roundedVal = Math.round(floatVal);
+        if (source !== 'manual') {
+            numInput.value = roundedVal;
+        }
+        
+        if (textDisplay) {
+            textDisplay.textContent = roundedVal;
+        }
+    }
+
+    // Initialize all values on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        {% for question in questions %}
+        {% if question.type != 'select' %}
+        updateValues('{{ question.key }}', '{{ request.form.get(question.key, question.default) }}', 'init');
+        {% endif %}
+        {% endfor %}
+    });
 </script>
 {% endblock %}

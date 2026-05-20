@@ -29,7 +29,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .admin-badge {
@@ -80,7 +80,7 @@
 
     .btn-danger:hover {
         background: var(--m-red);
-        color: #ffffff;
+        color: var(--bg-card);
     }
 
     .filter-bar {
@@ -108,7 +108,7 @@
     }
 
     .filter-bar select:focus, .filter-bar input:focus {
-        border-color: #ffffff;
+        border-color: var(--text-primary);
     }
 
     .filter-bar input {
@@ -126,8 +126,8 @@
     }
 
     .filter-bar select option {
-        background: #000000;
-        color: #ffffff;
+        background: var(--bg-card);
+        color: var(--text-primary);
     }
 
     .table-container {
@@ -165,21 +165,21 @@
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
-        border-bottom: 1px solid #222222;
-        background: #080808;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-card);
+        background: var(--bg-input);
     }
 
     .h-table td {
         padding: 14px 16px;
-        border-bottom: 1px solid #141414;
+        border-bottom: 1px solid var(--border-card);
         color: var(--text-secondary);
         letter-spacing: 0.5px;
     }
 
     .h-table tr:hover td {
-        color: #ffffff;
-        background: #040404;
+        color: var(--text-primary);
+        background: var(--nav-active-bg);
     }
 
     .h-table tr:last-child td {
@@ -260,7 +260,7 @@
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for msg in messages %}
-    <div style="padding:16px 20px; border-radius:0px; margin-bottom:24px; text-align:left; background:rgba(0, 102, 177, 0.08); border:1px solid var(--m-blue-light); color:#ffffff; font-size:0.82rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;">
+    <div style="padding:16px 20px; border-radius:0px; margin-bottom:24px; text-align:left; background:rgba(0, 102, 177, 0.08); border:1px solid var(--m-blue-light); color:var(--text-primary); font-size:0.82rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;">
         {{ msg }}
     </div>
     {% endfor %}
@@ -300,7 +300,7 @@
             <tbody id="tb">
                 {% for p in predictions %}
                 <tr data-m="{{ p.model_name }}" data-l="{{ p.result }}" data-t="{{ p.user.username }} {{ p.model_name }} {{ p.result }}">
-                    <td style="font-weight:800; color:#ffffff; text-transform: uppercase;">{{ p.user.username }}</td>
+                    <td style="font-weight:800; color:var(--text-primary); text-transform: uppercase;">{{ p.user.username }}</td>
                     <td style="font-family: monospace; text-transform: uppercase; font-size: 0.75rem;">{{ p.model_name }}</td>
                     <td>
                         <span class="badge-sm {% if p.result == 'Rendah' %}r{% elif p.result == 'Sedang' %}s{% else %}t{% endif %}">
@@ -310,7 +310,7 @@
                     <td style="font-size:0.72rem; color:var(--text-muted); font-family:monospace; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="{{ p.input_list }}">
                         [
                         {% for val in p.input_list %}
-                          {{ val | round | int }}{% if not loop.last %}, {% endif %}
+                          {{ val | round(1) }}{% if not loop.last %}, {% endif %}
                         {% endfor %}
                         ]
                     </td>

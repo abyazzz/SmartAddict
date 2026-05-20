@@ -39,7 +39,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 12px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .level-badge {
@@ -54,7 +54,7 @@
         text-transform: uppercase;
         letter-spacing: 2px;
         border: 1px solid transparent;
-        background: #000;
+        background: var(--bg-input);
     }
 
     .level-badge.rendah {
@@ -81,7 +81,7 @@
     }
 
     .result-model strong {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .summary-row {
@@ -150,7 +150,7 @@
         gap: 10px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
         border-left: 2px solid var(--m-red);
         padding-left: 10px;
     }
@@ -182,26 +182,26 @@
     }
 
     .comparison-table th {
-        background: #080808;
+        background: var(--bg-input);
         padding: 14px 16px;
         font-weight: 800;
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
         border-bottom: 1.5px solid var(--border-card);
     }
 
     .comparison-table td {
         padding: 14px 16px;
-        border-bottom: 1px solid #141414;
+        border-bottom: 1px solid var(--border-card);
         color: var(--text-secondary);
         vertical-align: middle;
     }
 
     .comparison-table tr:hover td {
-        background: #040404;
-        color: #ffffff;
+        background: var(--nav-active-bg);
+        color: var(--text-primary);
     }
 
     .comparison-table tr:last-child td {
@@ -210,7 +210,7 @@
 
     .comparison-table .feat-name-col {
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
         letter-spacing: 0.5px;
     }
 
@@ -275,7 +275,7 @@
     }
 
     .comparison-table .pct-label.normal {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .comparison-table .pct-label.low {
@@ -323,7 +323,7 @@
         margin-bottom: 12px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .thanks-section h3 .user-name {
@@ -343,8 +343,8 @@
     .thanks-section .thanks-note {
         padding: 16px 24px;
         border-radius: 0px;
-        background: #000000;
-        border: 1px solid #1a1a1a;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
         font-size: 0.75rem;
         color: var(--text-muted);
         line-height: 1.6;
@@ -355,7 +355,7 @@
     }
 
     .thanks-section .thanks-note strong {
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .no-result {
@@ -376,7 +376,7 @@
         margin-bottom: 10px;
         text-transform: uppercase;
         letter-spacing: 2px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .no-result p {
@@ -443,12 +443,12 @@
 
     <div class="summary-row">
         <div class="summary-card">
-            <div class="summary-value" style="color: var(--m-blue-light);">{{ result['values'][2] | round(1) }}H</div>
+            <div class="summary-value" style="color: var(--m-blue-light);">{{ result['values'][2] | round | int }} jam</div>
             <div class="summary-label">SCREEN TIME / HARI</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" style="color: #ffffff;">{{ result['values'][5] | round(1) }}H</div>
-            <div class="summary-label">DURASI TIDUR / HARI</div>
+            <div class="summary-value" style="color: var(--text-primary);">{{ result['values'][0] | int }} thn</div>
+            <div class="summary-label">USIA PENGGUNA</div>
         </div>
         <div class="summary-card">
             <div class="summary-value" style="{% if result['prediction_raw'] == 0 %}color: var(--m-blue-light);{% elif result['prediction_raw'] == 1 %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">
@@ -499,10 +499,11 @@
                                     {% elif q.key == 'daily_screen_time_hours' %}📱
                                     {% elif q.key == 'social_media_hours' %}💬
                                     {% elif q.key == 'gaming_hours' %}🎮
-                                    {% elif q.key == 'sleep_hours' %}😴
+                                    {% elif q.key == 'work_study_hours' %}💼
+                                    {% elif q.key == 'sleep_hours' %}🛌
                                     {% elif q.key == 'notifications_per_day' %}🔔
                                     {% elif q.key == 'app_opens_per_day' %}📲
-                                    {% elif q.key == 'weekend_screen_time' %}🏖️
+                                    {% elif q.key == 'weekend_screen_time' %}📅
                                     {% else %}📡
                                     {% endif %}
                                 </span>
@@ -510,13 +511,13 @@
                             </td>
                             <td class="avg-value-cell">
                                 {% if q.key == 'gender' %}
-                                    L: {{ (avg_val * 100) | round | int }}% | P: {{ ((1 - avg_val) * 100) | round | int }}%
+                                    {{ (avg_val * 100) | round | int }}% LAKI-LAKI
                                 {% else %}
-                                    {{ avg_val | round(1) }}
-                                    {% if q.key in ['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'weekend_screen_time', 'sleep_hours'] %} jam
-                                    {% elif q.key == 'notifications_per_day' %} notifikasi
-                                    {% elif q.key == 'app_opens_per_day' %} kali
+                                    {{ avg_val | round | int }}
+                                    {% if q.key in ['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'weekend_screen_time'] %} jam
                                     {% elif q.key == 'age' %} tahun
+                                    {% elif q.key == 'notifications_per_day' %} notif
+                                    {% elif q.key == 'app_opens_per_day' %} kali
                                     {% endif %}
                                 {% endif %}
                             </td>
@@ -524,11 +525,11 @@
                                 {% if q.key == 'gender' %}
                                     {% if user_val == 1 %}LAKI-LAKI{% else %}PEREMPUAN{% endif %}
                                 {% else %}
-                                    {{ user_val | round(1) }}
-                                    {% if q.key in ['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'weekend_screen_time', 'sleep_hours'] %} jam
-                                    {% elif q.key == 'notifications_per_day' %} notifikasi
-                                    {% elif q.key == 'app_opens_per_day' %} kali
+                                    {{ user_val | round | int }}
+                                    {% if q.key in ['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'weekend_screen_time'] %} jam
                                     {% elif q.key == 'age' %} tahun
+                                    {% elif q.key == 'notifications_per_day' %} notif
+                                    {% elif q.key == 'app_opens_per_day' %} kali
                                     {% endif %}
                                 {% endif %}
                             </td>
@@ -551,9 +552,9 @@
                                         </div>
                                         <span class="pct-label normal" style="color: var(--text-muted); font-size: 0.72rem;">
                                             {% if user_val == 1 %}
-                                                {{ (avg_val * 100) | round | int }}% L
+                                                {{ (avg_val * 100) | round | int }}% LAKI-LAKI
                                             {% else %}
-                                                {{ ((1 - avg_val) * 100) | round | int }}% P
+                                                {{ ((1 - avg_val) * 100) | round | int }}% PEREMPUAN
                                             {% endif %}
                                         </span>
                                     </div>
@@ -606,7 +607,7 @@
 <script>
     const values = {{ result['values'] | tojson }};
     const averages = {{ averages | tojson }};
-    const labels = ['USIA','GENDER','SCREEN TIME','MEDSOS','GAMING','TIDUR','NOTIFIKASI','BUKA APP','WEEKEND SCR'];
+    const labels = ['USIA', 'GENDER', 'SCREEN TIME', 'MEDIA SOSIAL', 'GAMING', 'KERJA/BELAJAR', 'JAM TIDUR', 'NOTIFIKASI', 'BUKA APLIKASI', 'WEEKEND SCREEN TIME'];
     const predictionRaw = {{ result['prediction_raw'] }};
     const diagnosis = "{{ result['diagnosis'] }}".toUpperCase();
     const result_model = "{{ result['model'] }}";
@@ -617,68 +618,84 @@
 
     const roundedValues = values.map(v => Math.round(v));
 
-    Chart.defaults.color = '#aaaaaa';
-    Chart.defaults.font.family = 'monospace';
-
-    // Indication Gauge Chart (M-style Segmented)
     const levelColors = [mBlueLight, mBlueDark, mRed];
     const levelLabels = ['RENDAH', 'SEDANG', 'TINGGI'];
     const gaugeValues = [1, 1, 1]; // segmented flat layout
-    
-    new Chart(document.getElementById('gaugeChart'), {
-        type: 'doughnut',
-        data: { 
-            labels: levelLabels, 
-            datasets: [{ 
-                data: gaugeValues, 
-                backgroundColor: [
-                    predictionRaw === 0 ? mBlueLight : 'rgba(0, 102, 177, 0.1)', 
-                    predictionRaw === 1 ? mBlueDark : 'rgba(28, 105, 212, 0.1)', 
-                    predictionRaw === 2 ? mRed : 'rgba(226, 39, 24, 0.1)'
-                ], 
-                borderColor: [
-                    predictionRaw === 0 ? mBlueLight : '#111111', 
-                    predictionRaw === 1 ? mBlueDark : '#111111', 
-                    predictionRaw === 2 ? mRed : '#111111'
-                ], 
-                borderWidth: 2 
-            }] 
-        },
-        options: { 
-            responsive: true, 
-            maintainAspectRatio: false,
-            cutout: '70%', 
-            plugins: { 
-                legend: { 
-                    position: 'bottom', 
-                    labels: { 
-                        padding: 16, 
-                        usePointStyle: true, 
-                        pointStyle: 'rect', 
-                        font: { size: 11, weight: '800' },
-                        color: '#ffffff'
+    let myChart = null;
+
+    function renderChart() {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        const legendColor = isLight ? '#334155' : '#ffffff';
+        const unselectedBorder = isLight ? '#e2e8f0' : '#111111';
+        const unselectedBG0 = isLight ? 'rgba(0, 188, 212, 0.08)' : 'rgba(0, 102, 177, 0.1)';
+        const unselectedBG1 = isLight ? 'rgba(28, 105, 212, 0.08)' : 'rgba(28, 105, 212, 0.1)';
+        const unselectedBG2 = isLight ? 'rgba(226, 39, 24, 0.08)' : 'rgba(226, 39, 24, 0.1)';
+
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        Chart.defaults.color = isLight ? '#64748b' : '#aaaaaa';
+        Chart.defaults.font.family = 'monospace';
+
+        myChart = new Chart(document.getElementById('gaugeChart'), {
+            type: 'doughnut',
+            data: { 
+                labels: levelLabels, 
+                datasets: [{ 
+                    data: gaugeValues, 
+                    backgroundColor: [
+                        predictionRaw === 0 ? mBlueLight : unselectedBG0, 
+                        predictionRaw === 1 ? mBlueDark : unselectedBG1, 
+                        predictionRaw === 2 ? mRed : unselectedBG2
+                    ], 
+                    borderColor: [
+                        predictionRaw === 0 ? mBlueLight : unselectedBorder, 
+                        predictionRaw === 1 ? mBlueDark : unselectedBorder, 
+                        predictionRaw === 2 ? mRed : unselectedBorder
+                    ], 
+                    borderWidth: 2 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false,
+                cutout: '70%', 
+                plugins: { 
+                    legend: { 
+                        position: 'bottom', 
+                        labels: { 
+                            padding: 16, 
+                            usePointStyle: true, 
+                            pointStyle: 'rect', 
+                            font: { size: 11, weight: '800' },
+                            color: legendColor
+                        } 
                     } 
                 } 
-            } 
-        },
-        plugins: [{ 
-            id: 'centerText', 
-            afterDraw(chart) { 
-                const { ctx, chartArea: { width, height, top, left } } = chart; 
-                ctx.save(); 
-                ctx.textAlign = 'center'; 
-                ctx.textBaseline = 'middle'; 
-                const cx = left + width / 2, cy = top + height / 2; 
-                ctx.font = '900 22px monospace'; 
-                ctx.fillStyle = levelColors[predictionRaw]; 
-                ctx.fillText(diagnosis, cx, cy - 4); 
-                ctx.font = '700 10px monospace'; 
-                ctx.fillStyle = '#666666'; 
-                ctx.fillText('DIAGNOSIS', cx, cy + 20); 
-                ctx.restore(); 
-            } 
-        }]
-    });
+            },
+            plugins: [{ 
+                id: 'centerText', 
+                afterDraw(chart) { 
+                    const { ctx, chartArea: { width, height, top, left } } = chart; 
+                    ctx.save(); 
+                    ctx.textAlign = 'center'; 
+                    ctx.textBaseline = 'middle'; 
+                    const cx = left + width / 2, cy = top + height / 2; 
+                    ctx.font = '900 22px monospace'; 
+                    ctx.fillStyle = levelColors[predictionRaw]; 
+                    ctx.fillText(diagnosis, cx, cy - 4); 
+                    ctx.font = '700 10px monospace'; 
+                    ctx.fillStyle = isLight ? '#64748b' : '#666666'; 
+                    ctx.fillText('DIAGNOSIS', cx, cy + 20); 
+                    ctx.restore(); 
+                } 
+            }]
+        });
+    }
+
+    renderChart();
+    window.addEventListener('themechanged', renderChart);
 
     // Modern ML Confetti
     const container = document.getElementById('confetti');
@@ -766,9 +783,9 @@
             // ── SUMMARY STATS ────────────────────────────────────────
             const stats = [
                 { label: 'MODEL ML', value: String(result_model || 'ML').toUpperCase() },
-                { label: 'SCREEN TIME', value: Number(values[2]).toFixed(1) + ' H/HARI' },
-                { label: 'DURASI TIDUR', value: Number(values[5]).toFixed(1) + ' H/HARI' },
-                { label: 'NOTIFIKASI', value: Math.round(values[6]) + ' x' },
+                { label: 'SCREEN TIME', value: Math.round(values[2]) + ' JAM/HARI' },
+                { label: 'USIA PENGGUNA', value: Math.round(values[0]) + ' TAHUN' },
+                { label: 'JAM TIDUR', value: Math.round(values[6]) + ' JAM' },
             ];
             const statW = col / stats.length;
             stats.forEach((s, i) => {
@@ -834,8 +851,8 @@
             y += 7;
 
             // Draw Table Rows
-            const questionLabels = ['USIA', 'GENDER', 'SCREEN TIME', 'MEDSOS', 'GAMING', 'TIDUR', 'NOTIFIKASI', 'BUKA APP', 'WEEKEND SCR'];
-            const questionKeys = ['age', 'gender', 'daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'sleep_hours', 'notifications_per_day', 'app_opens_per_day', 'weekend_screen_time'];
+            const questionLabels = ['USIA', 'GENDER', 'SCREEN TIME', 'MEDIA SOSIAL', 'GAMING', 'KERJA/BELAJAR', 'JAM TIDUR', 'NOTIFIKASI', 'BUKA APLIKASI', 'WEEKEND SCREEN TIME'];
+            const questionKeys = ['age', 'gender', 'daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'notifications_per_day', 'app_opens_per_day', 'weekend_screen_time'];
             
             questionKeys.forEach((key, i) => {
                 if (y + 7 > H - margin) { pdf.addPage(); y = margin; }
@@ -863,21 +880,21 @@
                 
                 if (key === 'gender') {
                     userDisp = userVal === 1 ? 'LAKI-LAKI' : 'PEREMPUAN';
-                    avgDisp = Math.round(avgVal * 100) + '% L';
-                    compDisp = 'GENDER';
+                    avgDisp = Math.round(avgVal * 100) + '% LAKI-LAKI';
+                    compDisp = 'KATEGORI';
                 } else {
                     let unit = '';
-                    if (['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'weekend_screen_time', 'sleep_hours'].includes(key)) {
+                    if (['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'weekend_screen_time'].includes(key)) {
                         unit = ' JAM';
+                    } else if (key === 'age') {
+                        unit = ' THN';
                     } else if (key === 'notifications_per_day') {
                         unit = ' NOTIF';
                     } else if (key === 'app_opens_per_day') {
                         unit = ' KALI';
-                    } else if (key === 'age') {
-                        unit = ' THN';
                     }
-                    userDisp = Number(userVal).toFixed(1) + unit;
-                    avgDisp = Number(avgVal).toFixed(1) + unit;
+                    userDisp = Math.round(userVal) + unit;
+                    avgDisp = Math.round(avgVal) + unit;
                     const pct = avgVal > 0 ? Math.round((userVal / avgVal) * 100) : 0;
                     compDisp = pct + '%';
                 }

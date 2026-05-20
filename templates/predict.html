@@ -24,7 +24,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .page-header p {
@@ -44,7 +44,7 @@
     }
 
     .alert-title {
-        color: #ffffff;
+        color: var(--m-red);
         font-weight: 900;
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -119,7 +119,7 @@
         display: block;
         font-size: 0.75rem;
         font-weight: 800;
-        color: #ffffff;
+        color: var(--text-primary);
         margin-bottom: 12px;
         letter-spacing: 1.5px;
         text-transform: uppercase;
@@ -147,13 +147,13 @@
     }
 
     .form-select:focus {
-        border-color: #ffffff;
-        background-color: #141414;
+        border-color: var(--text-primary);
+        background-color: var(--bg-input);
     }
 
     .form-select option {
-        background: #000000;
-        color: #ffffff;
+        background: var(--bg-card);
+        color: var(--text-primary);
     }
 
     .divider {
@@ -181,13 +181,13 @@
     }
 
     .radio-option:hover {
-        border-color: #444444;
-        background: #1a1a1a;
+        border-color: var(--text-muted);
+        background: var(--nav-active-bg);
     }
 
     .radio-option.selected {
-        border-color: #ffffff;
-        background: #ffffff;
+        border-color: var(--m-blue-light);
+        background: var(--bg-card);
     }
 
     .radio-option input {
@@ -204,7 +204,7 @@
     }
 
     .radio-option.selected span {
-        color: #000000;
+        color: var(--m-blue-light);
     }
 
     .radio-status-indicator {
@@ -213,7 +213,7 @@
         color: var(--m-blue-light);
     }
     .radio-option.selected .radio-status-indicator {
-        color: #000000;
+        color: var(--m-blue-light);
     }
 
     .file-upload-area {
@@ -221,15 +221,15 @@
         border-radius: 0px;
         text-align: center;
         border: 1px dashed var(--border-input);
-        background: #070707;
+        background: var(--bg-input);
         transition: all 0.2s ease;
         cursor: pointer;
         margin-top: 16px;
     }
 
     .file-upload-area:hover {
-        border-color: #ffffff;
-        background: #111111;
+        border-color: var(--text-primary);
+        background: var(--nav-active-bg);
     }
 
     .file-upload-area.has-file {
@@ -248,7 +248,7 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .file-upload-hint {
@@ -279,21 +279,21 @@
         width: 100%;
         padding: 16px;
         border-radius: 0px;
-        border: 1px solid #ffffff;
+        border: 1px solid var(--text-primary);
         font-size: 0.85rem;
         font-weight: 900;
         font-family: inherit;
         cursor: pointer;
         transition: all 0.3s ease;
         background: transparent;
-        color: #ffffff;
+        color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 2px;
     }
 
     .submit-btn:hover {
-        background: #ffffff;
-        color: #000000;
+        background: var(--text-primary);
+        color: var(--bg-primary);
     }
 
     .submit-btn-accent {
@@ -352,17 +352,18 @@
     .question-card {
         padding: 20px 24px;
         border-radius: 0px;
-        background: #000000;
+        background: var(--bg-card);
         border: 1px solid var(--border-card);
         transition: all 0.25s ease;
         position: relative;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        box-shadow: var(--card-shadow);
     }
 
     .question-card:hover {
-        border-color: #444;
+        border-color: var(--text-muted);
     }
 
     .question-header {
@@ -381,7 +382,7 @@
     .q-number {
         font-size: 0.7rem;
         font-weight: 900;
-        background: #111;
+        background: var(--bg-input);
         color: var(--text-secondary);
         padding: 3px 8px;
         border: 1px solid var(--border-card);
@@ -394,7 +395,7 @@
         font-size: 0.9rem;
         font-weight: 800;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -411,9 +412,9 @@
         align-items: center;
         gap: 12px;
         margin-top: 18px;
-        background: #080808;
+        background: var(--bg-input);
         padding: 12px 10px;
-        border: 1px solid #141414;
+        border: 1px solid var(--border-input);
     }
 
     .slider-container {
@@ -435,12 +436,12 @@
         width: 100%;
         height: 4px;
         cursor: pointer;
-        background: #222;
+        background: var(--border-input);
         border: none;
         transition: background 0.2s ease;
     }
     input[type=range]:hover::-webkit-slider-runnable-track {
-        background: #333;
+        background: var(--text-muted);
     }
     input[type=range]::-webkit-slider-thumb {
         height: 16px;
@@ -454,14 +455,14 @@
         transition: background 0.15s ease;
     }
     input[type=range]:hover::-webkit-slider-thumb {
-        background: #ffffff;
+        background: var(--text-primary);
     }
     
     input[type=range]::-moz-range-track {
         width: 100%;
         height: 4px;
         cursor: pointer;
-        background: #222;
+        background: var(--border-input);
         border: none;
     }
     input[type=range]::-moz-range-thumb {
@@ -473,7 +474,7 @@
         border-radius: 0px;
     }
     input[type=range]:hover::-moz-range-thumb {
-        background: #ffffff;
+        background: var(--text-primary);
     }
 
     /* Manual typing box on the right of the slider */
@@ -484,9 +485,9 @@
 
     .m-manual-input {
         width: 64px;
-        background: #000000;
-        border: 1px solid #222;
-        color: #ffffff;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-input);
+        color: var(--text-primary);
         font-family: monospace;
         font-weight: 700;
         text-align: center;
@@ -502,8 +503,8 @@
         margin: 0;
     }
     .m-manual-input:focus {
-        border-color: #ffffff;
-        background: #111;
+        border-color: var(--text-primary);
+        background: var(--bg-input);
         outline: none;
     }
 
@@ -532,12 +533,12 @@
         background-position: right 16px center;
     }
     .question-select:focus {
-        border-color: #ffffff;
+        border-color: var(--text-primary);
     }
 
     .question-select option {
-        background: #000;
-        color: #fff;
+        background: var(--bg-card);
+        color: var(--text-primary);
     }
 
     /* Telemetry limits visual styling */
@@ -552,7 +553,7 @@
     .telemetry-header-val {
         font-size: 1rem;
         font-weight: 900;
-        color: #ffffff;
+        color: var(--text-primary);
         font-family: monospace;
         border-left: 2px solid var(--m-blue-light);
         padding-left: 8px;
@@ -651,7 +652,7 @@
                 <div class="main-card">
                     <div class="main-card-title">
                         <span>🎛️ PANEL KONTROL PARAMETER PREDIKSI</span>
-                        <span class="main-card-title-decor">9/9 DATA PARAMETERS</span>
+                        <span class="main-card-title-decor">10/10 DATA PARAMETERS</span>
                     </div>
                     <div class="questions-grid">
                         {% for question in questions %}
@@ -707,9 +708,9 @@
                         PILIH FILE CSV DI PANEL KIRI, LALU TEKAN TOMBOL "PROSES FILE CSV".<br>FILE HARUS TERDIRI DARI <strong>10 KOLOM NUMERIK</strong> SESUAI DENGAN MATRIKS FITUR SMARTADDICT.
                     </p>
                     <div
-                        style="padding: 20px; border-radius: 0px; background: #080808; border: 1px solid var(--border-card); text-align: left; font-size: 0.8rem; color: var(--text-muted); font-family: monospace; max-width: 500px; margin: 0 auto;">
+                        style="padding: 20px; border-radius: 0px; background: var(--bg-input); border: 1px solid var(--border-card); text-align: left; font-size: 0.8rem; color: var(--text-muted); font-family: monospace; max-width: 500px; margin: 0 auto;">
                         <div
-                            style="color: #ffffff; margin-bottom: 8px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">
+                            style="color: var(--text-primary); margin-bottom: 8px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;">
                             CONTOH STRUKTUR BARIS CSV:</div>
                         <span style="color: var(--m-red)">5, 3, 2, 1, 3, 2, 1, 2, 3, 1</span>
                     </div>
@@ -761,7 +762,7 @@
     const da = document.getElementById('drop-area');
     ['dragenter', 'dragover'].forEach(e => da.addEventListener(e, ev => { 
         ev.preventDefault(); 
-        da.style.borderColor = '#ffffff'; 
+        da.style.borderColor = 'var(--text-primary)'; 
     }));
     ['dragleave', 'drop'].forEach(e => da.addEventListener(e, ev => { 
         ev.preventDefault(); 
@@ -800,14 +801,14 @@
             slider.value = floatVal;
         }
         
-        // Synchronize Manual Text Input & Text Display (rounded to integers)
-        const roundedVal = Math.round(floatVal);
+        // Synchronize Manual Text Input & Text Display
+        const formattedVal = Math.round(floatVal);
         if (source !== 'manual') {
-            numInput.value = roundedVal;
+            numInput.value = formattedVal;
         }
         
         if (textDisplay) {
-            textDisplay.textContent = roundedVal;
+            textDisplay.textContent = formattedVal;
         }
     }
 

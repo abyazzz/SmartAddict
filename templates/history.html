@@ -24,7 +24,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .page-header p {
@@ -87,7 +87,7 @@
         text-align: left;
         background: rgba(0, 102, 177, 0.08);
         border: 1px solid var(--m-blue-light);
-        color: #ffffff;
+        color: var(--text-primary);
         font-size: 0.82rem;
         font-weight: 800;
         text-transform: uppercase;
@@ -120,7 +120,7 @@
     }
 
     .filter-bar select:focus, .filter-bar input:focus {
-        border-color: #ffffff;
+        border-color: var(--text-primary);
     }
 
     .filter-bar input {
@@ -138,8 +138,8 @@
     }
 
     .filter-bar select option {
-        background: #000000;
-        color: #ffffff;
+        background: var(--bg-card);
+        color: var(--text-primary);
     }
 
     .history-list {
@@ -170,7 +170,7 @@
     }
 
     .history-card:hover {
-        border-color: #3a3a3a;
+        border-color: var(--text-muted);
     }
 
     .history-card.level-rendah::before { background: var(--m-blue-light); }
@@ -189,7 +189,7 @@
     }
 
     .history-main-row:hover {
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--nav-active-bg);
     }
 
     .toggle-area {
@@ -209,7 +209,7 @@
 
     .history-card.expanded .expand-icon {
         transform: rotate(90deg);
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .history-timestamp {
@@ -236,18 +236,18 @@
         max-height: 0;
         overflow: hidden;
         transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: #060606;
-        border-top: 0px solid #141414;
+        background: var(--bg-primary);
+        border-top: 0px solid var(--border-card);
     }
 
     .history-card.expanded .history-details-panel {
         max-height: 400px;
-        border-top: 1px solid #141414;
+        border-top: 1px solid var(--border-card);
     }
 
     .history-card.expanded {
-        border-color: #444444;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        border-color: var(--text-muted);
+        box-shadow: var(--card-shadow);
     }
 
     .history-input-box {
@@ -261,8 +261,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #0c0c0c;
-        border: 1px solid #1c1c1c;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
         border-radius: 0px;
         padding: 8px 12px;
         font-family: monospace;
@@ -271,8 +271,8 @@
     }
 
     .input-badge:hover {
-        border-color: #333333;
-        background: #111111;
+        border-color: var(--text-muted);
+        background: var(--bg-card);
     }
 
     .input-badge .lbl {
@@ -283,7 +283,7 @@
     }
 
     .input-badge .val {
-        color: #ffffff;
+        color: var(--text-primary);
         font-weight: 900;
     }
 
@@ -361,9 +361,9 @@
     }
 
     .pager-btn:hover:not(:disabled) {
-        border-color: #ffffff;
-        color: #ffffff;
-        background: rgba(255,255,255,0.03);
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+        background: var(--nav-active-bg);
     }
 
     .pager-btn:disabled {
@@ -391,15 +391,15 @@
     }
 
     .page-num:hover {
-        border-color: #ffffff;
-        color: #ffffff;
+        border-color: var(--text-primary);
+        color: var(--text-primary);
     }
 
     .page-num.active {
         border-color: var(--m-blue-light);
-        color: #ffffff;
-        background: rgba(0, 102, 177, 0.15);
-        box-shadow: 0 0 10px rgba(0, 102, 177, 0.2);
+        color: var(--m-blue-light);
+        background: var(--nav-active-bg);
+        box-shadow: 0 0 10px rgba(0, 102, 177, 0.15);
     }
 
     .empty-state {
@@ -424,7 +424,7 @@
         margin-bottom: 8px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .empty-state p {
@@ -507,7 +507,14 @@
                 <div class="toggle-area">
                     <span class="expand-icon">▶</span>
                     <span class="history-timestamp">🕐 {{ entry.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</span>
-                    <span class="history-summary-text">• Usia: {{ inputs[0] | round | int }} thn • Screen Time: {{ inputs[2] | round | int }} jam</span>
+                    {% set is_new = inputs|length >= 10 %}
+                    <span class="history-summary-text">
+                        {% if is_new %}
+                            • Usia: {{ inputs[0] | round | int }} thn • Screen Time: {{ inputs[2] | round | int }} jam
+                        {% else %}
+                            • Data: {{ inputs | length }} fitur
+                        {% endif %}
+                    </span>
                 </div>
                 <div class="result-badge {{ level_class }}">{{ entry.result }}</div>
                 <form method="post" action="{{ url_for('delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')" onclick="event.stopPropagation()">
@@ -517,15 +524,22 @@
             
             <div class="history-details-panel">
                 <div class="history-input-box">
-                    <div class="input-badge"><span class="lbl">USIA</span><span class="val">{{ inputs[0] | round | int }} thn</span></div>
-                    <div class="input-badge"><span class="lbl">GENDER</span><span class="val">{{ 'LAKI-LAKI' if inputs[1]|round|int == 1 else 'PEREMPUAN' }}</span></div>
-                    <div class="input-badge"><span class="lbl">SCREEN TIME</span><span class="val">{{ inputs[2] | round | int }} jam</span></div>
-                    <div class="input-badge"><span class="lbl">MEDSOS</span><span class="val">{{ inputs[3] | round | int }} jam</span></div>
-                    <div class="input-badge"><span class="lbl">GAMING</span><span class="val">{{ inputs[4] | round | int }} jam</span></div>
-                    <div class="input-badge"><span class="lbl">TIDUR</span><span class="val">{{ inputs[5] | round | int }} jam</span></div>
-                    <div class="input-badge"><span class="lbl">NOTIF</span><span class="val">{{ inputs[6] | round | int }}</span></div>
-                    <div class="input-badge"><span class="lbl">BUKA APP</span><span class="val">{{ inputs[7] | round | int }} kali</span></div>
-                    <div class="input-badge"><span class="lbl">WEEKEND</span><span class="val">{{ inputs[8] | round | int }} jam</span></div>
+                    {% if is_new %}
+                        <div class="input-badge"><span class="lbl">USIA</span><span class="val">{{ inputs[0] | round | int }} thn</span></div>
+                        <div class="input-badge"><span class="lbl">GENDER</span><span class="val">{{ 'LAKI-LAKI' if inputs[1]|round|int == 1 else 'PEREMPUAN' }}</span></div>
+                        <div class="input-badge"><span class="lbl">SCREEN TIME</span><span class="val">{{ inputs[2] | round | int }} jam</span></div>
+                        <div class="input-badge"><span class="lbl">MEDSOS</span><span class="val">{{ inputs[3] | round | int }} jam</span></div>
+                        <div class="input-badge"><span class="lbl">GAMING</span><span class="val">{{ inputs[4] | round | int }} jam</span></div>
+                        <div class="input-badge"><span class="lbl">KERJA/BELAJAR</span><span class="val">{{ inputs[5] | round | int }} jam</span></div>
+                        <div class="input-badge"><span class="lbl">TIDUR</span><span class="val">{{ inputs[6] | round | int }} jam</span></div>
+                        <div class="input-badge"><span class="lbl">NOTIF</span><span class="val">{{ inputs[7] | round | int }}</span></div>
+                        <div class="input-badge"><span class="lbl">BUKA APP</span><span class="val">{{ inputs[8] | round | int }} kali</span></div>
+                        <div class="input-badge"><span class="lbl">WEEKEND</span><span class="val">{{ inputs[9] | round | int }} jam</span></div>
+                    {% else %}
+                        {% for val in inputs %}
+                        <div class="input-badge"><span class="lbl">F{{ loop.index }}</span><span class="val">{{ val | round(1) }}</span></div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>

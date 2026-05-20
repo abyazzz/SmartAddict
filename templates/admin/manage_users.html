@@ -29,7 +29,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .header-text p {
@@ -118,7 +118,7 @@
     }
 
     .user-card:hover {
-        border-color: #444444;
+        border-color: var(--text-muted);
     }
 
     .user-avatar {
@@ -130,16 +130,16 @@
         justify-content: center;
         font-size: 1.1rem;
         font-weight: 900;
-        background: #000000;
+        background: var(--bg-primary);
         border: 1px solid var(--m-blue-light);
-        color: #ffffff;
+        color: var(--text-primary);
         font-family: monospace;
     }
 
     .user-info .user-name {
         font-weight: 900;
         font-size: 1rem;
-        color: #ffffff;
+        color: var(--text-primary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -191,7 +191,7 @@
 
     .del-btn:hover {
         background: var(--m-red);
-        color: #ffffff;
+        color: var(--bg-card);
     }
 
     @media (max-width: 768px) {
@@ -215,7 +215,7 @@
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     {% for msg in messages %}
-    <div style="padding:16px 20px; border-radius:0px; margin-bottom:24px; text-align:left; background:rgba(226, 39, 24, 0.08); border:1px solid var(--m-red); color:#ffffff; font-size:0.82rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;">
+    <div style="padding:16px 20px; border-radius:0px; margin-bottom:24px; text-align:left; background:rgba(226, 39, 24, 0.08); border:1px solid var(--m-red); color:var(--text-primary); font-size:0.82rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px;">
         {{ msg }}
     </div>
     {% endfor %}

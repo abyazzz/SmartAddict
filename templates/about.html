@@ -24,7 +24,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .page-header p {
@@ -68,7 +68,7 @@
     }
 
     .model-card:hover {
-        border-color: #444444;
+        border-color: var(--text-muted);
     }
 
     .model-card:hover::before {
@@ -87,7 +87,7 @@
         margin-bottom: 8px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .model-tag {
@@ -105,7 +105,7 @@
 
     .tag-tree { border-color: var(--m-blue-light); color: var(--m-blue-light); }
     .tag-knn { border-color: var(--m-blue-dark); color: var(--m-blue-dark); }
-    .tag-nn { border-color: #ffffff; color: #ffffff; }
+    .tag-nn { border-color: var(--text-primary); color: var(--text-primary); }
     .tag-svm { border-color: var(--m-red); color: var(--m-red); }
 
     .model-desc {
@@ -119,7 +119,7 @@
     .model-pros {
         list-style: none;
         padding: 0;
-        border-top: 1px solid #1a1a1a;
+        border-top: 1px solid var(--border-card);
         padding-top: 16px;
     }
 
@@ -173,7 +173,7 @@
         gap: 12px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .features-table {
@@ -189,21 +189,21 @@
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
-        border-bottom: 1px solid #222222;
-        background: #080808;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-card);
+        background: var(--bg-input);
     }
 
     .features-table td {
         padding: 12px 16px;
-        border-bottom: 1px solid #141414;
+        border-bottom: 1px solid var(--border-card);
         color: var(--text-secondary);
         letter-spacing: 0.5px;
     }
 
     .features-table tr:hover td {
-        color: #ffffff;
-        background: #040404;
+        color: var(--text-primary);
+        background: var(--nav-active-bg);
     }
 
     .features-table tr:last-child td {
@@ -304,49 +304,55 @@
                 <tr>
                     <td>02</td>
                     <td class="feat-name">gender</td>
-                    <td>Jenis Kelamin (0: Perempuan, 1: Laki-laki)</td>
+                    <td>Jenis kelamin pengguna (0: Perempuan, 1: Laki-laki)</td>
                     <td>0 - 1</td>
                 </tr>
                 <tr>
                     <td>03</td>
                     <td class="feat-name">daily_screen_time_hours</td>
-                    <td>Total durasi menatap layar smartphone per hari (jam)</td>
+                    <td>Rata-rata waktu menatap layar smartphone per hari (jam)</td>
                     <td>0 - 24</td>
                 </tr>
                 <tr>
                     <td>04</td>
                     <td class="feat-name">social_media_hours</td>
-                    <td>Durasi berinteraksi di media sosial per hari (jam)</td>
+                    <td>Durasi menggunakan media sosial per hari (jam)</td>
                     <td>0 - 24</td>
                 </tr>
                 <tr>
                     <td>05</td>
                     <td class="feat-name">gaming_hours</td>
-                    <td>Durasi bermain video game per hari (jam)</td>
+                    <td>Durasi bermain game per hari (jam)</td>
                     <td>0 - 24</td>
                 </tr>
                 <tr>
                     <td>06</td>
-                    <td class="feat-name">sleep_hours</td>
-                    <td>Rata-rata durasi tidur malam per hari (jam)</td>
-                    <td>0 - 12</td>
+                    <td class="feat-name">work_study_hours</td>
+                    <td>Durasi penggunaan smartphone untuk kerja/belajar per hari (jam)</td>
+                    <td>0 - 24</td>
                 </tr>
                 <tr>
                     <td>07</td>
-                    <td class="feat-name">notifications_per_day</td>
-                    <td>Perkiraan frekuensi notifikasi masuk harian</td>
-                    <td>0 - 500</td>
+                    <td class="feat-name">sleep_hours</td>
+                    <td>Rata-rata durasi jam tidur per hari (jam)</td>
+                    <td>0 - 12</td>
                 </tr>
                 <tr>
                     <td>08</td>
-                    <td class="feat-name">app_opens_per_day</td>
-                    <td>Frekuensi membuka kunci & membuka aplikasi harian</td>
+                    <td class="feat-name">notifications_per_day</td>
+                    <td>Perkiraan jumlah notifikasi yang diterima per hari</td>
                     <td>0 - 500</td>
                 </tr>
                 <tr>
                     <td>09</td>
+                    <td class="feat-name">app_opens_per_day</td>
+                    <td>Perkiraan frekuensi membuka smartphone per hari (kali)</td>
+                    <td>0 - 500</td>
+                </tr>
+                <tr>
+                    <td>10</td>
                     <td class="feat-name">weekend_screen_time</td>
-                    <td>Total durasi screen time di akhir pekan / weekend (jam)</td>
+                    <td>Rata-rata waktu menatap layar smartphone di hari libur/akhir pekan (jam)</td>
                     <td>0 - 24</td>
                 </tr>
             </tbody>

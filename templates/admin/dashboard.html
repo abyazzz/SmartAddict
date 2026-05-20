@@ -30,7 +30,7 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
         margin-bottom: 6px;
-        color: #ffffff;
+        color: var(--text-primary);
     }
 
     .header-text p {
@@ -127,7 +127,7 @@
         margin-bottom: 24px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
         border-left: 2px solid var(--m-blue-dark);
         padding-left: 10px;
     }
@@ -147,7 +147,7 @@
         margin-bottom: 24px;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
+        color: var(--text-primary);
         border-left: 2px solid var(--m-blue-light);
         padding-left: 10px;
     }
@@ -165,21 +165,21 @@
         font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 1.5px;
-        color: #ffffff;
-        border-bottom: 1px solid #222222;
-        background: #080808;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-card);
+        background: var(--bg-input);
     }
 
     .recent-table td {
         padding: 14px 16px;
-        border-bottom: 1px solid #141414;
+        border-bottom: 1px solid var(--border-card);
         color: var(--text-secondary);
         letter-spacing: 0.5px;
     }
 
     .recent-table tr:hover td {
-        color: #ffffff;
-        background: #040404;
+        color: var(--text-primary);
+        background: var(--nav-active-bg);
     }
 
     .recent-table tr:last-child td {
@@ -242,7 +242,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-icon">🤖</div>
-            <div class="stat-num" style="color:#ffffff">4</div>
+            <div class="stat-num" style="color:var(--text-primary)">4</div>
             <div class="stat-label">Model ML Aktif</div>
         </div>
         <div class="stat-card">
@@ -278,7 +278,7 @@
             <tbody>
                 {% for p in recent %}
                 <tr>
-                    <td style="font-weight:800; color:#ffffff; text-transform: uppercase;">{{ p.user.username }}</td>
+                    <td style="font-weight:800; color:var(--text-primary); text-transform: uppercase;">{{ p.user.username }}</td>
                     <td style="font-family: monospace; text-transform: uppercase; font-size: 0.75rem;">{{ p.model_name }}</td>
                     <td>
                         <span class="badge-sm {% if p.result == 'Rendah' %}r{% elif p.result == 'Sedang' %}s{% else %}t{% endif %}">
@@ -302,74 +302,94 @@
     const s = {{ stats | tojson }};
     const mu = {{ model_usage | tojson }};
     
-    const mBlueLight = '#0066b1';
-    const mBlueDark = '#1c69d4';
-    const mRed = '#e22718';
+    let pieChartInstance = null;
+    let modelChartInstance = null;
 
-    Chart.defaults.color = '#aaaaaa'; 
-    Chart.defaults.font.family = 'monospace';
+    function renderCharts() {
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        const mBlueLight = isLight ? '#00acc1' : '#00bcd4';
+        const mBlueDark = isLight ? '#1565c0' : '#1c69d4';
+        const mRed = isLight ? '#d32f2f' : '#e22718';
+        const textColor = isLight ? '#475569' : '#aaaaaa';
+        const labelColor = isLight ? '#0f172a' : '#ffffff';
+        const gridColor = isLight ? 'rgba(15, 23, 42, 0.08)' : '#1a1a1a';
+        const chartBg = isLight ? '#ffffff' : '#111111';
 
-    if (s.Rendah + s.Sedang + s.Tinggi > 0) {
-        new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut',
-            data: { 
-                labels: ['RENDAH','SEDANG','TINGGI'], 
-                datasets: [{ 
-                    data: [s.Rendah, s.Sedang, s.Tinggi], 
-                    backgroundColor: [mBlueLight, mBlueDark, mRed], 
-                    borderColor: ['#111111', '#111111', '#111111'], 
-                    borderWidth: 2 
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                cutout: '65%', 
-                plugins: { 
-                    legend: { 
-                        position: 'bottom', 
-                        labels: { 
-                            padding: 14, 
-                            usePointStyle: true, 
-                            pointStyle: 'rect',
-                            font: { size: 10, weight: '700' }
+        Chart.defaults.color = textColor; 
+        Chart.defaults.font.family = 'monospace';
+
+        if (pieChartInstance) pieChartInstance.destroy();
+        if (modelChartInstance) modelChartInstance.destroy();
+
+        if (s.Rendah + s.Sedang + s.Tinggi > 0) {
+            pieChartInstance = new Chart(document.getElementById('pieChart'), {
+                type: 'doughnut',
+                data: { 
+                    labels: ['RENDAH','SEDANG','TINGGI'], 
+                    datasets: [{ 
+                        data: [s.Rendah, s.Sedang, s.Tinggi], 
+                        backgroundColor: [mBlueLight, mBlueDark, mRed], 
+                        borderColor: chartBg, 
+                        borderWidth: 2 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    cutout: '65%', 
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom', 
+                            labels: { 
+                                padding: 14, 
+                                usePointStyle: true, 
+                                pointStyle: 'rect',
+                                font: { size: 10, weight: '700' },
+                                color: labelColor
+                            } 
                         } 
                     } 
-                } 
-            }
-        });
+                }
+            });
+        }
+
+        const modelLabels = Object.keys(mu).map(m => m.toUpperCase()), modelData = Object.values(mu);
+        if (modelLabels.length > 0) {
+            modelChartInstance = new Chart(document.getElementById('modelChart'), {
+                type: 'bar',
+                data: { 
+                    labels: modelLabels, 
+                    datasets: [{ 
+                        label: 'TOTAL RUN', 
+                        data: modelData, 
+                        backgroundColor: [mBlueLight, mBlueDark, isLight ? '#475569' : '#ffffff', mRed], 
+                        borderColor: [mBlueLight, mBlueDark, isLight ? '#475569' : '#ffffff', mRed], 
+                        borderWidth: 0, 
+                        borderRadius: 0 
+                    }] 
+                },
+                options: { 
+                    responsive: true, 
+                    plugins: { legend: { display: false } }, 
+                    scales: { 
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 9, weight: '700' }, color: labelColor }
+                        }, 
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: gridColor },
+                            ticks: { stepSize: 5, color: textColor } 
+                        } 
+                    } 
+                }
+            });
+        }
     }
 
-    const modelLabels = Object.keys(mu).map(m => m.toUpperCase()), modelData = Object.values(mu);
-    if (modelLabels.length > 0) {
-        new Chart(document.getElementById('modelChart'), {
-            type: 'bar',
-            data: { 
-                labels: modelLabels, 
-                datasets: [{ 
-                    label: 'TOTAL RUN', 
-                    data: modelData, 
-                    backgroundColor: [mBlueLight, mBlueDark, '#ffffff', mRed], 
-                    borderColor: [mBlueLight, mBlueDark, '#ffffff', mRed], 
-                    borderWidth: 0, 
-                    borderRadius: 0 
-                }] 
-            },
-            options: { 
-                responsive: true, 
-                plugins: { legend: { display: false } }, 
-                scales: { 
-                    x: { 
-                        grid: { display: false },
-                        ticks: { font: { size: 9, weight: '700' }, color: '#ffffff' }
-                    }, 
-                    y: { 
-                        beginAtZero: true, 
-                        grid: { color: '#1a1a1a' },
-                        ticks: { stepSize: 5 } 
-                    } 
-                } 
-            }
-        });
-    }
+    // Initial render
+    renderCharts();
+
+    // Listen to theme changes
+    window.addEventListener('themechanged', renderCharts);
 </script>
 {% endblock %}

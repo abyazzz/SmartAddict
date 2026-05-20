@@ -11,33 +11,65 @@
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* ═══════ THEME VARIABLES (SMART ADDICT DARK CANVASES) ═══════ */
-        :root, [data-theme="dark"], [data-theme="light"] {
-            --bg-primary: #000000;
-            --bg-card: #0d0d0d;
-            --bg-input: #141414;
-            --border-card: #222222;
-            --border-input: #2a2a2a;
+        /* ═══════ THEME VARIABLES (SMART ADDICT THEMES) ═══════ */
+        :root, [data-theme="dark"] {
+            --bg-primary: #050505;
+            --bg-card: #0c0c0c;
+            --bg-input: #121212;
+            --border-card: #1f1f1f;
+            --border-input: #292929;
             --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
+            --text-secondary: #b3b3b3;
             --text-muted: #666666;
-            --navbar-bg: #000000;
-            --navbar-border: #141414;
+            --navbar-bg: rgba(5, 5, 5, 0.85);
+            --navbar-border: #1f1f1f;
             --navbar-shadow: none;
             
-            --m-blue-light: #0066b1;
+            --m-blue-light: #00bcd4;
             --m-blue-dark: #1c69d4;
             --m-red: #e22718;
             
-            --accent-cyan: #ffffff;
-            --accent-blue: #0066b1;
-            --accent-purple: #1c69d4;
+            --accent-cyan: #00bcd4;
+            --accent-blue: #1c69d4;
+            --accent-purple: #9c27b0;
             --accent-emerald: #34d399;
             --accent-rose: #e22718;
             --accent-amber: #fbbf24;
             
             --nav-active-bg: rgba(255, 255, 255, 0.05);
             --nav-active-glow: none;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --text-logo-dark: #ffffff;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-input: #f1f5f9;
+            --border-card: #e2e8f0;
+            --border-input: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --navbar-bg: rgba(255, 255, 255, 0.85);
+            --navbar-border: #e2e8f0;
+            --navbar-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+            
+            --m-blue-light: #00acc1;
+            --m-blue-dark: #1565c0;
+            --m-red: #d32f2f;
+            
+            --accent-cyan: #00acc1;
+            --accent-blue: #1565c0;
+            --accent-purple: #7b1fa2;
+            --accent-emerald: #2e7d32;
+            --accent-rose: #c2185b;
+            --accent-amber: #f57c00;
+            
+            --nav-active-bg: rgba(21, 101, 192, 0.06);
+            --nav-active-glow: none;
+            --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), 0 4px 10px rgba(15, 23, 42, 0.03);
+            --text-logo-dark: #0f172a;
         }
 
         body {
@@ -63,6 +95,9 @@
         .navbar {
             background: var(--navbar-bg);
             border-bottom: 1px solid var(--navbar-border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--navbar-shadow);
             padding: 0 40px;
             height: 70px;
             display: flex; align-items: center; justify-content: space-between;
@@ -74,7 +109,7 @@
             font-family: 'Inter', sans-serif;
             font-size: 1.35rem; font-weight: 900; letter-spacing: 0.05em;
             text-transform: uppercase;
-            color: #ffffff;
+            color: var(--text-logo-dark);
             white-space: nowrap; user-select: none;
         }
 
@@ -88,31 +123,51 @@
             border-bottom: 2px solid transparent;
         }
         .nav-center a:hover {
-            color: #ffffff; background: var(--nav-active-bg);
+            color: var(--text-primary); background: var(--nav-active-bg);
         }
         .nav-center a.active {
-            color: #ffffff; background: var(--nav-active-bg);
-            border-bottom: 2px solid #ffffff;
+            color: var(--m-blue-dark); background: var(--nav-active-bg);
+            border-bottom: 2px solid var(--m-blue-dark);
         }
         .nav-center a .nav-icon { margin-right: 6px; font-size: 0.95rem; }
 
         .nav-actions { display: flex; align-items: center; gap: 14px; }
 
-        /* Theme toggle hidden visually, keep in DOM for backward-compat script */
-        .theme-toggle { display: none !important; }
+        /* Styled Theme Toggle */
+        .theme-toggle {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-input);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            font-size: 1.1rem;
+        }
+        .theme-toggle:hover {
+            border-color: var(--m-blue-light);
+            background: var(--nav-active-bg);
+            transform: rotate(15deg) scale(1.05);
+            box-shadow: 0 0 12px rgba(0, 188, 212, 0.2);
+        }
 
         /* ═══════ PREMIUM SMARTADDICT BUTTONS & CONTROLS (0px RADIUS) ═══════ */
         .btn-primary {
             display: inline-flex; align-items: center; justify-content: center; gap: 10px;
             padding: 14px 36px; border-radius: 0px; font-size: 0.85rem; font-weight: 800;
             background: transparent;
-            color: #ffffff; text-decoration: none; 
-            border: 1px solid #ffffff; cursor: pointer;
+            color: var(--text-primary); text-decoration: none; 
+            border: 1px solid var(--text-primary); cursor: pointer;
             font-family: inherit; transition: all 0.3s ease;
             text-transform: uppercase; letter-spacing: 2px;
         }
         .btn-primary:hover { 
-            background: #ffffff; color: #000000; 
+            background: var(--text-primary); color: var(--bg-primary); 
         }
         
         .btn-secondary {
@@ -124,7 +179,7 @@
             text-transform: uppercase; letter-spacing: 2px;
         }
         .btn-secondary:hover { 
-            border-color: #ffffff; color: #ffffff; background: rgba(255,255,255,0.05); 
+            border-color: var(--text-primary); color: var(--text-primary); background: var(--nav-active-bg); 
         }
 
         .btn-nav-login {
@@ -136,13 +191,13 @@
             text-transform: uppercase;
             letter-spacing: 1.5px;
             background: transparent;
-            color: #ffffff;
-            border: 1px solid #ffffff;
+            color: var(--text-primary);
+            border: 1px solid var(--text-primary);
             transition: all 0.2s ease;
         }
         .btn-nav-login:hover {
-            background: #ffffff;
-            color: #000000;
+            background: var(--text-primary);
+            color: var(--bg-primary);
         }
 
         .btn-nav-logout {
@@ -186,7 +241,7 @@
         .footer {
             text-align: center; padding: 40px 24px; font-size: 0.78rem; color: var(--text-muted);
             border-top: 1px solid var(--border-card); position: relative; z-index: 1;
-            background: #000000; text-transform: uppercase; letter-spacing: 1px;
+            background: var(--bg-card); text-transform: uppercase; letter-spacing: 1px;
         }
 
         @media (max-width: 768px) {
@@ -245,18 +300,27 @@
     {% endblock %}
 
     <script>
-        // Force dark theme with localStorage persistence
+        function getPreferredTheme() {
+            const saved = localStorage.getItem('sa-theme');
+            if (saved) return saved;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
         function setTheme(theme) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('sa-theme', 'dark');
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('sa-theme', theme);
             const icon = document.getElementById('themeIcon');
-            if (icon) icon.textContent = '🌙';
+            if (icon) {
+                icon.textContent = theme === 'light' ? '☀️' : '🌙';
+            }
         }
         function toggleTheme() {
-            // Forced dark, no-op
+            const current = document.documentElement.getAttribute('data-theme') || 'dark';
+            const next = current === 'dark' ? 'light' : 'dark';
+            setTheme(next);
+            window.dispatchEvent(new CustomEvent('themechanged', { detail: { theme: next } }));
         }
         (function() {
-            setTheme('dark');
+            setTheme(getPreferredTheme());
         })();
     </script>
     {% block scripts %}{% endblock %}

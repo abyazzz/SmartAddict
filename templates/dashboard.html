@@ -8,13 +8,13 @@
     .content { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 60px 24px 80px; }
 
     /* ═══════ HERO SECTION ═══════ */
-    .hero { text-align: left; margin-bottom: 72px; padding: 40px 0; border-bottom: 1px solid #141414; position: relative; }
+    .hero { text-align: left; margin-bottom: 72px; padding: 40px 0; border-bottom: 1px solid var(--border-card); position: relative; }
     
     .hero-badge {
         display: inline-flex; align-items: center; gap: 8px;
         padding: 6px 14px; border-radius: 0px; font-size: 0.72rem; font-weight: 800;
-        background: transparent; border: 1px solid #ffffff;
-        color: #ffffff; letter-spacing: 0.15em; text-transform: uppercase;
+        background: transparent; border: 1px solid var(--text-primary);
+        color: var(--text-primary); letter-spacing: 0.15em; text-transform: uppercase;
         margin-bottom: 28px; animation: fadeInUp 0.5s ease forwards;
     }
     .hero-badge::before {
@@ -48,19 +48,19 @@
         background: var(--m-red); transition: height 0.3s ease;
     }
     .stat-card:hover::before { height: 100%; }
-    .stat-card:hover { border-color: #333333; }
+    .stat-card:hover { border-color: var(--text-muted); }
     .stat-card:nth-child(1) { animation-delay: 0.25s; }
     .stat-card:nth-child(2) { animation-delay: 0.3s; }
     .stat-card:nth-child(3) { animation-delay: 0.35s; }
     .stat-card:nth-child(4) { animation-delay: 0.4s; }
     
-    .stat-number { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; letter-spacing: -0.02em; color: #ffffff; line-height: 1; }
+    .stat-number { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; letter-spacing: -0.02em; color: var(--text-primary); line-height: 1; }
     .stat-label { font-size: 0.75rem; color: var(--text-secondary); margin-top: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; }
 
     /* ═══════ SECTIONS HEADER ═══════ */
     .section-title-wrap {
         display: flex; align-items: flex-end; justify-content: space-between;
-        margin-bottom: 40px; padding-bottom: 16px; border-bottom: 1px solid #141414;
+        margin-bottom: 40px; padding-bottom: 16px; border-bottom: 1px solid var(--border-card);
     }
     .section-title { font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
     .section-subtitle { color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 300; margin-top: 6px; }
@@ -86,15 +86,15 @@
         background: linear-gradient(90deg, var(--m-blue-light) 0%, var(--m-blue-dark) 100%);
         opacity: 0; transition: opacity 0.3s ease;
     }
-    .feature-card:hover { border-color: #3c3c3c; }
+    .feature-card:hover { border-color: var(--text-muted); }
     .feature-card:hover::before { opacity: 1; }
     
     .feature-icon {
         width: 52px; height: 52px; border-radius: 0px;
         display: flex; align-items: center; justify-content: center;
         margin-bottom: 24px; font-size: 1.5rem;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid #222222;
+        background: var(--bg-input);
+        border: 1px solid var(--border-input);
     }
     .feature-card h3 { font-size: 1.15rem; font-weight: 900; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
     .feature-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; font-weight: 300; }
@@ -116,7 +116,7 @@
     }
     .dataset-source-icon {
         width: 56px; height: 56px; border-radius: 0px;
-        background: rgba(255, 255, 255, 0.04); border: 1px solid #222222;
+        background: var(--bg-input); border: 1px solid var(--border-input);
         display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;
     }
     .dataset-source-header h2 { font-size: 1.3rem; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; }
@@ -125,25 +125,25 @@
     .dataset-info { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     .dataset-info-item {
         padding: 20px; border-radius: 0px;
-        background: #121212; border: 1px solid #222222;
+        background: var(--bg-primary); border: 1px solid var(--border-input);
     }
     .dataset-info-label {
         font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em;
-        color: #888888; margin-bottom: 8px;
+        color: var(--text-muted); margin-bottom: 8px;
     }
-    .dataset-info-value { font-size: 0.95rem; font-weight: 700; color: #ffffff; }
+    .dataset-info-value { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
     .dataset-info-value a {
-        color: #ffffff; text-decoration: underline; font-weight: 800;
+        color: var(--text-primary); text-decoration: underline; font-weight: 800;
         transition: all 0.2s ease;
     }
     .dataset-info-value a:hover { color: var(--m-blue-light); }
     .dataset-note {
         font-size: 0.8rem; color: var(--text-secondary); line-height: 1.6;
         padding: 16px 20px; border-radius: 0px;
-        background: rgba(255, 255, 255, 0.02); border: 1px solid #222222;
+        background: var(--bg-input); border: 1px solid var(--border-input);
         font-weight: 300;
     }
-    .dataset-note strong { color: #ffffff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
+    .dataset-note strong { color: var(--text-primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; font-size: 0.75rem; }
 
     /* ═══════ CHARTS SECTION ═══════ */
     .stats-chart-section {
@@ -156,10 +156,10 @@
     }
     .stats-chart-card h3 { 
         font-size: 1.1rem; font-weight: 900; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;
-        text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #141414; padding-bottom: 12px;
+        text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-card); padding-bottom: 12px;
     }
     .recent-list { list-style: none; padding: 0; }
-    .recent-item { padding: 14px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
+    .recent-item { padding: 14px 0; border-bottom: 1px solid var(--border-card); display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; }
     .recent-item:last-child { border-bottom: none; }
     .recent-model { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     
@@ -175,7 +175,7 @@
     /* ═══════ CTA SECTION ═══════ */
     .cta-section {
         text-align: center; padding: 56px 36px; border-radius: 0px;
-        background: #0d0d0d; border: 1px solid var(--border-card);
+        background: var(--bg-card); border: 1px solid var(--border-card);
         animation: fadeInUp 0.5s ease 0.7s forwards; opacity: 0;
         position: relative;
     }
@@ -224,7 +224,7 @@
 <main class="content">
     <section class="hero">
         <div class="hero-badge">SmartAddict ML Analysis</div>
-        <h1>Deteksi Dini<br><span style="color:#ffffff">Kecanduan Smartphone</span></h1>
+        <h1>Deteksi Dini<br><span style="color:var(--text-primary)">Kecanduan Smartphone</span></h1>
         <p>Sistem analisis machine learning performa tinggi yang memproses parameter aktivitas digital secara real-time untuk mendiagnosis tingkatan kecanduan smartphone Anda secara presisi.</p>
         <div class="hero-actions">
             {% if current_user.is_authenticated %}
@@ -253,7 +253,7 @@
         </div>
         
         <div class="features-grid">
-            <div class="feature-card"><div class="feature-icon">📊</div><h3>Prediksi Level Kecanduan</h3><p>Gunakan model machine learning canggih untuk mengukur level kecanduan Anda berdasarkan 9 indikator penggunaan harian.</p></div>
+            <div class="feature-card"><div class="feature-icon">📊</div><h3>Prediksi Level Kecanduan</h3><p>Gunakan model machine learning canggih untuk mengukur level kecanduan Anda berdasarkan 10 parameter penggunaan harian.</p></div>
             <div class="feature-card"><div class="feature-icon">📁</div><h3>Input Manual & CSV</h3><p>Masukkan data secara langsung melalui form interaktif angular atau upload file data batch CSV untuk prediksi cepat.</p></div>
             <div class="feature-card"><div class="feature-icon">🕐</div><h3>History Prediksi</h3><p>Akses riwayat analitis semua pengujian yang telah diselesaikan lengkap dengan detail model pembanding.</p></div>
             <div class="feature-card"><div class="feature-icon">🤖</div><h3>4 Algoritma ML</h3><p>Decision Tree, K-Nearest Neighbors, Artificial Neural Network, dan Support Vector Machine.</p></div>
@@ -316,7 +316,7 @@
 
     <section class="cta-section">
         <h2>Siap Memulai Pengujian Performa?</h2>
-        <p>Mulai evaluasi sekarang dengan mengisi 9 indikator penggunaan atau unggah dokumen CSV.</p>
+        <p>Mulai evaluasi sekarang dengan mengisi 10 parameter penggunaan atau unggah dokumen CSV.</p>
         {% if current_user.is_authenticated %}
         <a href="{{ url_for('predict') }}" class="btn-primary">Mulai Sekarang →</a>
         {% else %}
@@ -331,18 +331,33 @@
 <script>
     const statsData = {{ stats | tojson }};
     const ctx = document.getElementById('pieChart');
-    if (ctx && (statsData.Rendah + statsData.Sedang + statsData.Tinggi) > 0) {
-        Chart.defaults.color = '#aaaaaa';
+    let myChart = null;
+
+    function renderChart() {
+        if (!ctx || (statsData.Rendah + statsData.Sedang + statsData.Tinggi) === 0) return;
+        
+        if (myChart) {
+            myChart.destroy();
+        }
+
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        const centerTextColor = isLight ? '#0f172a' : '#ffffff';
+        const centerMutedColor = isLight ? '#64748b' : '#888888';
+        const legendColor = isLight ? '#334155' : '#ffffff';
+        const borderStrokeColor = isLight ? '#ffffff' : '#0c0c0c';
+
+        Chart.defaults.color = isLight ? '#64748b' : '#aaaaaa';
         Chart.defaults.font.family = 'Inter, sans-serif';
-        new Chart(ctx, {
+        
+        myChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Rendah', 'Sedang', 'Tinggi'],
                 datasets: [{
                     data: [statsData.Rendah, statsData.Sedang, statsData.Tinggi],
                     // Brand colors for addiction levels: Low (blue-light), Medium (blue-dark), High (red)
-                    backgroundColor: ['#0066b1', '#1c69d4', '#e22718'],
-                    borderColor: ['#0d0d0d', '#0d0d0d', '#0d0d0d'],
+                    backgroundColor: ['#00bcd4', '#1c69d4', '#e22718'],
+                    borderColor: [borderStrokeColor, borderStrokeColor, borderStrokeColor],
                     borderWidth: 2
                 }]
             },
@@ -356,7 +371,7 @@
                             usePointStyle: true, 
                             pointStyle: 'rect', 
                             font: { size: 11, weight: '700' },
-                            color: '#ffffff'
+                            color: legendColor
                         } 
                     }
                 }
@@ -368,13 +383,16 @@
                     const total = statsData.Rendah + statsData.Sedang + statsData.Tinggi;
                     ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
                     const cx=left+width/2, cy=top+height/2;
-                    ctx.font='900 28px Inter'; ctx.fillStyle='#ffffff'; ctx.fillText(total,cx,cy-6);
-                    ctx.font='800 9px Inter'; ctx.fillStyle='#888888'; ctx.fillText('TOTAL',cx,cy+16);
+                    ctx.font='900 28px Inter'; ctx.fillStyle=centerTextColor; ctx.fillText(total,cx,cy-6);
+                    ctx.font='800 9px Inter'; ctx.fillStyle=centerMutedColor; ctx.fillText('TOTAL',cx,cy+16);
                     ctx.restore();
                 }
             }]
         });
     }
+
+    document.addEventListener("DOMContentLoaded", renderChart);
+    window.addEventListener('themechanged', renderChart);
 </script>
 {% endif %}
 {% endblock %}

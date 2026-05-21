@@ -166,6 +166,51 @@
         margin-bottom: 40px;
     }
 
+    .batch-detail-container {
+        animation: fadeInUp 0.5s ease 0.45s forwards;
+        opacity: 0;
+        margin-bottom: 40px;
+    }
+
+    .batch-detail-note {
+        margin-top: 8px;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .batch-detail-table td,
+    .batch-detail-table th {
+        white-space: nowrap;
+        font-size: 0.72rem;
+    }
+
+    .batch-detail-table .row-index {
+        font-family: monospace;
+        font-weight: 900;
+        color: var(--m-blue-light);
+        text-align: center;
+    }
+
+    .batch-detail-table .row-diagnosis {
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .batch-detail-table .row-diagnosis.rendah {
+        color: var(--m-blue-light);
+    }
+
+    .batch-detail-table .row-diagnosis.sedang {
+        color: var(--m-blue-dark);
+    }
+
+    .batch-detail-table .row-diagnosis.tinggi {
+        color: var(--m-red);
+    }
+
     .comparison-table-wrap {
         margin-top: 20px;
         background: var(--bg-card);
@@ -429,6 +474,7 @@
 {% block content %}
 <main class="content">
     {% if result %}
+    {% set is_batch = result.get('batch_mode', false) %}
     <div class="confetti-container" id="confetti"></div>
 
     <div class="result-hero">
@@ -438,7 +484,7 @@
         <div class="level-badge {{ level_class }}">
             LEVEL DIAGNOSIS: {{ result['diagnosis'] }}
         </div>
-        <div class="result-model">MODEL ANALISIS ML: <strong>{{ result['model'] | upper }}</strong></div>
+        <div class="result-model">MODEL ANALISIS ML: <strong>{{ result['model'] | upper }}</strong>{% if is_batch %} | BATCH CSV: <strong>{{ result['batch_count'] }} DATA</strong>{% endif %}</div>
     </div>
 
     <div class="summary-row">
@@ -567,6 +613,59 @@
         </div>
     </div>
 
+    {% if is_batch %}
+    <div class="batch-detail-container">
+        <div class="chart-title">🧾 DETAIL HASIL PER BARIS UPLOAD</div>
+        <div class="batch-detail-note">MENAMPILKAN {{ result['batch_count'] }} BARIS CSV DENGAN EVALUASI LEVEL KECANDUAN UNTUK SETIAP BARIS INPUT.</div>
+
+        <div class="comparison-table-wrap">
+            <table class="comparison-table batch-detail-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px; text-align: center;">NO.</th>
+                        <th>USIA</th>
+                        <th>GENDER</th>
+                        <th>SCREEN TIME</th>
+                        <th>MEDIA SOSIAL</th>
+                        <th>GAMING</th>
+                        <th>KERJA/BELAJAR</th>
+                        <th>TIDUR</th>
+                        <th>NOTIFIKASI</th>
+                        <th>BUKA APLIKASI</th>
+                        <th>WEEKEND SCREEN</th>
+                        <th>DIAGNOSIS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in result['batch_rows'] %}
+                    <tr>
+                        <td class="row-index">{{ row['row_number'] }}</td>
+                        {% for q in questions %}
+                        {% set idx = loop.index0 %}
+                        {% set cell_value = row['values'][idx] %}
+                        <td>
+                            {% if q.key == 'gender' %}
+                                {% if cell_value == 1 %}LAKI-LAKI{% else %}PEREMPUAN{% endif %}
+                            {% else %}
+                                {{ cell_value | round | int }}
+                                {% if q.key in ['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'weekend_screen_time'] %} JAM
+                                {% elif q.key == 'age' %} THN
+                                {% elif q.key == 'notifications_per_day' %} NOTIF
+                                {% elif q.key == 'app_opens_per_day' %} KALI
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        {% set row_level = 'rendah' if row['diagnosis'] == 'Rendah' else ('sedang' if row['diagnosis'] == 'Sedang' else 'tinggi') %}
+                        <td class="row-diagnosis {{ row_level }}">{{ row['diagnosis'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
 
 
     <div class="actions">
@@ -607,6 +706,10 @@
 <script>
     const values = {{ result['values'] | tojson }};
     const averages = {{ averages | tojson }};
+    const isBatch = {{ result.get('batch_mode', false) | tojson }};
+    const batchRows = {{ result.get('batch_rows', []) | tojson }};
+    const distribution = {{ result.get('distribution', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}) | tojson }};
+    const batchCount = {{ result.get('batch_count', 1) }};
     const labels = ['USIA', 'GENDER', 'SCREEN TIME', 'MEDIA SOSIAL', 'GAMING', 'KERJA/BELAJAR', 'JAM TIDUR', 'NOTIFIKASI', 'BUKA APLIKASI', 'WEEKEND SCREEN TIME'];
     const predictionRaw = {{ result['prediction_raw'] }};
     const diagnosis = "{{ result['diagnosis'] }}".toUpperCase();
@@ -620,7 +723,7 @@
 
     const levelColors = [mBlueLight, mBlueDark, mRed];
     const levelLabels = ['RENDAH', 'SEDANG', 'TINGGI'];
-    const gaugeValues = [1, 1, 1]; // segmented flat layout
+    const gaugeValues = isBatch ? [distribution.Rendah || 0, distribution.Sedang || 0, distribution.Tinggi || 0] : [1, 1, 1];
     let myChart = null;
 
     function renderChart() {
@@ -630,6 +733,7 @@
         const unselectedBG0 = isLight ? 'rgba(0, 188, 212, 0.08)' : 'rgba(0, 102, 177, 0.1)';
         const unselectedBG1 = isLight ? 'rgba(28, 105, 212, 0.08)' : 'rgba(28, 105, 212, 0.1)';
         const unselectedBG2 = isLight ? 'rgba(226, 39, 24, 0.08)' : 'rgba(226, 39, 24, 0.1)';
+        const batchColors = [mBlueLight, mBlueDark, mRed];
 
         if (myChart) {
             myChart.destroy();
@@ -644,12 +748,12 @@
                 labels: levelLabels, 
                 datasets: [{ 
                     data: gaugeValues, 
-                    backgroundColor: [
+                    backgroundColor: isBatch ? batchColors : [
                         predictionRaw === 0 ? mBlueLight : unselectedBG0, 
                         predictionRaw === 1 ? mBlueDark : unselectedBG1, 
                         predictionRaw === 2 ? mRed : unselectedBG2
                     ], 
-                    borderColor: [
+                    borderColor: isBatch ? batchColors : [
                         predictionRaw === 0 ? mBlueLight : unselectedBorder, 
                         predictionRaw === 1 ? mBlueDark : unselectedBorder, 
                         predictionRaw === 2 ? mRed : unselectedBorder
@@ -683,11 +787,11 @@
                     ctx.textBaseline = 'middle'; 
                     const cx = left + width / 2, cy = top + height / 2; 
                     ctx.font = '900 22px monospace'; 
-                    ctx.fillStyle = levelColors[predictionRaw]; 
-                    ctx.fillText(diagnosis, cx, cy - 4); 
+                    ctx.fillStyle = isBatch ? mBlueDark : levelColors[predictionRaw]; 
+                    ctx.fillText(isBatch ? (batchCount + ' DATA') : diagnosis, cx, cy - 4); 
                     ctx.font = '700 10px monospace'; 
                     ctx.fillStyle = isLight ? '#64748b' : '#666666'; 
-                    ctx.fillText('DIAGNOSIS', cx, cy + 20); 
+                    ctx.fillText(isBatch ? 'DISTRIBUSI CSV BATCH' : 'DIAGNOSIS', cx, cy + 20); 
                     ctx.restore(); 
                 } 
             }]
@@ -781,7 +885,12 @@
             y += 30;
 
             // ── SUMMARY STATS ────────────────────────────────────────
-            const stats = [
+            const stats = isBatch ? [
+                { label: 'MODEL ML', value: String(result_model || 'ML').toUpperCase() },
+                { label: 'TOTAL BARIS', value: batchCount + ' DATA' },
+                { label: 'RATA-RATA SCREEN TIME', value: Math.round(values[2]) + ' JAM/HARI' },
+                { label: 'RATA-RATA USIA', value: Math.round(values[0]) + ' TAHUN' },
+            ] : [
                 { label: 'MODEL ML', value: String(result_model || 'ML').toUpperCase() },
                 { label: 'SCREEN TIME', value: Math.round(values[2]) + ' JAM/HARI' },
                 { label: 'USIA PENGGUNA', value: Math.round(values[0]) + ' TAHUN' },
@@ -823,7 +932,7 @@
                 pdf.setFontSize(6);
                 pdf.setFont('helvetica', 'bold');
                 pdf.setTextColor(...MUTED);
-                pdf.text('DISTRIBUSI LEVEL KECANDUAN', margin + (col - cW) / 2 + 3, y + 5);
+                pdf.text(isBatch ? 'DISTRIBUSI LEVEL KECANDUAN (CSV)' : 'DISTRIBUSI LEVEL KECANDUAN', margin + (col - cW) / 2 + 3, y + 5);
                 
                 pdf.addImage(imgData, 'PNG', margin + (col - cW) / 2 + 1, y + 7, cW - 2, cH);
                 y += cH + 15;
@@ -919,6 +1028,88 @@
                 
                 y += 7;
             });
+
+            if (isBatch && batchRows.length) {
+                y += 8;
+                if (y + 14 > H - margin) { pdf.addPage(); y = margin; }
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(9);
+                pdf.setTextColor(...WHITE);
+                pdf.text('DETAIL HASIL PER BARIS CSV', margin, y);
+                y += 6;
+
+                const batchHeaders = ['NO', 'USIA', 'GENDER', 'SCREEN', 'SOSMED', 'GAME', 'KERJA', 'TIDUR', 'NOTIF', 'APPS', 'WEEKEND', 'DIAG'];
+                const batchColWidths = [10, 14, 16, 16, 16, 14, 16, 14, 14, 14, 16, 20];
+                const batchRowHeight = 6;
+                const batchTableWidth = batchColWidths.reduce((sum, width) => sum + width, 0);
+                const batchX = margin;
+
+                pdf.setFillColor(15, 15, 15);
+                pdf.rect(batchX, y, batchTableWidth, batchRowHeight, 'F');
+                let cursorX = batchX;
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(5.8);
+                pdf.setTextColor(...MUTED);
+                batchHeaders.forEach((header, index) => {
+                    pdf.text(header, cursorX + batchColWidths[index] / 2, y + 3.9, { align: 'center' });
+                    cursorX += batchColWidths[index];
+                });
+                y += batchRowHeight;
+
+                batchRows.forEach((row, rowIndex) => {
+                    if (y + batchRowHeight > H - margin) {
+                        pdf.addPage();
+                        y = margin;
+                        pdf.setFillColor(15, 15, 15);
+                        pdf.rect(batchX, y, batchTableWidth, batchRowHeight, 'F');
+                        let headerX = batchX;
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.setFontSize(5.8);
+                        pdf.setTextColor(...MUTED);
+                        batchHeaders.forEach((header, index) => {
+                            pdf.text(header, headerX + batchColWidths[index] / 2, y + 3.9, { align: 'center' });
+                            headerX += batchColWidths[index];
+                        });
+                        y += batchRowHeight;
+                    }
+
+                    const even = rowIndex % 2 === 0;
+                    pdf.setFillColor(even ? 12 : 8, even ? 12 : 8, even ? 12 : 8);
+                    pdf.rect(batchX, y, batchTableWidth, batchRowHeight, 'F');
+                    pdf.setDrawColor(35, 35, 35);
+                    pdf.rect(batchX, y, batchTableWidth, batchRowHeight);
+
+                    const rowValues = [
+                        row.row_number,
+                        Math.round(row.values[0]) + ' THN',
+                        row.values[1] === 1 ? 'L' : 'P',
+                        Math.round(row.values[2]) + ' J',
+                        Math.round(row.values[3]) + ' J',
+                        Math.round(row.values[4]) + ' J',
+                        Math.round(row.values[5]) + ' J',
+                        Math.round(row.values[6]) + ' J',
+                        Math.round(row.values[7]) + '',
+                        Math.round(row.values[8]) + '',
+                        Math.round(row.values[9]) + ' J',
+                        row.diagnosis.toUpperCase(),
+                    ];
+
+                    cursorX = batchX;
+                    rowValues.forEach((value, index) => {
+                        pdf.setFont('helvetica', index === 11 ? 'bold' : 'normal');
+                        if (index === 11) {
+                            const rowColor = row.diagnosis === 'Rendah' ? BLUE_L : (row.diagnosis === 'Sedang' ? BLUE_D : RED_M);
+                            pdf.setTextColor(...rowColor);
+                        } else {
+                            pdf.setTextColor(...WHITE);
+                        }
+                        pdf.text(String(value), cursorX + batchColWidths[index] / 2, y + 3.9, { align: 'center' });
+                        cursorX += batchColWidths[index];
+                    });
+
+                    y += batchRowHeight;
+                });
+            }
 
             // ── FOOTER ────────────────────────────────────────────────
             y += 6;

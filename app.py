@@ -101,6 +101,80 @@ QUESTIONS = [
     {"key": "weekend_screen_time", "label": "Berapa jam Anda menatap layar smartphone di hari libur?", "description": "Total waktu penggunaan smartphone (screen time) pada akhir pekan (Sabtu/Minggu) atau hari libur. Rentang: 0-24 jam.", "min": 0, "max": 24, "step": 1, "default": 6},
 ]
 
+FEATURE_KEYS = [question["key"] for question in QUESTIONS]
+
+
+def predict_with_model(values, selected_model, include_comparison=True):
+    model = ml_models.get(selected_model)
+    if model is None:
+        raise ValueError(f"Model {selected_model} tidak tersedia.")
+
+    prediction_raw = int(model.predict([values])[0])
+    diagnosis = LABEL_MAP.get(prediction_raw, "Tidak diketahui")
+
+    comparison = []
+    if include_comparison:
+        for mname, mobj in ml_models.items():
+            if mobj is not None:
+                try:
+                    p = int(mobj.predict([values])[0])
+                    comparison.append({"model": mname, "prediction_raw": p, "diagnosis": LABEL_MAP.get(p, "?")})
+                except Exception:
+                    comparison.append({"model": mname, "prediction_raw": -1, "diagnosis": "Error"})
+
+    return {
+        "values": values,
+        "diagnosis": diagnosis,
+        "prediction_raw": prediction_raw,
+        "model": selected_model,
+        "comparison": comparison,
+    }
+
+
+def parse_csv_rows(file_obj):
+    import pandas as pd
+
+    df_raw = pd.read_csv(file_obj, header=None)
+    if len(df_raw) == 0:
+        return [], False
+
+    first_row = df_raw.iloc[0]
+    has_header = False
+    try:
+        [float(v) for v in first_row]
+    except (ValueError, TypeError):
+        has_header = True
+
+    df = df_raw.iloc[1:].reset_index(drop=True) if has_header else df_raw
+    num_cols = len(df.columns)
+    if num_cols == 11:
+        df = df.iloc[:, :10]
+    elif num_cols != 10:
+        raise ValueError(f"CSV harus memiliki 10 kolom fitur (ditemukan {num_cols} kolom).")
+
+    if len(df) == 0:
+        return [], False
+    if len(df) > 20:
+        raise ValueError("CSV maksimal berisi 20 baris data.")
+
+    rows = []
+    for row_index, (_, row) in enumerate(df.iterrows(), start=1):
+        values = []
+        for col_index, value in enumerate(row.values, start=1):
+            if pd.isna(value):
+                raise ValueError(f"Baris {row_index}, kolom {col_index} tidak boleh kosong.")
+            values.append(float(value))
+        rows.append(values)
+
+    return rows, has_header
+
+
+def average_rows(rows):
+    if not rows:
+        return []
+    column_count = len(rows[0])
+    return [sum(row[index] for row in rows) / len(rows) for index in range(column_count)]
+
 def load_ml_models():
     models = {}
     for name, filename in MODEL_FILES.items():
@@ -216,79 +290,90 @@ def predict():
             file = request.files.get('csv_file')
             if file and file.filename.endswith('.csv'):
                 try:
-                    import pandas as pd
-                    df_raw = pd.read_csv(file, header=None)
-                    first_row = df_raw.iloc[0]
-                    has_header = False
-                    try:
-                        [float(v) for v in first_row]
-                    except (ValueError, TypeError):
-                        has_header = True
-                    df = df_raw.iloc[1:].reset_index(drop=True) if has_header else df_raw
-                    num_cols = len(df.columns)
-                    if num_cols == 11:
-                        df = df.iloc[:, :10]
-                    elif num_cols != 10:
-                        errors.append(f"CSV harus memiliki 10 kolom fitur (ditemukan {num_cols} kolom).")
-                    if not errors:
-                        if len(df) == 0:
-                            errors.append("CSV tidak memiliki baris data.")
-                        else:
-                            raw_values = df.iloc[0].values.tolist()
-                            for i, val in enumerate(raw_values):
-                                try:
-                                    values.append(float(val))
-                                except (ValueError, TypeError):
-                                    errors.append(f"Kolom {i+1} harus berupa angka.")
-                                    values = []
-                                    break
+                    csv_rows, _ = parse_csv_rows(file)
+                    if not csv_rows:
+                        errors.append("CSV tidak memiliki baris data.")
+                    elif len(csv_rows) == 1:
+                        values = csv_rows[0]
+                    else:
+                        batch_rows = []
+                        for row_number, row_values in enumerate(csv_rows, start=1):
+                            row_result = predict_with_model(row_values, selected_model, include_comparison=False)
+                            batch_rows.append({
+                                "row_number": row_number,
+                                "values": row_values,
+                                "diagnosis": row_result["diagnosis"],
+                                "prediction_raw": row_result["prediction_raw"],
+                            })
+
+                        values = average_rows(csv_rows)
+                        aggregate_result = predict_with_model(values, selected_model, include_comparison=True)
+                        distribution = {"Rendah": 0, "Sedang": 0, "Tinggi": 0}
+                        for row in batch_rows:
+                            if row["diagnosis"] in distribution:
+                                distribution[row["diagnosis"]] += 1
+
+                        pred_entry = Prediction(
+                            user_id=current_user.id,
+                            model_name=selected_model,
+                            input_values=json.dumps(values),
+                            result=aggregate_result["diagnosis"],
+                            prediction_raw=aggregate_result["prediction_raw"],
+                        )
+                        db.session.add(pred_entry)
+                        db.session.commit()
+
+                        session['last_prediction'] = {
+                            "values": values,
+                            "labels": FEATURE_KEYS,
+                            "diagnosis": aggregate_result["diagnosis"],
+                            "model": selected_model,
+                            "prediction_raw": aggregate_result["prediction_raw"],
+                            "comparison": aggregate_result["comparison"],
+                            "batch_mode": True,
+                            "batch_count": len(batch_rows),
+                            "batch_rows": batch_rows,
+                            "distribution": distribution,
+                            "feature_averages": values,
+                        }
+                        flash("Prediksi batch berhasil!", "success")
+                        return redirect(url_for('thanks'))
                 except Exception as e:
                     errors.append(f"Error membaca CSV: {str(e)}")
             else:
                 errors.append("Harap upload file CSV yang valid.")
 
         if not errors and values:
-            model = ml_models.get(selected_model)
-            if model is None:
-                errors.append(f"Model {selected_model} tidak tersedia.")
-            else:
-                try:
-                    prediction = model.predict([values])[0]
-                    diagnosis = LABEL_MAP.get(int(prediction), "Tidak diketahui")
-                    model_name = selected_model
+            try:
+                result_payload = predict_with_model(values, selected_model, include_comparison=True)
+                prediction = result_payload["prediction_raw"]
+                diagnosis = result_payload["diagnosis"]
+                model_name = selected_model
 
-                    comparison = []
-                    for mname, mobj in ml_models.items():
-                        if mobj is not None:
-                            try:
-                                p = mobj.predict([values])[0]
-                                comparison.append({"model": mname, "prediction_raw": int(p), "diagnosis": LABEL_MAP.get(int(p), "?")})
-                            except:
-                                comparison.append({"model": mname, "prediction_raw": -1, "diagnosis": "Error"})
+                pred_entry = Prediction(
+                    user_id=current_user.id,
+                    model_name=model_name,
+                    input_values=json.dumps(values),
+                    result=diagnosis,
+                    prediction_raw=int(prediction),
+                )
+                db.session.add(pred_entry)
+                db.session.commit()
 
-                    # Save to database
-                    pred_entry = Prediction(
-                        user_id=current_user.id,
-                        model_name=model_name,
-                        input_values=json.dumps(values),
-                        result=diagnosis,
-                        prediction_raw=int(prediction),
-                    )
-                    db.session.add(pred_entry)
-                    db.session.commit()
-
-                    session['last_prediction'] = {
-                        "values": values,
-                        "labels": [q['key'] for q in QUESTIONS],
-                        "diagnosis": diagnosis,
-                        "model": model_name,
-                        "prediction_raw": int(prediction),
-                        "comparison": comparison,
-                    }
-                    flash("Prediksi berhasil!", "success")
-                    return redirect(url_for('thanks'))
-                except Exception as exc:
-                    errors.append(f"Terjadi kesalahan saat memprediksi: {exc}")
+                session['last_prediction'] = {
+                    "values": values,
+                    "labels": FEATURE_KEYS,
+                    "diagnosis": diagnosis,
+                    "model": model_name,
+                    "prediction_raw": int(prediction),
+                    "comparison": result_payload["comparison"],
+                    "batch_mode": False,
+                    "feature_averages": values,
+                }
+                flash("Prediksi berhasil!", "success")
+                return redirect(url_for('thanks'))
+            except Exception as exc:
+                errors.append(f"Terjadi kesalahan saat memprediksi: {exc}")
 
     return render_template("predict.html", questions=QUESTIONS, models=list(MODEL_FILES.keys()),
         selected_model=selected_model, errors=errors, active_page='predict')
@@ -322,7 +407,7 @@ def get_feature_averages():
 @login_required
 def thanks():
     last = session.pop('last_prediction', None)
-    averages = get_feature_averages()
+    averages = last.get('feature_averages') if last and last.get('feature_averages') else get_feature_averages()
     return render_template("thanks.html", result=last, questions=QUESTIONS, averages=averages, active_page='thanks')
 
 @app.route("/about")

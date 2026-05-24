@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Smart Addict ML{% endblock %}</title>
     <meta name="description" content="{% block description %}Sistem Deteksi Dini Kecanduan Smartphone berbasis Machine Learning{% endblock %}" />
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/smartaddict-logo.svg') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/smartaddict-logo.svg') }}">
+    <meta name="theme-color" content="#050505">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -111,6 +114,16 @@
             text-transform: uppercase;
             color: var(--text-logo-dark);
             white-space: nowrap; user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-mark {
+            width: 30px;
+            height: 30px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(0, 188, 212, 0.22));
         }
 
         .nav-center { display: flex; align-items: center; height: 100%; }
@@ -132,6 +145,116 @@
         .nav-center a .nav-icon { margin-right: 6px; font-size: 0.95rem; }
 
         .nav-actions { display: flex; align-items: center; gap: 14px; }
+
+        .profile-menu {
+            position: relative;
+        }
+
+        .nav-actions > span[style*="font-size:0.75rem"],
+        .nav-actions > .btn-nav-logout {
+            display: none;
+        }
+
+        .profile-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            height: 38px;
+            padding: 0 12px 0 7px;
+            border-radius: 0px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 1.1px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+
+        .profile-chip:hover,
+        .profile-chip.active {
+            border-color: var(--m-blue-light);
+            box-shadow: 0 0 16px rgba(0, 188, 212, 0.13);
+        }
+
+        .profile-chip-avatar {
+            width: 26px;
+            height: 26px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border: 1px solid var(--m-blue-light);
+            color: var(--text-primary);
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+
+        .profile-chip-name {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            min-width: 190px;
+            padding: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+        }
+
+        .profile-menu.open .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .profile-dropdown a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.74rem;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .profile-dropdown a:hover,
+        .profile-dropdown a.active {
+            color: var(--text-primary);
+            border-color: var(--m-blue-light);
+            background: var(--nav-active-bg);
+        }
+
+        .profile-dropdown a.danger {
+            color: var(--m-red);
+        }
+
+        .profile-dropdown a.danger:hover {
+            border-color: var(--m-red);
+            background: rgba(226, 39, 24, 0.08);
+        }
 
         /* Styled Theme Toggle */
         .theme-toggle {
@@ -248,18 +371,27 @@
             .navbar { padding: 0 16px; height: auto; flex-direction: column; gap: 8px; padding-bottom: 12px; }
             .nav-spacer { height: 110px; }
             .logo { font-size: 1.15rem; margin-top: 10px; }
+            .logo-mark { width: 26px; height: 26px; }
             .nav-center { width: 100%; justify-content: center; }
             .nav-center a { padding: 0 10px; font-size: 0.72rem; height: 40px; }
             .nav-center a .nav-icon { display: none; }
+            .nav-actions { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .profile-chip-name { max-width: 88px; }
+            .profile-dropdown { right: 50%; transform: translate(50%, -8px); }
+            .profile-menu.open .profile-dropdown { transform: translate(50%, 0); }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     {% block head %}{% endblock %}
 </head>
 <body>
     <div class="navbar-wrap">
         <div class="m-stripe"></div>
         <nav class="navbar">
-            <a href="{{ url_for('dashboard') }}" class="logo" style="text-decoration:none">SmartAddict<span style="color:var(--m-blue-dark); font-weight: 900; margin-left: 4px;">ML</span></a>
+            <a href="{{ url_for('dashboard') }}" class="logo" style="text-decoration:none">
+                <img class="logo-mark" src="{{ url_for('static', filename='img/smartaddict-logo.svg') }}" alt="" aria-hidden="true">
+                <span>SmartAddict<span style="color:var(--m-blue-dark); font-weight: 900; margin-left: 4px;">ML</span></span>
+            </a>
             <div class="nav-center">
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <a href="{{ url_for('admin_dashboard') }}" {% if active_page == 'admin_dashboard' %}class="active"{% endif %}><span class="nav-icon">🛡️</span>Admin</a>
@@ -278,6 +410,17 @@
             </div>
             <div class="nav-actions">
                 {% if current_user.is_authenticated %}
+                <div class="profile-menu" id="profileMenu">
+                    <button type="button" class="profile-chip {% if active_page == 'profile' %}active{% endif %}" onclick="toggleProfileMenu(event)" aria-expanded="false" aria-controls="profileDropdown">
+                        <span class="profile-chip-avatar">{{ current_user.username[0]|upper }}</span>
+                        <span class="profile-chip-name">{{ current_user.username }}</span>
+                        <span aria-hidden="true">v</span>
+                    </button>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <a href="{{ url_for('profile') }}" {% if active_page == 'profile' %}class="active"{% endif %}>Profile <span>01</span></a>
+                        <a href="{{ url_for('logout') }}" class="danger">Logout <span>02</span></a>
+                    </div>
+                </div>
                 <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:1px">👤 {{ current_user.username }}</span>
                 <a href="{{ url_for('logout') }}" class="btn-nav-logout">Logout</a>
                 {% else %}
@@ -319,6 +462,29 @@
             setTheme(next);
             window.dispatchEvent(new CustomEvent('themechanged', { detail: { theme: next } }));
         }
+        function toggleProfileMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('profileMenu');
+            if (!menu) return;
+            const isOpen = menu.classList.toggle('open');
+            const button = menu.querySelector('.profile-chip');
+            if (button) button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
+        document.addEventListener('click', function() {
+            const menu = document.getElementById('profileMenu');
+            if (!menu) return;
+            menu.classList.remove('open');
+            const button = menu.querySelector('.profile-chip');
+            if (button) button.setAttribute('aria-expanded', 'false');
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key !== 'Escape') return;
+            const menu = document.getElementById('profileMenu');
+            if (!menu) return;
+            menu.classList.remove('open');
+            const button = menu.querySelector('.profile-chip');
+            if (button) button.setAttribute('aria-expanded', 'false');
+        });
         (function() {
             setTheme(getPreferredTheme());
         })();

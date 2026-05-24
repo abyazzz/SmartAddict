@@ -244,6 +244,66 @@ def logout():
     flash("Berhasil logout.", "success")
     return redirect(url_for('login'))
 
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    prediction_count = Prediction.query.filter_by(user_id=current_user.id).count()
+    latest_prediction = Prediction.query.filter_by(user_id=current_user.id).order_by(Prediction.timestamp.desc()).first()
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        current_password = request.form.get("current_password", "")
+        new_password = request.form.get("new_password", "")
+        confirm_password = request.form.get("confirm_password", "")
+
+        errors = []
+        next_username = None
+        change_password = False
+
+        if username != current_user.username:
+            if len(username) < 3:
+                errors.append("Username minimal 3 karakter.")
+            elif User.query.filter(User.username == username, User.id != current_user.id).first():
+                errors.append("Username sudah dipakai akun lain.")
+            else:
+                next_username = username
+
+        password_touched = any([current_password, new_password, confirm_password])
+        if password_touched:
+            if not current_password or not current_user.check_password(current_password):
+                errors.append("Password saat ini tidak valid.")
+            elif len(new_password) < 6:
+                errors.append("Password baru minimal 6 karakter.")
+            elif new_password != confirm_password:
+                errors.append("Konfirmasi password baru tidak cocok.")
+            else:
+                change_password = True
+
+        if errors:
+            for error in errors:
+                flash(error, "error")
+        else:
+            changed = False
+            if next_username:
+                current_user.username = next_username
+                changed = True
+            if change_password:
+                current_user.set_password(new_password)
+                changed = True
+
+            if changed:
+                db.session.commit()
+                flash("Profile berhasil diperbarui.", "success")
+                return redirect(url_for('profile'))
+            flash("Tidak ada perubahan profile.", "warning")
+
+    return render_template(
+        "profile.html",
+        active_page='profile',
+        prediction_count=prediction_count,
+        latest_prediction=latest_prediction
+    )
+
 # ═══════ USER ROUTES ═══════
 @app.route("/dashboard")
 def dashboard():

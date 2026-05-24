@@ -69,10 +69,130 @@
 
     .model-card:hover {
         border-color: var(--text-muted);
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(0, 188, 212, 0.12);
     }
 
     .model-card:hover::before {
         background: var(--m-blue-dark);
+    }
+
+    .model-lab {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.95fr) minmax(320px, 1.05fr);
+        gap: 24px;
+        align-items: stretch;
+        margin-bottom: 32px;
+        animation: fadeInUp 0.5s ease 0.08s forwards;
+        opacity: 0;
+    }
+
+    .model-network-panel,
+    .lab-copy-panel {
+        border-radius: 0px;
+        background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+        border: 1px solid var(--border-card);
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .model-network-panel {
+        min-height: 320px;
+        background:
+            radial-gradient(circle at 24% 22%, rgba(0, 188, 212, 0.16), transparent 34%),
+            radial-gradient(circle at 80% 76%, rgba(226, 39, 24, 0.1), transparent 32%),
+            var(--bg-card);
+    }
+
+    .model-network-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: radial-gradient(circle at center, #000 34%, transparent 84%);
+        pointer-events: none;
+    }
+
+    #modelNetwork3d {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .lab-copy-panel {
+        padding: 30px;
+        display: grid;
+        align-content: center;
+        gap: 18px;
+    }
+
+    .lab-copy-panel::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark), var(--m-red));
+    }
+
+    .lab-eyebrow {
+        color: var(--text-muted);
+        font-size: 0.68rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .lab-copy-panel h2 {
+        color: var(--text-primary);
+        font-size: clamp(1.3rem, 3vw, 2rem);
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .lab-copy-panel p {
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        line-height: 1.7;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .lab-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .lab-metric {
+        padding: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
+    }
+
+    .lab-metric span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.62rem;
+        font-weight: 900;
+        letter-spacing: 1.3px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .lab-metric strong {
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: 0.9rem;
     }
 
     .model-icon {
@@ -218,7 +338,21 @@
         text-transform: uppercase;
     }
 
+    .model-lab,
+    .model-card,
+    .dataset-section {
+        opacity: 1;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0.72; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 768px) {
+        .model-lab { grid-template-columns: 1fr; }
+        .model-network-panel { min-height: 260px; }
+        .lab-metrics { grid-template-columns: 1fr; }
         .models-grid { grid-template-columns: 1fr; }
         .content { padding: 32px 16px 60px; }
         .page-header h1 { font-size: 1.6rem; }
@@ -235,6 +369,33 @@
         <h1>TENTANG MODEL DETEKSI</h1>
         <p>ALGORITMA & DATA METRIKS SISTEM DETEKSI DINI SMARTADDICT MACHINE LEARNING</p>
     </div>
+
+    <section class="model-lab">
+        <div class="model-network-panel" aria-hidden="true">
+            <div id="modelNetwork3d"></div>
+        </div>
+        <div class="lab-copy-panel">
+            <div class="lab-eyebrow">Model Intelligence Layer</div>
+            <h2>Empat algoritma membaca pola digital dari sudut yang berbeda.</h2>
+            <p>
+                Decision Tree memberi keputusan cepat, KNN membaca kedekatan pola, Neural Network menangkap relasi non-linear, dan SVM memisahkan margin klasifikasi secara presisi.
+            </p>
+            <div class="lab-metrics">
+                <div class="lab-metric">
+                    <span>Models</span>
+                    <strong>4 ML</strong>
+                </div>
+                <div class="lab-metric">
+                    <span>Features</span>
+                    <strong>10 Input</strong>
+                </div>
+                <div class="lab-metric">
+                    <span>Output</span>
+                    <strong>3 Level</strong>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="models-grid">
         <div class="model-card">
@@ -362,3 +523,110 @@
 {% endblock %}
 
 {% block footer %}{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const mount = document.getElementById('modelNetwork3d');
+    if (!mount || typeof THREE === 'undefined') return;
+
+    const styles = getComputedStyle(document.documentElement);
+    const cyan = styles.getPropertyValue('--m-blue-light').trim() || '#00bcd4';
+    const blue = styles.getPropertyValue('--m-blue-dark').trim() || '#1c69d4';
+    const red = styles.getPropertyValue('--m-red').trim() || '#e22718';
+    const width = mount.clientWidth || 420;
+    const height = mount.clientHeight || 320;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(44, width / height, 0.1, 100);
+    camera.position.z = 6.2;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    mount.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const light = new THREE.PointLight(cyan, 1.8, 9);
+    light.position.set(2.8, 2.8, 3.4);
+    scene.add(light);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const layerDefs = [
+        { x: -1.9, count: 7, color: cyan, spread: 2.2 },
+        { x: 0, count: 5, color: blue, spread: 1.75 },
+        { x: 1.75, count: 3, color: red, spread: 1.15 }
+    ];
+    const layers = layerDefs.map(def => {
+        const nodes = [];
+        for (let i = 0; i < def.count; i++) {
+            const y = def.spread / 2 - (def.spread / Math.max(def.count - 1, 1)) * i;
+            const z = Math.sin(i * 1.7) * 0.24;
+            nodes.push(new THREE.Vector3(def.x, y, z));
+            const node = new THREE.Mesh(
+                new THREE.SphereGeometry(0.07, 18, 18),
+                new THREE.MeshBasicMaterial({ color: new THREE.Color(def.color), transparent: true, opacity: 0.92 })
+            );
+            node.position.set(def.x, y, z);
+            group.add(node);
+        }
+        return nodes;
+    });
+
+    const linePositions = [];
+    for (let layerIndex = 0; layerIndex < layers.length - 1; layerIndex++) {
+        layers[layerIndex].forEach(start => {
+            layers[layerIndex + 1].forEach(end => {
+                if (Math.random() > 0.16) {
+                    linePositions.push(start.x, start.y, start.z, end.x, end.y, end.z);
+                }
+            });
+        });
+    }
+
+    const linesGeometry = new THREE.BufferGeometry();
+    linesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+    const lines = new THREE.LineSegments(
+        linesGeometry,
+        new THREE.LineBasicMaterial({ color: new THREE.Color(blue), transparent: true, opacity: 0.22 })
+    );
+    group.add(lines);
+
+    const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(2.55, 0.01, 12, 120),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(cyan), transparent: true, opacity: 0.34 })
+    );
+    ring.rotation.x = Math.PI / 2.5;
+    group.add(ring);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    window.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX / window.innerWidth - 0.5) * 0.36;
+        mouseY = (event.clientY / window.innerHeight - 0.5) * 0.26;
+    });
+
+    window.addEventListener('resize', () => {
+        const nextWidth = mount.clientWidth || width;
+        const nextHeight = mount.clientHeight || height;
+        camera.aspect = nextWidth / nextHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(nextWidth, nextHeight);
+    });
+
+    function animateModelNetwork() {
+        requestAnimationFrame(animateModelNetwork);
+        group.rotation.y += 0.005;
+        group.rotation.x += (mouseY - group.rotation.x) * 0.03;
+        group.rotation.z += (mouseX - group.rotation.z) * 0.02;
+        ring.rotation.z += 0.006;
+        lines.material.opacity = 0.18 + Math.sin(Date.now() * 0.003) * 0.06;
+        renderer.render(scene, camera);
+    }
+
+    animateModelNetwork();
+});
+</script>
+{% endblock %}

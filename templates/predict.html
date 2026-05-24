@@ -559,6 +559,127 @@
         padding-left: 8px;
     }
 
+    .telemetry-visual-card {
+        min-height: 300px;
+        padding: 0;
+        overflow: hidden;
+        background:
+            linear-gradient(135deg, rgba(0, 188, 212, 0.08), transparent 42%),
+            radial-gradient(circle at 76% 22%, rgba(28, 105, 212, 0.18), transparent 30%),
+            var(--bg-card);
+    }
+
+    .telemetry-visual-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 28px 28px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 88%);
+        pointer-events: none;
+    }
+
+    #predict3d {
+        height: 210px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .telemetry-readout {
+        position: relative;
+        z-index: 2;
+        padding: 0 20px 20px;
+    }
+
+    .telemetry-status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+
+    .telemetry-kicker {
+        color: var(--text-muted);
+        font-size: 0.64rem;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+    }
+
+    .telemetry-status {
+        color: var(--telemetry-accent, var(--m-blue-light));
+        font-family: monospace;
+        font-size: 0.8rem;
+        font-weight: 900;
+        letter-spacing: 1.2px;
+    }
+
+    .telemetry-meter {
+        height: 8px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-primary);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .telemetry-meter-fill {
+        width: calc(var(--telemetry-score, 0.25) * 100%);
+        height: 100%;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--telemetry-accent, var(--m-blue-dark)));
+        box-shadow: 0 0 18px var(--telemetry-accent, var(--m-blue-light));
+        transition: width 0.25s ease, background 0.25s ease;
+    }
+
+    .telemetry-kpi-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .telemetry-kpi {
+        border: 1px solid var(--border-card);
+        background: var(--bg-input);
+        padding: 9px 8px;
+        min-width: 0;
+    }
+
+    .telemetry-kpi span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.58rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .telemetry-kpi strong {
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        word-break: break-word;
+    }
+
+    .sidebar-card,
+    .main-card,
+    .question-card {
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .sidebar-card:hover,
+    .main-card:hover,
+    .question-card:hover {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 16px 42px rgba(0, 188, 212, 0.11);
+        transform: translateY(-2px);
+    }
+
     @media (max-width: 900px) {
         .two-col {
             grid-template-columns: 1fr;
@@ -576,6 +697,9 @@
         .telemetry-row {
             gap: 8px;
             padding: 8px;
+        }
+        .telemetry-kpi-row {
+            grid-template-columns: 1fr;
         }
         .m-manual-input {
             width: 55px;
@@ -627,6 +751,32 @@
                             <span>📁 UPLOAD CSV</span>
                             <div class="radio-status-indicator">READY</div>
                         </label>
+                    </div>
+                </div>
+                <div class="sidebar-card telemetry-visual-card">
+                    <div id="predict3d" aria-hidden="true"></div>
+                    <div class="telemetry-readout">
+                        <div class="telemetry-status-row">
+                            <span class="telemetry-kicker">Live Input Signal</span>
+                            <span class="telemetry-status" id="telemetryStatus">CALIBRATING</span>
+                        </div>
+                        <div class="telemetry-meter">
+                            <div class="telemetry-meter-fill"></div>
+                        </div>
+                        <div class="telemetry-kpi-row">
+                            <div class="telemetry-kpi">
+                                <span>Intensity</span>
+                                <strong id="telemetryPercent">0%</strong>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <span>Screen</span>
+                                <strong id="telemetryScreen">0 Jam</strong>
+                            </div>
+                            <div class="telemetry-kpi">
+                                <span>Sleep</span>
+                                <strong id="telemetrySleep">0 Jam</strong>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="sidebar-card {% if request.form.get('input_method', 'manual') == 'manual' %}hidden{% endif %}"
@@ -775,6 +925,193 @@
         } 
     });
 
+    let predict3DState = null;
+
+    function clamp01(value) {
+        return Math.max(0, Math.min(1, value));
+    }
+
+    function readTelemetryValue(key, fallback = 0) {
+        const input = document.getElementById('real-' + key) || document.getElementById(key);
+        const value = parseFloat(input?.value);
+        return Number.isFinite(value) ? value : fallback;
+    }
+
+    function getTelemetryAccent(score) {
+        const styles = getComputedStyle(document.documentElement);
+        if (score >= 0.68) return styles.getPropertyValue('--m-red').trim() || '#e22718';
+        if (score >= 0.36) return styles.getPropertyValue('--m-blue-dark').trim() || '#1c69d4';
+        return styles.getPropertyValue('--m-blue-light').trim() || '#00bcd4';
+    }
+
+    function initPredict3D() {
+        const mount = document.getElementById('predict3d');
+        if (!mount || typeof THREE === 'undefined') return;
+
+        const width = mount.clientWidth || 280;
+        const height = mount.clientHeight || 210;
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+        camera.position.z = 4.4;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        mount.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+        const light = new THREE.PointLight(0x00bcd4, 1.6, 8);
+        light.position.set(2.4, 2.2, 3.2);
+        scene.add(light);
+
+        const group = new THREE.Group();
+        scene.add(group);
+
+        const body = new THREE.Mesh(
+            new THREE.BoxGeometry(1.24, 2.2, 0.14),
+            new THREE.MeshPhysicalMaterial({
+                color: 0x070b12,
+                metalness: 0.5,
+                roughness: 0.24,
+                clearcoat: 0.8
+            })
+        );
+        group.add(body);
+
+        const screenMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00bcd4,
+            transparent: true,
+            opacity: 0.18,
+            side: THREE.DoubleSide
+        });
+        const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.08, 1.94), screenMaterial);
+        screen.position.z = 0.08;
+        group.add(screen);
+
+        const accentMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00bcd4,
+            transparent: true,
+            opacity: 0.86
+        });
+
+        const orbit = new THREE.Mesh(new THREE.TorusGeometry(0.72, 0.014, 12, 80), accentMaterial);
+        orbit.rotation.x = Math.PI / 2.8;
+        group.add(orbit);
+
+        const pulse = new THREE.Mesh(new THREE.TorusGeometry(0.46, 0.012, 12, 80), accentMaterial.clone());
+        pulse.position.z = 0.1;
+        group.add(pulse);
+
+        const nodesGeometry = new THREE.BufferGeometry();
+        const nodePositions = [];
+        for (let i = 0; i < 48; i++) {
+            const a = Math.random() * Math.PI * 2;
+            const r = 0.72 + Math.random() * 0.42;
+            nodePositions.push(Math.cos(a) * r, (Math.random() - 0.5) * 2.15, Math.sin(a) * 0.28);
+        }
+        nodesGeometry.setAttribute('position', new THREE.Float32BufferAttribute(nodePositions, 3));
+        const nodesMaterial = new THREE.PointsMaterial({
+            color: 0x00bcd4,
+            size: 0.035,
+            transparent: true,
+            opacity: 0.68
+        });
+        const nodes = new THREE.Points(nodesGeometry, nodesMaterial);
+        group.add(nodes);
+
+        let targetX = 0;
+        let targetY = 0;
+        window.addEventListener('mousemove', (event) => {
+            targetX = (event.clientX / window.innerWidth - 0.5) * 0.4;
+            targetY = (event.clientY / window.innerHeight - 0.5) * 0.3;
+        });
+
+        predict3DState = {
+            accentMaterial,
+            screenMaterial,
+            nodesMaterial,
+            light,
+            group,
+            orbit,
+            pulse,
+            nodes,
+            renderer,
+            camera,
+            mount,
+            energy: 0.25,
+            targetX,
+            targetY
+        };
+
+        window.addEventListener('resize', () => {
+            const nextWidth = mount.clientWidth || width;
+            const nextHeight = mount.clientHeight || height;
+            camera.aspect = nextWidth / nextHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(nextWidth, nextHeight);
+        });
+
+        function animatePredict3D() {
+            requestAnimationFrame(animatePredict3D);
+            const state = predict3DState;
+            group.rotation.y += 0.01 + state.energy * 0.006;
+            group.rotation.x += (targetY - group.rotation.x) * 0.03;
+            group.rotation.z += (targetX - group.rotation.z) * 0.02;
+            orbit.rotation.z += 0.02 + state.energy * 0.03;
+            pulse.rotation.z -= 0.018;
+            pulse.scale.setScalar(0.92 + state.energy * 0.35 + Math.sin(Date.now() * 0.004) * 0.03);
+            nodes.rotation.y -= 0.005;
+            renderer.render(scene, camera);
+        }
+
+        animatePredict3D();
+    }
+
+    function updatePredictTelemetry() {
+        const screen = readTelemetryValue('daily_screen_time_hours');
+        const social = readTelemetryValue('social_media_hours');
+        const gaming = readTelemetryValue('gaming_hours');
+        const sleep = readTelemetryValue('sleep_hours', 8);
+        const notifications = readTelemetryValue('notifications_per_day');
+        const opens = readTelemetryValue('app_opens_per_day');
+        const weekend = readTelemetryValue('weekend_screen_time');
+        const sleepDebt = clamp01((8 - sleep) / 8);
+        const score = clamp01(
+            clamp01(screen / 24) * 0.24 +
+            clamp01(social / 12) * 0.16 +
+            clamp01(gaming / 12) * 0.12 +
+            clamp01(notifications / 500) * 0.16 +
+            clamp01(opens / 500) * 0.14 +
+            clamp01(weekend / 24) * 0.12 +
+            sleepDebt * 0.06
+        );
+        const accent = getTelemetryAccent(score);
+        const label = score >= 0.68 ? 'CRITICAL' : (score >= 0.36 ? 'ELEVATED' : 'NORMAL');
+
+        document.documentElement.style.setProperty('--telemetry-score', score.toFixed(3));
+        document.documentElement.style.setProperty('--telemetry-accent', accent);
+
+        const status = document.getElementById('telemetryStatus');
+        const percent = document.getElementById('telemetryPercent');
+        const screenLabel = document.getElementById('telemetryScreen');
+        const sleepLabel = document.getElementById('telemetrySleep');
+        if (status) status.textContent = label;
+        if (percent) percent.textContent = Math.round(score * 100) + '%';
+        if (screenLabel) screenLabel.textContent = Math.round(screen) + ' Jam';
+        if (sleepLabel) sleepLabel.textContent = Math.round(sleep) + ' Jam';
+
+        if (predict3DState) {
+            predict3DState.energy = score;
+            predict3DState.accentMaterial.color.set(accent);
+            predict3DState.screenMaterial.color.set(accent);
+            predict3DState.nodesMaterial.color.set(accent);
+            predict3DState.light.color.set(accent);
+            predict3DState.screenMaterial.opacity = 0.14 + score * 0.18;
+            predict3DState.accentMaterial.opacity = 0.55 + score * 0.4;
+            predict3DState.light.intensity = 1.2 + score * 1.4;
+        }
+    }
+
     // Custom Input Synchronization Logic
     function updateValues(key, val, source) {
         const realInput = document.getElementById('real-' + key);
@@ -810,15 +1147,19 @@
         if (textDisplay) {
             textDisplay.textContent = formattedVal;
         }
+
+        updatePredictTelemetry();
     }
 
     // Initialize all values on page load
     document.addEventListener("DOMContentLoaded", function() {
+        initPredict3D();
         {% for question in questions %}
         {% if question.type != 'select' %}
         updateValues('{{ question.key }}', '{{ request.form.get(question.key, question.default) }}', 'init');
         {% endif %}
         {% endfor %}
+        updatePredictTelemetry();
     });
 </script>
 {% endblock %}

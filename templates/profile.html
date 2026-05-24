@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+{% block title %}PROFILE - Smart Addict ML{% endblock %}
+
+{% block head %}
+<style>
+    .content {
+        position: relative;
+        z-index: 1;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 24px 80px;
+    }
+
+    .page-header {
+        text-align: left;
+        margin-bottom: 34px;
+        border-left: 4px solid var(--m-red);
+        padding-left: 20px;
+        animation: fadeInUp 0.4s ease forwards;
+    }
+
+    .page-header h1 {
+        font-size: 2.2rem;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+        color: var(--text-primary);
+    }
+
+    .page-header p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 1.1fr);
+        gap: 24px;
+        align-items: stretch;
+    }
+
+    .profile-visual,
+    .profile-panel,
+    .profile-stat {
+        background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+        border: 1px solid var(--border-card);
+        box-shadow: var(--card-shadow);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        position: relative;
+        overflow: hidden;
+        border-radius: 0px;
+    }
+
+    .profile-visual {
+        min-height: 520px;
+        background:
+            radial-gradient(circle at 24% 20%, rgba(0, 188, 212, 0.16), transparent 32%),
+            radial-gradient(circle at 80% 78%, rgba(226, 39, 24, 0.1), transparent 34%),
+            var(--bg-card);
+    }
+
+    .profile-visual::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 32px 32px;
+        mask-image: radial-gradient(circle at center, #000 28%, transparent 82%);
+        pointer-events: none;
+    }
+
+    #profile3d {
+        position: absolute;
+        inset: 0 0 170px;
+    }
+
+    .profile-identity {
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        bottom: 28px;
+        z-index: 2;
+    }
+
+    .profile-avatar-large {
+        width: 72px;
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+        background: var(--bg-primary);
+        border: 1px solid var(--m-blue-light);
+        color: var(--text-primary);
+        font-size: 2rem;
+        font-weight: 900;
+        font-family: monospace;
+        text-transform: uppercase;
+        box-shadow: 0 0 26px rgba(0, 188, 212, 0.16);
+    }
+
+    .profile-identity h2 {
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .role-badge {
+        display: inline-flex;
+        padding: 7px 14px;
+        border: 1px solid {% if current_user.is_admin %}var(--m-red){% else %}var(--m-blue-light){% endif %};
+        color: {% if current_user.is_admin %}var(--m-red){% else %}var(--m-blue-light){% endif %};
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        font-size: 0.7rem;
+        font-weight: 900;
+    }
+
+    .profile-panel {
+        padding: 28px;
+    }
+
+    .profile-panel::before,
+    .profile-stat::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark), var(--m-red));
+    }
+
+    .panel-title {
+        font-size: 0.9rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-primary);
+        margin-bottom: 22px;
+        border-left: 2px solid var(--m-blue-light);
+        padding-left: 10px;
+    }
+
+    .flash-list {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .flash-msg {
+        padding: 13px 16px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-input);
+        color: var(--text-primary);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .form-grid {
+        display: grid;
+        gap: 18px;
+    }
+
+    .form-group {
+        display: grid;
+        gap: 8px;
+    }
+
+    .form-label {
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-primary);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 13px 14px;
+        border-radius: 0px;
+        border: 1px solid var(--border-input);
+        background: var(--bg-input);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.88rem;
+        font-weight: 700;
+        outline: none;
+        transition: all 0.25s ease;
+    }
+
+    .form-input:focus {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.08);
+    }
+
+    .form-note {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        line-height: 1.5;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+    }
+
+    .password-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .profile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 6px;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 24px;
+    }
+
+    .profile-stat {
+        padding: 20px;
+    }
+
+    .profile-stat span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.66rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.3px;
+        margin-bottom: 8px;
+    }
+
+    .profile-stat strong {
+        color: var(--text-primary);
+        font-size: 1.1rem;
+        font-weight: 900;
+        font-family: monospace;
+        text-transform: uppercase;
+    }
+
+    .profile-visual,
+    .profile-panel,
+    .profile-stat {
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .profile-visual:hover,
+    .profile-panel:hover,
+    .profile-stat:hover {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 18px 46px rgba(0, 188, 212, 0.1);
+        transform: translateY(-3px);
+    }
+
+    @media (max-width: 900px) {
+        .profile-grid { grid-template-columns: 1fr; }
+        .profile-visual { min-height: 420px; }
+    }
+
+    @media (max-width: 640px) {
+        .content { padding: 32px 16px 60px; }
+        .page-header h1 { font-size: 1.6rem; }
+        .profile-panel { padding: 22px 18px; }
+        .password-grid,
+        .profile-stats { grid-template-columns: 1fr; }
+        #profile3d { inset: 0 0 150px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="page-header">
+        <h1>PROFILE AKUN</h1>
+        <p>IDENTITAS PENGGUNA DAN PENGATURAN LOGIN SMARTADDICT ML</p>
+    </div>
+
+    <div class="profile-grid">
+        <section class="profile-visual">
+            <div id="profile3d" aria-hidden="true"></div>
+            <div class="profile-identity">
+                <div class="profile-avatar-large">{{ current_user.username[0]|upper }}</div>
+                <h2>{{ current_user.username }}</h2>
+                <span class="role-badge">{{ current_user.role }}</span>
+            </div>
+        </section>
+
+        <section>
+            <div class="profile-panel">
+                <div class="panel-title">Edit Profile</div>
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flash-list">
+                    {% for msg in messages %}
+                    <div class="flash-msg">{{ msg }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <form method="post" class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <input class="form-input" id="username" name="username" value="{{ current_user.username }}" maxlength="80" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="current_password">Password Saat Ini</label>
+                        <input class="form-input" id="current_password" name="current_password" type="password" autocomplete="current-password">
+                        <div class="form-note">Isi bagian password hanya kalau ingin mengganti password.</div>
+                    </div>
+
+                    <div class="password-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="new_password">Password Baru</label>
+                            <input class="form-input" id="new_password" name="new_password" type="password" autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="confirm_password">Konfirmasi</label>
+                            <input class="form-input" id="confirm_password" name="confirm_password" type="password" autocomplete="new-password">
+                        </div>
+                    </div>
+
+                    <div class="profile-actions">
+                        <button type="submit" class="btn-primary">Simpan Profile</button>
+                        <a href="{{ url_for('dashboard') }}" class="btn-secondary">Kembali</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <span>Joined</span>
+                    <strong>{{ current_user.created_at.strftime('%Y-%m-%d') }}</strong>
+                </div>
+                <div class="profile-stat">
+                    <span>Diagnosis</span>
+                    <strong>{{ prediction_count }} Run</strong>
+                </div>
+                <div class="profile-stat">
+                    <span>Latest</span>
+                    <strong>{% if latest_prediction %}{{ latest_prediction.result }}{% else %}None{% endif %}</strong>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const mount = document.getElementById('profile3d');
+    if (!mount || typeof THREE === 'undefined') return;
+
+    const styles = getComputedStyle(document.documentElement);
+    const cyan = styles.getPropertyValue('--m-blue-light').trim() || '#00bcd4';
+    const blue = styles.getPropertyValue('--m-blue-dark').trim() || '#1c69d4';
+    const red = styles.getPropertyValue('--m-red').trim() || '#e22718';
+    const width = mount.clientWidth || 420;
+    const height = mount.clientHeight || 340;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(43, width / height, 0.1, 100);
+    camera.position.z = 5.4;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    mount.appendChild(renderer.domElement);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.82));
+    const light = new THREE.PointLight(cyan, 1.7, 8);
+    light.position.set(2.4, 2.4, 3.2);
+    scene.add(light);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const shield = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(1.04, 1),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(blue), transparent: true, opacity: 0.11, wireframe: true })
+    );
+    group.add(shield);
+
+    const orbit = new THREE.Mesh(
+        new THREE.TorusGeometry(1.38, 0.015, 12, 110),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(cyan), transparent: true, opacity: 0.7 })
+    );
+    orbit.rotation.x = Math.PI / 2.6;
+    group.add(orbit);
+
+    const orbitTwo = new THREE.Mesh(
+        new THREE.TorusGeometry(0.92, 0.012, 12, 90),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(red), transparent: true, opacity: 0.48 })
+    );
+    orbitTwo.rotation.y = Math.PI / 2.9;
+    group.add(orbitTwo);
+
+    const nodeGeometry = new THREE.BufferGeometry();
+    const positions = [];
+    for (let i = 0; i < 70; i++) {
+        const radius = 0.85 + Math.random() * 1.1;
+        const angle = Math.random() * Math.PI * 2;
+        positions.push(Math.cos(angle) * radius, (Math.random() - 0.5) * 2.4, Math.sin(angle) * radius * 0.36);
+    }
+    nodeGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const nodes = new THREE.Points(
+        nodeGeometry,
+        new THREE.PointsMaterial({ color: new THREE.Color(cyan), size: 0.032, transparent: true, opacity: 0.72 })
+    );
+    group.add(nodes);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    window.addEventListener('mousemove', (event) => {
+        mouseX = (event.clientX / window.innerWidth - 0.5) * 0.35;
+        mouseY = (event.clientY / window.innerHeight - 0.5) * 0.25;
+    });
+
+    window.addEventListener('resize', () => {
+        const nextWidth = mount.clientWidth || width;
+        const nextHeight = mount.clientHeight || height;
+        camera.aspect = nextWidth / nextHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(nextWidth, nextHeight);
+    });
+
+    function animateProfile() {
+        requestAnimationFrame(animateProfile);
+        group.rotation.y += 0.007;
+        group.rotation.x += (mouseY - group.rotation.x) * 0.03;
+        group.rotation.z += (mouseX - group.rotation.z) * 0.02;
+        orbit.rotation.z += 0.014;
+        orbitTwo.rotation.z -= 0.011;
+        nodes.rotation.y -= 0.004;
+        renderer.render(scene, camera);
+    }
+
+    animateProfile();
+});
+</script>
+{% endblock %}

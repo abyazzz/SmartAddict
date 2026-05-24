@@ -53,6 +53,92 @@
         text-transform: uppercase;
     }
 
+    .admin-command-hero {
+        padding: 26px 28px;
+        border: 1px solid var(--border-card);
+        border-left: 4px solid var(--m-red);
+        background:
+            linear-gradient(135deg, rgba(226, 39, 24, 0.09), transparent 32%),
+            radial-gradient(circle at 80% 30%, rgba(0, 188, 212, 0.14), transparent 34%),
+            var(--bg-card);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .admin-command-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: linear-gradient(90deg, transparent 0%, #000 34%, #000 100%);
+        pointer-events: none;
+    }
+
+    .command-copy,
+    .command-visual-panel {
+        position: relative;
+        z-index: 1;
+    }
+
+    .command-copy {
+        max-width: 610px;
+    }
+
+    .command-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(92px, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+        max-width: 460px;
+    }
+
+    .command-metric {
+        padding: 10px 12px;
+        background: color-mix(in srgb, var(--bg-input) 80%, transparent);
+        border: 1px solid var(--border-card);
+    }
+
+    .command-metric span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.6rem;
+        font-weight: 900;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .command-metric strong {
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .command-visual-panel {
+        width: min(310px, 100%);
+        height: 210px;
+        border: 1px solid var(--border-card);
+        background: rgba(0, 0, 0, 0.14);
+        overflow: hidden;
+    }
+
+    #adminCommand3d {
+        position: absolute;
+        inset: 0;
+    }
+
+    .command-visual-panel .admin-badge {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        background: var(--bg-card);
+    }
+
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -69,6 +155,7 @@
         background: var(--bg-card);
         border: 1px solid var(--border-card);
         position: relative;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     }
 
     .stat-card::before {
@@ -81,6 +168,14 @@
     }
     .stat-card:hover::before {
         background: var(--m-blue-dark);
+    }
+
+    .stat-card:hover,
+    .chart-box:hover,
+    .recent-section:hover {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 16px 42px rgba(0, 188, 212, 0.11);
+        transform: translateY(-3px);
     }
 
     .stat-icon {
@@ -119,6 +214,9 @@
         border-radius: 0px;
         background: var(--bg-card);
         border: 1px solid var(--border-card);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     }
 
     .chart-box h3 {
@@ -139,6 +237,9 @@
         border-radius: 0px;
         background: var(--bg-card);
         border: 1px solid var(--border-card);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     }
 
     .recent-section h3 {
@@ -212,21 +313,57 @@
         color: var(--m-red);
     }
 
+    .stats-grid,
+    .charts-row,
+    .recent-section {
+        opacity: 1;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0.72; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     @media (max-width: 900px) {
         .stats-grid { grid-template-columns: repeat(2, 1fr); }
         .charts-row { grid-template-columns: 1fr; }
+        .admin-command-hero { align-items: stretch; }
+        .command-visual-panel { width: 100%; }
+    }
+
+    @media (max-width: 600px) {
+        .admin-command-hero { padding: 22px 18px; }
+        .command-metrics { grid-template-columns: 1fr; }
+        .stats-grid { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="content">
-    <div class="page-header">
-        <div class="header-text">
+    <div class="page-header admin-command-hero">
+        <div class="header-text command-copy">
             <h1>ADMIN DASHBOARD</h1>
             <p>SISTEM KONTROL DAN DATA PREDIKSI PENGGUNA SMARTADDICT ML</p>
+            <div class="command-metrics">
+                <div class="command-metric">
+                    <span>Users</span>
+                    <strong>{{ total_users }} Akun</strong>
+                </div>
+                <div class="command-metric">
+                    <span>Diagnosis</span>
+                    <strong>{{ total_preds }} Run</strong>
+                </div>
+                <div class="command-metric">
+                    <span>Models</span>
+                    <strong>4 ML</strong>
+                </div>
+            </div>
         </div>
-        <span class="admin-badge">🛡️ SYSTEM SECURE</span>
+        <div class="command-visual-panel" aria-hidden="true">
+            <div id="adminCommand3d"></div>
+            <span class="admin-badge">SYSTEM SECURE</span>
+        </div>
     </div>
 
     <div class="stats-grid">
@@ -247,7 +384,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-icon">📋</div>
-            <div class="stat-num" style="color:var(--m-red)">9</div>
+            <div class="stat-num" style="color:var(--m-red)">10</div>
             <div class="stat-label">Fitur Sensor</div>
         </div>
     </div>
@@ -304,6 +441,93 @@
     
     let pieChartInstance = null;
     let modelChartInstance = null;
+
+    function initAdminCommand3D() {
+        const mount = document.getElementById('adminCommand3d');
+        if (!mount || typeof THREE === 'undefined') return;
+
+        const styles = getComputedStyle(document.documentElement);
+        const cyan = styles.getPropertyValue('--m-blue-light').trim() || '#00bcd4';
+        const blue = styles.getPropertyValue('--m-blue-dark').trim() || '#1c69d4';
+        const red = styles.getPropertyValue('--m-red').trim() || '#e22718';
+        const width = mount.clientWidth || 310;
+        const height = mount.clientHeight || 210;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+        camera.position.z = 4.6;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        mount.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.78));
+        const light = new THREE.PointLight(cyan, 1.6, 8);
+        light.position.set(2.8, 2.2, 3.2);
+        scene.add(light);
+
+        const group = new THREE.Group();
+        scene.add(group);
+
+        const cube = new THREE.Mesh(
+            new THREE.BoxGeometry(1.35, 1.35, 1.35, 4, 4, 4),
+            new THREE.MeshBasicMaterial({ color: new THREE.Color(blue), transparent: true, opacity: 0.08, wireframe: true })
+        );
+        group.add(cube);
+
+        const edges = new THREE.LineSegments(
+            new THREE.EdgesGeometry(new THREE.BoxGeometry(1.65, 1.65, 1.65)),
+            new THREE.LineBasicMaterial({ color: new THREE.Color(cyan), transparent: true, opacity: 0.58 })
+        );
+        group.add(edges);
+
+        const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(1.18, 0.012, 12, 100),
+            new THREE.MeshBasicMaterial({ color: new THREE.Color(red), transparent: true, opacity: 0.58 })
+        );
+        ring.rotation.x = Math.PI / 2.8;
+        group.add(ring);
+
+        const particleGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        for (let i = 0; i < 90; i++) {
+            positions.push((Math.random() - 0.5) * 3.2, (Math.random() - 0.5) * 2.5, (Math.random() - 0.5) * 1.6);
+        }
+        particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const particles = new THREE.Points(
+            particleGeometry,
+            new THREE.PointsMaterial({ color: new THREE.Color(cyan), size: 0.025, transparent: true, opacity: 0.62 })
+        );
+        group.add(particles);
+
+        let mouseX = 0;
+        let mouseY = 0;
+        window.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth - 0.5) * 0.32;
+            mouseY = (event.clientY / window.innerHeight - 0.5) * 0.24;
+        });
+
+        window.addEventListener('resize', () => {
+            const nextWidth = mount.clientWidth || width;
+            const nextHeight = mount.clientHeight || height;
+            camera.aspect = nextWidth / nextHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(nextWidth, nextHeight);
+        });
+
+        function animateAdminCommand() {
+            requestAnimationFrame(animateAdminCommand);
+            group.rotation.y += 0.007;
+            group.rotation.x += (mouseY - group.rotation.x) * 0.025;
+            group.rotation.z += (mouseX - group.rotation.z) * 0.02;
+            ring.rotation.z += 0.014;
+            particles.rotation.y -= 0.004;
+            renderer.render(scene, camera);
+        }
+
+        animateAdminCommand();
+    }
 
     function renderCharts() {
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -387,6 +611,7 @@
     }
 
     // Initial render
+    initAdminCommand3D();
     renderCharts();
 
     // Listen to theme changes

@@ -114,6 +114,188 @@
     .summary-card:nth-child(2)::before { background: var(--m-blue-dark); }
     .summary-card:nth-child(3)::before { background: var(--m-red); }
 
+    .diagnostic-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(280px, 0.9fr) minmax(300px, 1.1fr);
+        gap: 24px;
+        align-items: stretch;
+        margin-bottom: 40px;
+        animation: fadeInUp 0.5s ease 0.1s forwards;
+        opacity: 0;
+    }
+
+    .diagnostic-visual-panel,
+    .diagnostic-readout {
+        border-radius: 0px;
+        background: color-mix(in srgb, var(--bg-card) 78%, transparent);
+        border: 1px solid var(--border-card);
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .diagnostic-visual-panel {
+        min-height: 320px;
+        isolation: isolate;
+        background:
+            linear-gradient(135deg, rgba(0, 188, 212, 0.12), transparent 36%),
+            radial-gradient(circle at 70% 35%, rgba(28, 105, 212, 0.16), transparent 34%),
+            var(--bg-card);
+    }
+
+    .diagnostic-visual-panel::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 85%);
+        pointer-events: none;
+    }
+
+    #result3d {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    .diagnostic-scanline {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        pointer-events: none;
+        background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+        height: 90px;
+        transform: translateY(-120px);
+        animation: scanlineMove 5s ease-in-out infinite;
+    }
+
+    @keyframes scanlineMove {
+        0%, 100% { transform: translateY(-120px); opacity: 0; }
+        18%, 82% { opacity: 0.65; }
+        50% { transform: translateY(360px); opacity: 0.25; }
+    }
+
+    .diagnostic-readout {
+        padding: 28px;
+        display: grid;
+        gap: 16px;
+        align-content: center;
+    }
+
+    .diagnostic-readout::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        height: 3px;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark), var(--m-red));
+    }
+
+    .diagnostic-readout-title {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 900;
+    }
+
+    .diagnostic-readout-main {
+        font-size: clamp(1.5rem, 4vw, 2.7rem);
+        font-weight: 900;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .diagnostic-hero-grid.result-level-rendah .diagnostic-readout-main { color: var(--m-blue-light); }
+    .diagnostic-hero-grid.result-level-sedang .diagnostic-readout-main { color: var(--m-blue-dark); }
+    .diagnostic-hero-grid.result-level-tinggi .diagnostic-readout-main { color: var(--m-red); }
+
+    .diagnostic-readout-copy {
+        color: var(--text-secondary);
+        font-size: 0.88rem;
+        line-height: 1.65;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .diagnostic-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .diagnostic-metric {
+        padding: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
+    }
+
+    .diagnostic-metric span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 0.64rem;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+    }
+
+    .diagnostic-metric strong {
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    .summary-card,
+    .chart-card,
+    .comparison-table-wrap,
+    .thanks-section {
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+    }
+
+    .summary-card,
+    .chart-card,
+    .comparison-table-wrap,
+    .thanks-section,
+    .diagnostic-visual-panel,
+    .diagnostic-readout {
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .summary-card:hover,
+    .chart-card:hover,
+    .comparison-table-wrap:hover,
+    .thanks-section:hover,
+    .diagnostic-visual-panel:hover,
+    .diagnostic-readout:hover {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 18px 44px rgba(0, 188, 212, 0.12);
+        transform: translateY(-3px);
+    }
+
+    .diagnostic-hero-grid,
+    .summary-row,
+    .chart-card,
+    .features-comparison-container,
+    .batch-detail-container,
+    .actions,
+    .thanks-section {
+        opacity: 1;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0.72; transform: translateY(14px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     .summary-value {
         font-size: clamp(1.3rem, 3vw, 1.8rem);
         font-weight: 900;
@@ -453,6 +635,9 @@
     /* ═══════ MOBILE RESPONSIVE ═══════ */
     @media (max-width: 768px) {
         .content { padding: 30px 16px 60px; }
+        .diagnostic-hero-grid { grid-template-columns: 1fr; }
+        .diagnostic-visual-panel { min-height: 260px; }
+        .diagnostic-metrics { grid-template-columns: 1fr; }
         .summary-row { grid-template-columns: 1fr; gap: 14px; }
         .summary-card { padding: 20px; }
         .level-badge { padding: 12px 24px; }
@@ -486,6 +671,34 @@
         </div>
         <div class="result-model">MODEL ANALISIS ML: <strong>{{ result['model'] | upper }}</strong>{% if is_batch %} | BATCH CSV: <strong>{{ result['batch_count'] }} DATA</strong>{% endif %}</div>
     </div>
+
+    <section class="diagnostic-hero-grid result-level-{{ level_class }}">
+        <div class="diagnostic-visual-panel" aria-hidden="true">
+            <div id="result3d" data-level="{{ level_class }}"></div>
+            <div class="diagnostic-scanline"></div>
+        </div>
+        <div class="diagnostic-readout">
+            <div class="diagnostic-readout-title">Smartphone Addiction Diagnostic Core</div>
+            <div class="diagnostic-readout-main">{{ result['diagnosis'] }}</div>
+            <p class="diagnostic-readout-copy">
+                Visualisasi ini membaca pola screen time, intensitas aplikasi, dan sinyal aktivitas digital sebagai satu panel diagnosis berbasis machine learning.
+            </p>
+            <div class="diagnostic-metrics">
+                <div class="diagnostic-metric">
+                    <span>Screen Time</span>
+                    <strong>{{ result['values'][2] | round | int }} Jam</strong>
+                </div>
+                <div class="diagnostic-metric">
+                    <span>Model</span>
+                    <strong>{{ result['model'] | upper }}</strong>
+                </div>
+                <div class="diagnostic-metric">
+                    <span>Mode</span>
+                    <strong>{% if is_batch %}Batch {{ result['batch_count'] }}{% else %}Single{% endif %}</strong>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="summary-row">
         <div class="summary-card">
@@ -800,6 +1013,139 @@
 
     renderChart();
     window.addEventListener('themechanged', renderChart);
+
+    function initResult3D() {
+        const mount = document.getElementById('result3d');
+        if (!mount || typeof THREE === 'undefined') return;
+
+        const rootStyles = getComputedStyle(document.documentElement);
+        const palette = [
+            rootStyles.getPropertyValue('--m-blue-light').trim() || '#00bcd4',
+            rootStyles.getPropertyValue('--m-blue-dark').trim() || '#1c69d4',
+            rootStyles.getPropertyValue('--m-red').trim() || '#e22718'
+        ];
+        const accent = palette[predictionRaw] || palette[0];
+        const width = mount.clientWidth || 420;
+        const height = mount.clientHeight || 320;
+        const quality = window.innerWidth < 720 ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
+        camera.position.set(0, 0.08, 5.2);
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(quality);
+        mount.appendChild(renderer.domElement);
+
+        const group = new THREE.Group();
+        scene.add(group);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+        const keyLight = new THREE.PointLight(accent, 1.8, 8);
+        keyLight.position.set(2.6, 2.2, 3);
+        scene.add(keyLight);
+
+        const phoneBody = new THREE.Mesh(
+            new THREE.BoxGeometry(1.5, 2.72, 0.16),
+            new THREE.MeshPhysicalMaterial({
+                color: 0x0b0f18,
+                metalness: 0.42,
+                roughness: 0.28,
+                clearcoat: 0.9,
+                clearcoatRoughness: 0.18
+            })
+        );
+        group.add(phoneBody);
+
+        const screen = new THREE.Mesh(
+            new THREE.PlaneGeometry(1.32, 2.44),
+            new THREE.MeshBasicMaterial({
+                color: new THREE.Color(accent),
+                transparent: true,
+                opacity: 0.18,
+                side: THREE.DoubleSide
+            })
+        );
+        screen.position.z = 0.085;
+        group.add(screen);
+
+        const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(0.74, 0.018, 16, 96),
+            new THREE.MeshBasicMaterial({ color: new THREE.Color(accent), transparent: true, opacity: 0.86 })
+        );
+        ring.position.z = 0.12;
+        group.add(ring);
+
+        const innerRing = ring.clone();
+        innerRing.scale.setScalar(0.62);
+        innerRing.material = ring.material.clone();
+        innerRing.material.opacity = 0.42;
+        group.add(innerRing);
+
+        const pointsGeometry = new THREE.BufferGeometry();
+        const positions = [];
+        for (let i = 0; i < 80; i++) {
+            const radius = 1.15 + Math.random() * 1.25;
+            const angle = Math.random() * Math.PI * 2;
+            positions.push(Math.cos(angle) * radius, (Math.random() - 0.5) * 3.2, Math.sin(angle) * radius * 0.22);
+        }
+        pointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        const particles = new THREE.Points(
+            pointsGeometry,
+            new THREE.PointsMaterial({
+                color: new THREE.Color(accent),
+                size: 0.035,
+                transparent: true,
+                opacity: 0.72
+            })
+        );
+        group.add(particles);
+
+        const bars = new THREE.Group();
+        for (let i = 0; i < 8; i++) {
+            const barHeight = 0.18 + (values[(i + 2) % values.length] || 1) / 24;
+            const bar = new THREE.Mesh(
+                new THREE.BoxGeometry(0.065, barHeight, 0.04),
+                new THREE.MeshBasicMaterial({ color: new THREE.Color(accent), transparent: true, opacity: 0.75 })
+            );
+            bar.position.set(-0.45 + i * 0.13, -0.58 + barHeight / 2, 0.14);
+            bars.add(bar);
+        }
+        group.add(bars);
+
+        let mouseX = 0;
+        let mouseY = 0;
+        window.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth - 0.5) * 0.35;
+            mouseY = (event.clientY / window.innerHeight - 0.5) * 0.25;
+        });
+
+        function resizeResult3D() {
+            const nextWidth = mount.clientWidth || width;
+            const nextHeight = mount.clientHeight || height;
+            camera.aspect = nextWidth / nextHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(nextWidth, nextHeight);
+        }
+
+        window.addEventListener('resize', resizeResult3D);
+
+        function animateResult3D() {
+            requestAnimationFrame(animateResult3D);
+            group.rotation.y += 0.006;
+            group.rotation.x += (mouseY - group.rotation.x) * 0.035;
+            group.rotation.y += (mouseX - group.rotation.y) * 0.012;
+            ring.rotation.z += 0.018;
+            innerRing.rotation.z -= 0.012;
+            particles.rotation.y -= 0.003;
+            renderer.render(scene, camera);
+        }
+
+        animateResult3D();
+    }
+
+    initResult3D();
 
     // Modern ML Confetti
     const container = document.getElementById('confetti');

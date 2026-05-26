@@ -102,6 +102,17 @@ QUESTIONS = [
 ]
 
 FEATURE_KEYS = [question["key"] for question in QUESTIONS]
+SCALER_FILE = "scaler.pkl"
+
+
+def load_scaler():
+    try:
+        return load(SCALER_FILE)
+    except Exception as exc:
+        app.logger.error(f"Gagal memuat scaler: {exc}")
+        return None
+
+scaler = load_scaler()
 
 
 def predict_with_model(values, selected_model, include_comparison=True):
@@ -109,7 +120,14 @@ def predict_with_model(values, selected_model, include_comparison=True):
     if model is None:
         raise ValueError(f"Model {selected_model} tidak tersedia.")
 
-    prediction_raw = int(model.predict([values])[0])
+    input_array = [values]
+    if scaler is not None:
+        try:
+            input_array = scaler.transform(input_array)
+        except Exception as exc:
+            raise ValueError(f"Gagal melakukan transformasi scaler: {exc}")
+
+    prediction_raw = int(model.predict(input_array)[0])
     diagnosis = LABEL_MAP.get(prediction_raw, "Tidak diketahui")
 
     comparison = []
@@ -117,7 +135,7 @@ def predict_with_model(values, selected_model, include_comparison=True):
         for mname, mobj in ml_models.items():
             if mobj is not None:
                 try:
-                    p = int(mobj.predict([values])[0])
+                    p = int(mobj.predict(input_array)[0])
                     comparison.append({"model": mname, "prediction_raw": p, "diagnosis": LABEL_MAP.get(p, "?")})
                 except Exception:
                     comparison.append({"model": mname, "prediction_raw": -1, "diagnosis": "Error"})

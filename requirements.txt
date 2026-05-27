@@ -5,3 +5,8 @@ pandas>=2.0
 Flask-SQLAlchemy>=3.0
 Flask-Login>=0.6
 Werkzeug>=2.3
+papermill
+ipykernel
+matplotlib
+seaborn
+imbalanced-learn

@@ -8,7 +8,10 @@ import argparse
 import warnings
 import json
 import os
+import subprocess
 from datetime import datetime
+import threading
+import csv
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -64,6 +67,23 @@ class Prediction(db.Model):
     def input_list(self):
         return json.loads(self.input_values)
 
+class PredictUserSession(db.Model):
+    __tablename__ = 'predict_user_session'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    gender = db.Column(db.Integer, nullable=False)  # 0=F, 1=M
+    daily_screen_time_hours = db.Column(db.Float, nullable=False)
+    social_media_hours = db.Column(db.Float, nullable=False)
+    gaming_hours = db.Column(db.Float, nullable=False)
+    work_study_hours = db.Column(db.Float, nullable=False)
+    sleep_hours = db.Column(db.Float, nullable=False)
+    notifications_per_day = db.Column(db.Integer, nullable=False)
+    app_opens_per_day = db.Column(db.Integer, nullable=False)
+    weekend_screen_time = db.Column(db.Float, nullable=False)
+    result = db.Column(db.String(20), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -86,6 +106,13 @@ MODEL_FILES = {
     "Support Vector Machine": "svm2_classifier.pkl",
 }
 
+LEGACY_MODEL_FILES = {
+    "Decision Tree": ["dt2_classifier.pkl", "dt_classifier.pkl"],
+    "K-Nearest Neighbors": ["knn2_classifier.pkl", "knn_classifier.pkl"],
+    "Neural Network": ["nn2_classifier.pkl", "nn_classifier.pkl"],
+    "Support Vector Machine": ["svm2_classifier.pkl", "svm_classifier.pkl"],
+}
+
 LABEL_MAP = { 0: "Rendah", 1: "Sedang", 2: "Tinggi" }
 
 QUESTIONS = [
@@ -103,16 +130,175 @@ QUESTIONS = [
 
 FEATURE_KEYS = [question["key"] for question in QUESTIONS]
 SCALER_FILE = "scaler.pkl"
+SCALER_FILE_CANDIDATES = ["scaler.pkl", "scaler_backup.pkl"]
 
 
-def load_scaler():
+def get_venv_python_executable():
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    venv_python = os.path.join(project_root, "venv", "Scripts", "python.exe")
+    if os.path.exists(venv_python):
+        return venv_python
+    return None
+
+
+# Active model config persistence
+CONFIG_PATH = os.path.join("instance", "model_config.json")
+ACTIVE_MODEL_VERSION = "model_default"
+
+def get_active_version_from_config():
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data.get("active_model")
+        except Exception:
+            pass
+    return None
+
+def save_active_version_to_config(version_name):
+    os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
     try:
-        return load(SCALER_FILE)
-    except Exception as exc:
-        app.logger.error(f"Gagal memuat scaler: {exc}")
-        return None
+        with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump({"active_model": version_name}, f, indent=2)
+    except Exception as e:
+        app.logger.error(f"Gagal menyimpan config versi model: {e}")
 
-scaler = load_scaler()
+def get_available_retrain_versions():
+    versions = []
+    model_dir = "model"
+    if not os.path.exists(model_dir):
+        return []
+    for item in os.listdir(model_dir):
+        item_path = os.path.join(model_dir, item)
+        if os.path.isdir(item_path) and item.startswith("model_") and item != "model_default":
+            metrics = {"dt": 0.0, "knn": 0.0, "nn": 0.0, "svm": 0.0}
+            avg_accuracy = 0.0
+
+            metrics_sources = [
+                os.path.join(item_path, "metrics.json"),
+                os.path.join(item_path, "metadata.json"),
+            ]
+            for metrics_path in metrics_sources:
+                if not os.path.exists(metrics_path):
+                    continue
+                try:
+                    with open(metrics_path, "r", encoding="utf-8") as f:
+                        raw_metrics = json.load(f)
+
+                    if isinstance(raw_metrics, dict) and all(key in raw_metrics for key in ["dt", "knn", "nn", "svm"]):
+                        metrics = {
+                            "dt": float(raw_metrics.get("dt", 0) or 0),
+                            "knn": float(raw_metrics.get("knn", 0) or 0),
+                            "nn": float(raw_metrics.get("nn", 0) or 0),
+                            "svm": float(raw_metrics.get("svm", 0) or 0),
+                        }
+                    elif isinstance(raw_metrics, dict) and isinstance(raw_metrics.get("model_metrics"), list):
+                        legacy_map = {
+                            "Decision Tree": "dt",
+                            "decision tree": "dt",
+                            "dt": "dt",
+                            "K-Nearest Neighbors": "knn",
+                            "k-NN": "knn",
+                            "knn": "knn",
+                            "Neural Network": "nn",
+                            "nn": "nn",
+                            "SVM": "svm",
+                            "Support Vector Machine": "svm",
+                            "svm": "svm",
+                        }
+                        for entry in raw_metrics.get("model_metrics", []):
+                            if not isinstance(entry, dict):
+                                continue
+                            metric_key = legacy_map.get(str(entry.get("model", "")).strip())
+                            if metric_key:
+                                metrics[metric_key] = float(entry.get("accuracy", 0) or 0)
+                    avg_accuracy = sum(metrics.values()) / len(metrics)
+                    break
+                except Exception as e:
+                    app.logger.error(f"Gagal membaca metrics di {item} dari {os.path.basename(metrics_path)}: {e}")
+            versions.append({
+                "version_name": item,
+                "average_accuracy": avg_accuracy,
+                "metrics": metrics,
+                "is_active": (item == ACTIVE_MODEL_VERSION)
+            })
+    versions.sort(key=lambda x: x["version_name"], reverse=True)
+    return versions
+
+def load_model_version(version_name):
+    base_path = os.path.join("model", version_name)
+    models = {}
+    if not os.path.exists(base_path):
+        return None, None, False
+    for name, filenames in LEGACY_MODEL_FILES.items():
+        loaded_model = None
+        last_error = None
+        for filename in filenames:
+            model_path = os.path.join(base_path, filename)
+            if not os.path.exists(model_path):
+                continue
+            try:
+                loaded_model = load(model_path)
+                break
+            except Exception as exc:
+                last_error = exc
+                app.logger.error(f"Gagal memuat model {name} dari {model_path}: {exc}")
+        if loaded_model is None:
+            if last_error is None:
+                app.logger.error(f"File model {name} tidak ditemukan di {base_path}")
+            return None, None, False
+        models[name] = loaded_model
+
+    scaler_obj = None
+    last_scaler_error = None
+    for filename in SCALER_FILE_CANDIDATES:
+        scaler_path = os.path.join(base_path, filename)
+        if not os.path.exists(scaler_path):
+            continue
+        try:
+            scaler_obj = load(scaler_path)
+            break
+        except Exception as exc:
+            last_scaler_error = exc
+            app.logger.error(f"Gagal memuat scaler dari {scaler_path}: {exc}")
+    if scaler_obj is None:
+        if last_scaler_error is None:
+            app.logger.error(f"File scaler tidak ditemukan di {base_path}")
+        return None, None, False
+    return models, scaler_obj, True
+
+ml_models = {}
+scaler = None
+
+def init_active_model():
+    global ACTIVE_MODEL_VERSION, ml_models, scaler
+    cfg_version = get_active_version_from_config()
+    if cfg_version:
+        models, scaler_obj, success = load_model_version(cfg_version)
+        if success:
+            ACTIVE_MODEL_VERSION = cfg_version
+            ml_models = models
+            scaler = scaler_obj
+            return
+    for version_info in get_available_retrain_versions():
+        version_name = version_info["version_name"]
+        models, scaler_obj, success = load_model_version(version_name)
+        if success:
+            ACTIVE_MODEL_VERSION = version_name
+            ml_models = models
+            scaler = scaler_obj
+            save_active_version_to_config(version_name)
+            return
+    models, scaler_obj, success = load_model_version("model_default")
+    if success:
+        ACTIVE_MODEL_VERSION = "model_default"
+        ml_models = models
+        scaler = scaler_obj
+        save_active_version_to_config("model_default")
+        return
+    ACTIVE_MODEL_VERSION = None
+    ml_models = {}
+    scaler = None
 
 
 def predict_with_model(values, selected_model, include_comparison=True):
@@ -193,17 +379,128 @@ def average_rows(rows):
     column_count = len(rows[0])
     return [sum(row[index] for row in rows) / len(rows) for index in range(column_count)]
 
-def load_ml_models():
-    models = {}
-    for name, filename in MODEL_FILES.items():
-        try:
-            models[name] = load(filename)
-        except Exception as exc:
-            models[name] = None
-            app.logger.error(f"Gagal memuat model {name}: {exc}")
-    return models
+RETRAIN_LOCK = threading.Lock()
+IS_RETRAINING = False
 
-ml_models = load_ml_models()
+def _execute_retrain_job(app_instance):
+    global ACTIVE_MODEL_VERSION, ml_models, scaler
+    with app_instance.app_context():
+        app_instance.logger.info("Retrain pipeline: Mengambil baris dari predict_user_session...")
+        rows = PredictUserSession.query.order_by(PredictUserSession.timestamp.asc()).all()
+
+        # Jika ada baris, tambahkan ke CSV dan kosongkan database sesi
+        if len(rows) > 0:
+            csv_path = os.path.join("dataset-notebook", "Smartphone_Usage_And_Addiction_Analysis_7500_Rows.csv")
+            app_instance.logger.info(f"Retrain pipeline: Menambahkan {len(rows)} baris ke {csv_path}...")
+
+            with open(csv_path, "a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                for idx, row in enumerate(rows):
+                    # Generate transaction & user IDs
+                    txn_id = f"TXN{datetime.utcnow().strftime('%Y%m%d%H%M%S')}_{idx}"
+                    u_id = f"U{row.user_id:05d}"
+
+                    # Konversi result dan gender
+                    gender_str = "Male" if row.gender == 1 else "Female"
+                    result_str = "Mild" if row.result == "Rendah" else ("Moderate" if row.result == "Sedang" else "Severe")
+                    addicted_lbl = 0 if row.result == "Rendah" else 1
+
+                    # Skema kolom CSV
+                    writer.writerow([
+                        txn_id, u_id, int(row.age), gender_str,
+                        float(row.daily_screen_time_hours), float(row.social_media_hours),
+                        float(row.gaming_hours), float(row.work_study_hours),
+                        float(row.sleep_hours), int(row.notifications_per_day),
+                        int(row.app_opens_per_day), float(row.weekend_screen_time),
+                        "Medium", "Yes", result_str, addicted_lbl
+                    ])
+
+            # Kosongkan tabel sesi
+            app_instance.logger.info("Retrain pipeline: Mengosongkan tabel predict_user_session...")
+            PredictUserSession.query.delete()
+            db.session.commit()
+
+        # Jalankan Papermill untuk retraining notebook
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_version = f"model_{timestamp}"
+        output_dir = os.path.join("model", output_version)
+        os.makedirs(output_dir, exist_ok=True)
+
+        notebook_in = os.path.join("dataset-notebook", "Tubes_FIX.ipynb")
+        notebook_out = os.path.join("scratch", f"executed_{output_version}.ipynb")
+
+        os.makedirs(os.path.dirname(notebook_out), exist_ok=True)
+
+        papermill_python = get_venv_python_executable() or os.environ.get("PYTHON_EXECUTABLE") or "python"
+        papermill_script = (
+            "import papermill as pm; "
+            f"pm.execute_notebook(r'{notebook_in}', r'{notebook_out}', parameters={{'output_model_dir': r'{output_dir}'}})"
+        )
+
+        app_instance.logger.info(
+            f"Retrain pipeline: Mengeksekusi papermill via {papermill_python} ({notebook_in} -> {output_dir})..."
+        )
+        completed = subprocess.run(
+            [papermill_python, "-c", papermill_script],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if completed.stdout:
+            app_instance.logger.info(f"Retrain pipeline stdout: {completed.stdout.strip()}")
+        if completed.stderr:
+            app_instance.logger.error(f"Retrain pipeline stderr: {completed.stderr.strip()}")
+        if completed.returncode != 0:
+            raise RuntimeError(f"Papermill gagal dijalankan dengan kode {completed.returncode}.")
+
+        # Bersihkan file temp executed notebook
+        if os.path.exists(notebook_out):
+            try:
+                os.remove(notebook_out)
+            except Exception:
+                pass
+
+        # Muat model yang baru selesai ditraining
+        new_models, new_scaler, success = load_model_version(output_version)
+        if success:
+            ACTIVE_MODEL_VERSION = output_version
+            ml_models = new_models
+            scaler = new_scaler
+            save_active_version_to_config(output_version)
+            app_instance.logger.info(f"Retrain pipeline: Berhasil melatih model baru dan mengaktifkannya: {output_version}")
+            return output_version
+
+        app_instance.logger.error("Retrain pipeline: Gagal memuat model baru pasca training.")
+        return None
+
+
+def run_retrain_pipeline(app_instance):
+    global IS_RETRAINING
+
+    def job():
+        global IS_RETRAINING
+        try:
+            _execute_retrain_job(app_instance)
+        except Exception as e:
+            app_instance.logger.error(f"Retrain pipeline: Terjadi error saat retraining: {e}")
+        finally:
+            IS_RETRAINING = False
+            if RETRAIN_LOCK.locked():
+                try:
+                    RETRAIN_LOCK.release()
+                except RuntimeError:
+                    pass
+
+    if RETRAIN_LOCK.acquire(blocking=False):
+        IS_RETRAINING = True
+        thread = threading.Thread(target=job)
+        thread.daemon = True
+        thread.start()
+        return True
+    return False
+
+# Inisialisasi model aktif saat startup aplikasi
+init_active_model()
 
 # ═══════ AUTH ROUTES ═══════
 @app.route("/")
@@ -438,6 +735,36 @@ def predict():
                 db.session.add(pred_entry)
                 db.session.commit()
 
+                # ═══════ AUTO RETRAIN SESSION BUFFER ═══════
+                try:
+                    session_count = PredictUserSession.query.count()
+                    
+                    new_session = PredictUserSession(
+                        user_id=current_user.id,
+                        age=int(values[0]),
+                        gender=int(values[1]),
+                        daily_screen_time_hours=float(values[2]),
+                        social_media_hours=float(values[3]),
+                        gaming_hours=float(values[4]),
+                        work_study_hours=float(values[5]),
+                        sleep_hours=float(values[6]),
+                        notifications_per_day=int(values[7]),
+                        app_opens_per_day=int(values[8]),
+                        weekend_screen_time=float(values[9]),
+                        result=diagnosis
+                    )
+                    db.session.add(new_session)
+                    db.session.commit()
+                    
+                    if session_count >= 49:
+                        from flask import current_app
+                        app_obj = current_app._get_current_object()
+                        triggered = run_retrain_pipeline(app_obj)
+                        if triggered:
+                            flash("Retraining otomatis berjalan di background (50 data terpenuhi)!", "info")
+                except Exception as db_err:
+                    app.logger.error(f"Gagal mencatat sesi prediksi ke database: {db_err}")
+
                 session['last_prediction'] = {
                     "values": values,
                     "labels": FEATURE_KEYS,
@@ -520,6 +847,7 @@ def clear_my_history():
 def admin_dashboard():
     total_users = User.query.filter_by(role='user').count()
     total_preds = Prediction.query.count()
+    total_predict_session = PredictUserSession.query.count()
     all_preds = Prediction.query.all()
     stats = {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}
     model_usage = {}
@@ -528,9 +856,124 @@ def admin_dashboard():
             stats[p.result] += 1
         model_usage[p.model_name] = model_usage.get(p.model_name, 0) + 1
     recent = Prediction.query.order_by(Prediction.timestamp.desc()).limit(8).all()
+    
+    # Versi retraining dinamis
+    versions = get_available_retrain_versions()
+    total_retrains = len(versions)
+    
     return render_template("admin/dashboard.html", active_page='admin_dashboard',
         total_users=total_users, total_preds=total_preds, stats=stats,
-        model_usage=model_usage, recent=recent)
+        model_usage=model_usage, recent=recent,
+        total_predict_session=total_predict_session,
+        total_retrains=total_retrains, retrain_versions=versions,
+        active_model_version=ACTIVE_MODEL_VERSION)
+
+@app.route("/admin/retrain-manual", methods=["POST"])
+@admin_required
+def admin_retrain_manual():
+    global IS_RETRAINING
+    if IS_RETRAINING:
+        flash("Proses retraining sedang berjalan. Harap tunggu hingga selesai.", "warning")
+        return redirect(url_for('admin_dashboard'))
+
+    from flask import current_app
+    app_obj = current_app._get_current_object()
+    if not RETRAIN_LOCK.acquire(blocking=False):
+        flash("Proses retraining sedang berjalan. Harap tunggu hingga selesai.", "warning")
+        return redirect(url_for('admin_dashboard'))
+
+    IS_RETRAINING = True
+    try:
+        output_version = _execute_retrain_job(app_obj)
+        if output_version:
+            flash(f"Retraining manual selesai dan model aktif berpindah ke {output_version}.", "success")
+        else:
+            flash("Retraining manual selesai, tetapi model baru gagal dimuat.", "warning")
+    except Exception as exc:
+        app_obj.logger.error(f"Retrain manual gagal: {exc}")
+        flash(f"Retraining manual gagal: {exc}", "error")
+    finally:
+        IS_RETRAINING = False
+        if RETRAIN_LOCK.locked():
+            try:
+                RETRAIN_LOCK.release()
+            except RuntimeError:
+                pass
+    return redirect(url_for('admin_dashboard'))
+
+@app.route("/admin/clear-retrains", methods=["POST"])
+@admin_required
+def admin_clear_retrains():
+    import shutil
+    global ACTIVE_MODEL_VERSION, ml_models, scaler
+    
+    versions = get_available_retrain_versions()
+    deleted_count = 0
+    for ver in versions:
+        version_dir = os.path.join("model", ver["version_name"])
+        try:
+            if os.path.exists(version_dir):
+                shutil.rmtree(version_dir)
+                deleted_count += 1
+        except Exception as e:
+            app.logger.error(f"Gagal menghapus folder {version_dir}: {e}")
+            
+    # Kembalikan ke model_default
+    models, scaler_obj, success = load_model_version("model_default")
+    if success:
+        ACTIVE_MODEL_VERSION = "model_default"
+        ml_models = models
+        scaler = scaler_obj
+        save_active_version_to_config("model_default")
+        flash(f"Berhasil menghapus {deleted_count} model retrain. Sistem kembali menggunakan model_default.", "success")
+    else:
+        ACTIVE_MODEL_VERSION = None
+        ml_models = {}
+        scaler = None
+        flash("Semua model retrain dihapus, namun model_default gagal dimuat.", "error")
+        
+    return redirect(url_for('admin_dashboard'))
+
+@app.route("/admin/use-retrain/<version_name>", methods=["POST"])
+@admin_required
+def admin_use_retrain(version_name):
+    global ACTIVE_MODEL_VERSION, ml_models, scaler
+    
+    models, scaler_obj, success = load_model_version(version_name)
+    if success:
+        ACTIVE_MODEL_VERSION = version_name
+        ml_models = models
+        scaler = scaler_obj
+        save_active_version_to_config(version_name)
+        flash(f"Berhasil mengubah model aktif ke versi {version_name}!", "success")
+    else:
+        flash(f"Gagal memuat model dari versi {version_name}. Tetap menggunakan versi sebelumnya.", "error")
+        
+    return redirect(url_for('admin_dashboard'))
+
+@app.route("/admin/delete-retrain/<version_name>", methods=["POST"])
+@admin_required
+def admin_delete_retrain(version_name):
+    import shutil
+    global ACTIVE_MODEL_VERSION
+    
+    if version_name == "model_default":
+        flash("Model default bawaan tidak boleh dihapus.", "error")
+        return redirect(url_for('admin_dashboard'))
+        
+    version_dir = os.path.join("model", version_name)
+    try:
+        if os.path.exists(version_dir):
+            shutil.rmtree(version_dir)
+            flash(f"Versi model {version_name} berhasil dihapus.", "success")
+        else:
+            flash(f"Direktori versi model {version_name} tidak ditemukan.", "error")
+    except Exception as e:
+        flash(f"Gagal menghapus folder versi model: {e}", "error")
+        
+    # Inisialisasi ulang model aktif
+    init_active_model()
+    return redirect(url_for('admin_dashboard'))
 
 @app.route("/admin/history")
 @admin_required

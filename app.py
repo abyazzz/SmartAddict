@@ -230,6 +230,7 @@ def load_model_version(version_name):
     models = {}
     if not os.path.exists(base_path):
         return None, None, False
+    loaded_any_model = False
     for name, filenames in LEGACY_MODEL_FILES.items():
         loaded_model = None
         last_error = None
@@ -246,8 +247,9 @@ def load_model_version(version_name):
         if loaded_model is None:
             if last_error is None:
                 app.logger.error(f"File model {name} tidak ditemukan di {base_path}")
-            return None, None, False
+            continue
         models[name] = loaded_model
+        loaded_any_model = True
 
     scaler_obj = None
     last_scaler_error = None
@@ -264,6 +266,8 @@ def load_model_version(version_name):
     if scaler_obj is None:
         if last_scaler_error is None:
             app.logger.error(f"File scaler tidak ditemukan di {base_path}")
+        return None, None, False
+    if not loaded_any_model:
         return None, None, False
     return models, scaler_obj, True
 

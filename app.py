@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -676,31 +676,71 @@ def predict():
                         values = csv_rows[0]
                     else:
                         batch_rows = []
+                        prediction_entries = []
+                        session_entries = []
+                        distribution = {"Rendah": 0, "Sedang": 0, "Tinggi": 0}
+
                         for row_number, row_values in enumerate(csv_rows, start=1):
                             row_result = predict_with_model(row_values, selected_model, include_comparison=False)
+                            row_diagnosis = row_result["diagnosis"]
+                            row_prediction_raw = int(row_result["prediction_raw"])
+
                             batch_rows.append({
                                 "row_number": row_number,
                                 "values": row_values,
-                                "diagnosis": row_result["diagnosis"],
-                                "prediction_raw": row_result["prediction_raw"],
+                                "diagnosis": row_diagnosis,
+                                "prediction_raw": row_prediction_raw,
                             })
+
+                            if row_diagnosis in distribution:
+                                distribution[row_diagnosis] += 1
+
+                            prediction_entries.append(Prediction(
+                                user_id=current_user.id,
+                                model_name=selected_model,
+                                input_values=json.dumps(row_values),
+                                result=row_diagnosis,
+                                prediction_raw=row_prediction_raw,
+                            ))
+
+                            session_entries.append(PredictUserSession(
+                                user_id=current_user.id,
+                                age=int(row_values[0]),
+                                gender=int(row_values[1]),
+                                daily_screen_time_hours=float(row_values[2]),
+                                social_media_hours=float(row_values[3]),
+                                gaming_hours=float(row_values[4]),
+                                work_study_hours=float(row_values[5]),
+                                sleep_hours=float(row_values[6]),
+                                notifications_per_day=int(row_values[7]),
+                                app_opens_per_day=int(row_values[8]),
+                                weekend_screen_time=float(row_values[9]),
+                                result=row_diagnosis,
+                            ))
 
                         values = average_rows(csv_rows)
                         aggregate_result = predict_with_model(values, selected_model, include_comparison=True)
-                        distribution = {"Rendah": 0, "Sedang": 0, "Tinggi": 0}
-                        for row in batch_rows:
-                            if row["diagnosis"] in distribution:
-                                distribution[row["diagnosis"]] += 1
+                        male_count = sum(1 for row in csv_rows if int(row[1]) == 1)
+                        female_count = len(csv_rows) - male_count
 
-                        pred_entry = Prediction(
-                            user_id=current_user.id,
-                            model_name=selected_model,
-                            input_values=json.dumps(values),
-                            result=aggregate_result["diagnosis"],
-                            prediction_raw=aggregate_result["prediction_raw"],
-                        )
-                        db.session.add(pred_entry)
-                        db.session.commit()
+                        try:
+                            db.session.add_all(prediction_entries)
+                            db.session.add_all(session_entries)
+                            db.session.commit()
+                        except Exception:
+                            db.session.rollback()
+                            raise
+
+                        try:
+                            session_count = PredictUserSession.query.count()
+                            if session_count >= 50:
+                                from flask import current_app
+                                app_obj = current_app._get_current_object()
+                                triggered = run_retrain_pipeline(app_obj)
+                                if triggered:
+                                    flash("Retraining otomatis berjalan di background (50 data terpenuhi)!", "info")
+                        except Exception as db_err:
+                            app.logger.error(f"Gagal memeriksa trigger retraining batch: {db_err}")
 
                         session['last_prediction'] = {
                             "values": values,
@@ -713,9 +753,20 @@ def predict():
                             "batch_count": len(batch_rows),
                             "batch_rows": batch_rows,
                             "distribution": distribution,
+                            "batch_stats": {
+                                "male_count": male_count,
+                                "female_count": female_count,
+                                "avg_age": values[0],
+                                "avg_screen_time": values[2],
+                                "avg_social_media": values[3],
+                                "avg_gaming": values[4],
+                                "avg_sleep": values[6],
+                                "avg_notifications": values[7],
+                                "avg_app_opens": values[8],
+                            },
                             "feature_averages": values,
                         }
-                        flash("Prediksi batch berhasil!", "success")
+                        flash(f"Prediksi batch berhasil! {len(batch_rows)} baris diproses dan disimpan.", "success")
                         return redirect(url_for('thanks'))
                 except Exception as e:
                     errors.append(f"Error membaca CSV: {str(e)}")
@@ -729,20 +780,14 @@ def predict():
                 diagnosis = result_payload["diagnosis"]
                 model_name = selected_model
 
-                pred_entry = Prediction(
-                    user_id=current_user.id,
-                    model_name=model_name,
-                    input_values=json.dumps(values),
-                    result=diagnosis,
-                    prediction_raw=int(prediction),
-                )
-                db.session.add(pred_entry)
-                db.session.commit()
-
-                # ═══════ AUTO RETRAIN SESSION BUFFER ═══════
                 try:
-                    session_count = PredictUserSession.query.count()
-                    
+                    pred_entry = Prediction(
+                        user_id=current_user.id,
+                        model_name=model_name,
+                        input_values=json.dumps(values),
+                        result=diagnosis,
+                        prediction_raw=int(prediction),
+                    )
                     new_session = PredictUserSession(
                         user_id=current_user.id,
                         age=int(values[0]),
@@ -757,10 +802,13 @@ def predict():
                         weekend_screen_time=float(values[9]),
                         result=diagnosis
                     )
+                    db.session.add(pred_entry)
                     db.session.add(new_session)
                     db.session.commit()
                     
-                    if session_count >= 49:
+                    # Trigger retraining when session buffer has reached minimum threshold.
+                    session_count = PredictUserSession.query.count()
+                    if session_count >= 50:
                         from flask import current_app
                         app_obj = current_app._get_current_object()
                         triggered = run_retrain_pipeline(app_obj)
@@ -818,6 +866,13 @@ def thanks():
     last = session.pop('last_prediction', None)
     averages = last.get('feature_averages') if last and last.get('feature_averages') else get_feature_averages()
     return render_template("thanks.html", result=last, questions=QUESTIONS, averages=averages, active_page='thanks')
+
+
+@app.route("/download-csv-template")
+@login_required
+def download_csv_template():
+    template_path = os.path.join(app.root_path, "static", "templates", "smart_addict_template.csv")
+    return send_file(template_path, mimetype="text/csv", as_attachment=True, download_name="smart_addict_template.csv")
 
 @app.route("/about")
 def about():

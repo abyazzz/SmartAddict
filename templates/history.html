@@ -257,6 +257,19 @@
         letter-spacing: 0.5px;
     }
 
+    .history-model-chip {
+        font-size: 0.68rem;
+        color: var(--text-secondary);
+        font-weight: 800;
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+        border: 1px solid var(--border-card);
+        padding: 4px 8px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
     .history-details-panel {
         max-height: 0;
         overflow: hidden;
@@ -557,6 +570,7 @@
                             • Data: {{ inputs | length }} fitur
                         {% endif %}
                     </span>
+                    <span class="history-model-chip">MODEL: {{ entry.model_name | upper }}</span>
                 </div>
                 <div class="result-badge {{ level_class }}">{{ entry.result }}</div>
                 <form method="post" action="{{ url_for('delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')" onclick="event.stopPropagation()">

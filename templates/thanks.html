@@ -337,6 +337,44 @@
         padding-left: 10px;
     }
 
+    .batch-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 20px;
+    }
+
+    .batch-stat-card {
+        padding: 18px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        text-align: center;
+    }
+
+    .batch-stat-card .stat-label {
+        font-size: 0.68rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+
+    .batch-stat-card .stat-value {
+        font-size: 1rem;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .batch-stat-card .stat-subvalue {
+        margin-top: 6px;
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     .chart-card.full {
         grid-column: 1 / -1;
     }
@@ -640,6 +678,7 @@
         .diagnostic-metrics { grid-template-columns: 1fr; }
         .summary-row { grid-template-columns: 1fr; gap: 14px; }
         .summary-card { padding: 20px; }
+        .batch-stats-grid { grid-template-columns: 1fr 1fr; }
         .level-badge { padding: 12px 24px; }
         .chart-card { padding: 20px 16px; }
         .features-grid { grid-template-columns: 1fr; }
@@ -660,16 +699,27 @@
 <main class="content">
     {% if result %}
     {% set is_batch = result.get('batch_mode', false) %}
+    {% set batch_dist = result.get('distribution', {}) %}
+    {% set batch_rendah = batch_dist.get('Rendah', 0) %}
+    {% set batch_sedang = batch_dist.get('Sedang', 0) %}
+    {% set batch_tinggi = batch_dist.get('Tinggi', 0) %}
+    {% if batch_rendah >= batch_sedang and batch_rendah >= batch_tinggi %}
+        {% set dominant_level = 'Rendah' %}
+    {% elif batch_sedang >= batch_tinggi %}
+        {% set dominant_level = 'Sedang' %}
+    {% else %}
+        {% set dominant_level = 'Tinggi' %}
+    {% endif %}
     <div class="confetti-container" id="confetti"></div>
 
     <div class="result-hero">
         <div class="success-icon">✅</div>
-        <h1>DETEKSI KECANDUAN SELESAI</h1>
+        <h1>{% if is_batch %}LAPORAN UPLOAD CSV SELESAI{% else %}DETEKSI KECANDUAN SELESAI{% endif %}</h1>
         {% set level_class = 'rendah' if result['diagnosis'] == 'Rendah' else ('sedang' if result['diagnosis'] == 'Sedang' else 'tinggi') %}
         <div class="level-badge {{ level_class }}">
-            LEVEL DIAGNOSIS: {{ result['diagnosis'] }}
+            {% if is_batch %}LEVEL DOMINAN: {{ dominant_level }}{% else %}LEVEL DIAGNOSIS: {{ result['diagnosis'] }}{% endif %}
         </div>
-        <div class="result-model">MODEL ANALISIS ML: <strong>{{ result['model'] | upper }}</strong>{% if is_batch %} | BATCH CSV: <strong>{{ result['batch_count'] }} DATA</strong>{% endif %}</div>
+        <div class="result-model">MODEL ANALISIS ML: <strong>{{ result['model'] | upper }}</strong>{% if is_batch %} | BATCH CSV: <strong>{{ result['batch_count'] }} DATA</strong> | STATUS: <strong>TERPROSES</strong>{% endif %}</div>
     </div>
 
     <section class="diagnostic-hero-grid result-level-{{ level_class }}">
@@ -679,28 +729,46 @@
         </div>
         <div class="diagnostic-readout">
             <div class="diagnostic-readout-title">Smartphone Addiction Diagnostic Core</div>
-            <div class="diagnostic-readout-main">{{ result['diagnosis'] }}</div>
+            <div class="diagnostic-readout-main">{% if is_batch %}LAPORAN BATCH CSV{% else %}{{ result['diagnosis'] }}{% endif %}</div>
             <p class="diagnostic-readout-copy">
-                Visualisasi ini membaca pola screen time, intensitas aplikasi, dan sinyal aktivitas digital sebagai satu panel diagnosis berbasis machine learning.
+                {% if is_batch %}
+                    Upload CSV diproses per baris, lalu diringkas sebagai laporan batch yang menampilkan distribusi level, rata-rata fitur, dan detail tiap row input.
+                {% else %}
+                    Visualisasi ini membaca pola screen time, intensitas aplikasi, dan sinyal aktivitas digital sebagai satu panel diagnosis berbasis machine learning.
+                {% endif %}
             </p>
             <div class="diagnostic-metrics">
                 <div class="diagnostic-metric">
-                    <span>Screen Time</span>
-                    <strong>{{ result['values'][2] | round | int }} Jam</strong>
+                    <span>{% if is_batch %}Baris CSV{% else %}Screen Time{% endif %}</span>
+                    <strong>{% if is_batch %}{{ result['batch_count'] }} Data{% else %}{{ result['values'][2] | round | int }} Jam{% endif %}</strong>
                 </div>
                 <div class="diagnostic-metric">
-                    <span>Model</span>
-                    <strong>{{ result['model'] | upper }}</strong>
+                    <span>{% if is_batch %}Dominan{% else %}Model{% endif %}</span>
+                    <strong>{% if is_batch %}{{ dominant_level | upper }}{% else %}{{ result['model'] | upper }}{% endif %}</strong>
                 </div>
                 <div class="diagnostic-metric">
-                    <span>Mode</span>
-                    <strong>{% if is_batch %}Batch {{ result['batch_count'] }}{% else %}Single{% endif %}</strong>
+                    <span>{% if is_batch %}Rata-rata{% else %}Mode{% endif %}</span>
+                    <strong>{% if is_batch %}{{ result['feature_averages'][2] | round | int }} Jam{% else %}Single{% endif %}</strong>
                 </div>
             </div>
         </div>
     </section>
 
     <div class="summary-row">
+        {% if is_batch %}
+        <div class="summary-card">
+            <div class="summary-value" style="color: var(--m-blue-light);">{{ result['batch_count'] }}</div>
+            <div class="summary-label">TOTAL BARIS CSV</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value" style="{% if dominant_level == 'Rendah' %}color: var(--m-blue-light);{% elif dominant_level == 'Sedang' %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">{{ dominant_level | upper }}</div>
+            <div class="summary-label">LEVEL DOMINAN</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-value" style="color: var(--text-primary);">{{ result['feature_averages'][2] | round | int }} jam</div>
+            <div class="summary-label">RATA-RATA SCREEN TIME</div>
+        </div>
+        {% else %}
         <div class="summary-card">
             <div class="summary-value" style="color: var(--m-blue-light);">{{ result['values'][2] | round | int }} jam</div>
             <div class="summary-label">SCREEN TIME / HARI</div>
@@ -715,12 +783,13 @@
             </div>
             <div class="summary-label">INDEX KECANDUAN</div>
         </div>
+        {% endif %}
     </div>
 
     <!-- Centered Single Level Kecanduan Chart -->
     <div class="chart-single-centered" style="max-width: 500px; margin: 0 auto 40px; display: block;">
         <div class="chart-card" style="animation-delay: 0.2s;">
-            <div class="chart-title">🎯 DISTRIBUSI LEVEL KECANDUAN</div>
+            <div class="chart-title">🎯 {% if is_batch %}DISTRIBUSI LEVEL BATCH CSV{% else %}DISTRIBUSI LEVEL KECANDUAN{% endif %}</div>
             <div style="position: relative; height: 280px; display: flex; align-items: center; justify-content: center;">
                 <canvas id="gaugeChart"></canvas>
             </div>
@@ -729,8 +798,52 @@
 
     <!-- Redesigned Feature Indicators and Global Averages Section -->
     <div class="features-comparison-container">
-        <div class="chart-title">📊 EVALUASI PERBANDINGAN INDIKATOR FITUR</div>
-        
+        <div class="chart-title">📊 {% if is_batch %}STATISTIK UPLOAD CSV{% else %}EVALUASI PERBANDINGAN INDIKATOR FITUR{% endif %}</div>
+
+        {% if is_batch %}
+        <div class="batch-stats-grid">
+            <div class="batch-stat-card">
+                <div class="stat-label">Total Baris</div>
+                <div class="stat-value" style="color: var(--m-blue-light);">{{ result['batch_count'] }}</div>
+                <div class="stat-subvalue">DATA CSV DIPROSES</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Rendah</div>
+                <div class="stat-value" style="color: var(--m-blue-light);">{{ batch_rendah }}</div>
+                <div class="stat-subvalue">HASIL DIAGNOSIS</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Sedang</div>
+                <div class="stat-value" style="color: var(--m-blue-dark);">{{ batch_sedang }}</div>
+                <div class="stat-subvalue">HASIL DIAGNOSIS</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Tinggi</div>
+                <div class="stat-value" style="color: var(--m-red);">{{ batch_tinggi }}</div>
+                <div class="stat-subvalue">HASIL DIAGNOSIS</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Rata-rata Usia</div>
+                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_age'] | round | int }} THN</div>
+                <div class="stat-subvalue">SELURUH BARIS CSV</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Rata-rata Screen Time</div>
+                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_screen_time'] | round(1) }} JAM</div>
+                <div class="stat-subvalue">SELURUH BARIS CSV</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Komposisi Gender</div>
+                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['male_count'] }} / {{ result['batch_stats']['female_count'] }}</div>
+                <div class="stat-subvalue">LAKI-LAKI / PEREMPUAN</div>
+            </div>
+            <div class="batch-stat-card">
+                <div class="stat-label">Rata-rata Tidur</div>
+                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_sleep'] | round(1) }} JAM</div>
+                <div class="stat-subvalue">SELURUH BARIS CSV</div>
+            </div>
+        </div>
+        {% else %}
         <div class="comparison-table-wrap">
             <table class="comparison-table">
                 <thead>
@@ -824,6 +937,7 @@
                 </tbody>
             </table>
         </div>
+        {% endif %}
     </div>
 
     {% if is_batch %}

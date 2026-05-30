@@ -1,0 +1,78 @@
+[33mcommit d5a715d1648027589506c6137308d9b88070ec32[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Sat May 30 14:14:51 2026 +0700
+
+    Add Status Log Retrain Notebook
+
+[33mcommit 7b8b6858be1bf57debc54531329a6418beb7a635[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Fri May 29 16:10:17 2026 +0700
+
+    Redesign Page thanks, history
+
+[33mcommit c87e47def51c5ca7e0cf8aa2c69d70712704ba79[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Thu May 28 00:48:58 2026 +0700
+
+    Retrain Otomatis, Fix Use Model>Page Predict - Model Dinamis
+
+[33mcommit 981aa254808e378fc7240c493399e4b66c01bff4[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Thu May 28 00:11:04 2026 +0700
+
+    Retrain Manual, Container Kelola Versi Retraining Model - Model Dinamis
+
+[33mcommit 40d5dfaac72e5ba40cbb505e3d259656dcd69c5f[m
+Author: KhuzaivanRE <khuzaivan24@gmail.com>
+Date:   Tue May 26 12:10:59 2026 +0700
+
+    model baru done
+
+[33mcommit 31fa1f5e4a364b622034c57ef9a6688b89462203[m
+Author: MUHAMMADZAQIZALLUL212 <ppapchannel01@gmail.com>
+Date:   Mon May 25 04:21:02 2026 +0700
+
+    frontend baru tong
+
+[33mcommit 67f30edfe10edf4c2b68d0753b22c7a4ae5e20f6[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Thu May 21 09:37:03 2026 +0700
+
+    update upload.csv max 20 row
+
+[33mcommit a3f05f1bdb25a46831310dcd6e1f0f5c34bae7e6[m
+Author: MUHAMMADZAQIZALLUL212 <ppapchannel01@gmail.com>
+Date:   Thu May 21 00:21:43 2026 +0700
+
+    frontend baru bang
+
+[33mcommit 1d1f50b9aba3f167d9734c11da1c7ef5242e4125[m
+Merge: 6055841b c28b5c1e
+Author: MUHAMMADZAQIZALLUL212 <ppapchannel01@gmail.com>
+Date:   Wed May 20 23:11:12 2026 +0700
+
+    Merge branch 'main' of https://github.com/abyazzz/SmartAddict
+
+[33mcommit 6055841baadd8120d71e7b55367d0ba0b077d624[m
+Author: MUHAMMADZAQIZALLUL212 <ppapchannel01@gmail.com>
+Date:   Wed May 20 23:10:23 2026 +0700
+
+    frontend backend update
+
+[33mcommit c28b5c1e6f7e45c6dbe2a7a23d09fa7455ffc225[m
+Author: KhuzaivanRE <khuzaivan24@gmail.com>
+Date:   Wed May 20 21:29:19 2026 +0700
+
+    update model
+
+[33mcommit b25fb063b8097c476d5455fc15706bd521b02003[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Tue May 19 03:48:08 2026 +0700
+
+    revisi design
+
+[33mcommit 03d03293a19c3ee18068a6f080f65aadfe6946b4[m
+Author: abyazzz <abyazzz1045@gmail.com>
+Date:   Tue May 19 02:03:40 2026 +0700
+
+    first commit

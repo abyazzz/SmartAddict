@@ -1,0 +1,305 @@
+{
+  "job_id": "0132c14d-0506-4587-84b4-489558e83686",
+  "triggered_at": "2026-05-30T09:08:55.080812Z",
+  "started_at": "2026-05-30T09:08:55.083856Z",
+  "finished_at": "2026-05-30T09:22:41.867164Z",
+  "status": "success",
+  "progress": 100,
+  "current_step": "Deploy",
+  "steps": [
+    {
+      "name": "Load library",
+      "status": "done",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "done",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "done",
+      "index": 2,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "done",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "done",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "done",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "done",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "done",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "PCA",
+      "status": "done",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "SVM",
+      "status": "done",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "done",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "done",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "k-NN classifier",
+      "status": "done",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "done",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Decision Tree",
+      "status": "done",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "done",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Neural Network",
+      "status": "done",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "done",
+      "index": 17,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "done",
+      "index": 18,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "done",
+      "index": 19,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "done",
+      "index": 20,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "done",
+      "index": 21,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-05-30T09:08:55.080812Z",
+      "level": "INFO",
+      "message": "Job queued"
+    },
+    {
+      "ts": "2026-05-30T09:08:55.132839Z",
+      "level": "INFO",
+      "message": "Job started"
+    },
+    {
+      "ts": "2026-05-30T09:08:55.165690Z",
+      "level": "INFO",
+      "message": "Appending 50 rows to dataset"
+    },
+    {
+      "ts": "2026-05-30T09:08:55.192585Z",
+      "level": "INFO",
+      "message": "Clearing PredictUserSession buffer"
+    },
+    {
+      "ts": "2026-05-30T09:08:55.243993Z",
+      "level": "INFO",
+      "message": "Executing papermill: dataset-notebook\\Tubes_FIX.ipynb -> model\\model_20260530_160855"
+    },
+    {
+      "ts": "2026-05-30T09:09:04.057777Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-05-30T09:09:20.721110Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-05-30T09:09:21.116685Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Label encoding kolom kategorikal"
+    },
+    {
+      "ts": "2026-05-30T09:09:21.557670Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Visualisasi sederhana EDA"
+    },
+    {
+      "ts": "2026-05-30T09:09:24.583773Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Ambil feature dan label"
+    },
+    {
+      "ts": "2026-05-30T09:09:24.817778Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Split train/test 80/20"
+    },
+    {
+      "ts": "2026-05-30T09:09:24.997839Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SMOTE"
+    },
+    {
+      "ts": "2026-05-30T09:09:27.717611Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Feature scaling"
+    },
+    {
+      "ts": "2026-05-30T09:09:27.959030Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: PCA"
+    },
+    {
+      "ts": "2026-05-30T09:09:28.158764Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SVM"
+    },
+    {
+      "ts": "2026-05-30T09:09:43.848827Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO SVM"
+    },
+    {
+      "ts": "2026-05-30T09:14:26.917729Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Evaluation"
+    },
+    {
+      "ts": "2026-05-30T09:14:28.446483Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: k-NN classifier"
+    },
+    {
+      "ts": "2026-05-30T09:14:28.948969Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO dan evaluasi k-NN"
+    },
+    {
+      "ts": "2026-05-30T09:14:47.663036Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Decision Tree"
+    },
+    {
+      "ts": "2026-05-30T09:14:48.124998Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO Decision Tree"
+    },
+    {
+      "ts": "2026-05-30T09:15:28.907585Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Neural Network"
+    },
+    {
+      "ts": "2026-05-30T09:15:47.616778Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO Neural Network"
+    },
+    {
+      "ts": "2026-05-30T09:22:37.886523Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Tabel perbandingan sebelum HPO"
+    },
+    {
+      "ts": "2026-05-30T09:22:38.344693Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Tabel perbandingan setelah HPO"
+    },
+    {
+      "ts": "2026-05-30T09:22:38.838377Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Confusion matrix Decision Tree"
+    },
+    {
+      "ts": "2026-05-30T09:22:39.549996Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Deploy"
+    },
+    {
+      "ts": "2026-05-30T09:22:40.042832Z",
+      "level": "INFO",
+      "message": "RETRAIN SELESAI"
+    },
+    {
+      "ts": "2026-05-30T09:22:41.755942Z",
+      "level": "ERROR",
+      "message": "Executing:   0%|          | 0/78 [00:00<?, ?cell/s]\nExecuting:   1%|1         | 1/78 [00:04<05:54,  4.61s/cell]\nExecuting:   5%|5         | 4/78 [00:04<01:06,  1.11cell/s]\nExecuting:   6%|6         | 5/78 [00:20<01:06,  1.11cell/s]\nExecuting:   8%|7         | 6/78 [00:21<04:57,  4.14s/cell]\nExecuting:  12%|#1        | 9/78 [00:21<02:29,  2.17s/cell]\nExecuting:  14%|#4        | 11/78 [00:21<01:41,  1.51s/cell]\nExecuting:  17%|#6        | 13/78 [00:21<01:09,  1.06s/cell]\nExecuting:  19%|#9        | 15/78 [00:22<00:48,  1.29cell/s]\nExecuting:  22%|##1       | 17/78 [00:22<00:34,  1.76cell/s]\nExecuting:  24%|##4       | 19/78 [00:25<00:49,  1.19cell/s]\nExecuting:  27%|##6       | 21/78 [00:25<00:35,  1.63cell/s]\nExecuting:  29%|##9       | 23/78 [00:25<00:24,  2.23cell/s]\nExecuting:  32%|###2      | 25/78 [00:25<00:17,  3.02cell/s]\nExecuting:  35%|###4      | 27/78 [00:27<00:28,  1.81cell/s]\nExecuting:  36%|###5      | 28/78 [00:28<00:26,  1.86cell/s]\nExecuting:  38%|###8      | 30/78 [00:28<00:18,  2.57cell/s]\nExecuting:  41%|####1     | 32/78 [00:28<00:13,  3.48cell/s]\nExecuting:  44%|####3     | 34/78 [00:28<00:09,  4.52cell/s]\nExecuting:  46%|####6     | 36/78 [00:28<00:07,  5.79cell/s]\nExecuting:  46%|####6     | 36/78 [00:40<00:07,  5.79cell/s]\nExecuting:  47%|####7     | 37/78 [00:44<02:02,  2.98s/cell]\nExecuting:  50%|#####     | 39/78 [00:44<01:17,  1.98s/cell]\nExecuting:  50%|#####     | 39/78 [01:00<01:17,  1.98s/cell]\nExecuting:  51%|#####1    | 40/78 [05:27<36:11, 57.14s/cell]\nExecuting:  54%|#####3    | 42/78 [05:27<21:58, 36.63s/cell]\nExecuting:  56%|#####6    | 44/78 [05:29<13:50, 24.44s/cell]\nExecuting:  59%|#####8    | 46/78 [05:29<08:47, 16.49s/cell]\nExecuting:  62%|######1   | 48/78 [05:29<05:39, 11.31s/cell]\nExecuting:  63%|######2   | 49/78 [05:29<04:27,  9.23s/cell]\nExecuting:  64%|######4   | 50/78 [05:47<05:10, 11.07s/cell]\nExecuting:  65%|######5   | 51/78 [05:48<03:52,  8.63s/cell]\nExecuting:  67%|######6   | 52/78 [05:48<02:49,  6.52s/cell]\nExecuting:  68%|######7   | 53/78 [05:48<02:01,  4.85s/cell]\nExecuting:  69%|######9   | 54/78 [05:48<01:26,  3.61s/cell]\nExecuting:  72%|#######1  | 56/78 [05:48<00:45,  2.07s/cell]\nExecuting:  73%|#######3  | 57/78 [06:29<03:55, 11.20s/cell]\nExecuting:  74%|#######4  | 58/78 [06:29<02:47,  8.39s/cell]\nExecuting:  76%|#######5  | 59/78 [06:29<01:57,  6.19s/cell]\nExecuting:  77%|#######6  | 60/78 [06:29<01:21,  4.52s/cell]\nExecuting:  78%|#######8  | 61/78 [06:48<02:23,  8.46s/cell]\nExecuting:  79%|#######9  | 62/78 [06:48<01:36,  6.06s/cell]\nExecuting:  81%|########  | 63/78 [06:48<01:04,  4.33s/cell]\nExecuting:  82%|########2 | 64/78 [13:37<28:43, 123.12s/cell]\nExecuting:  83%|########3 | 65/78 [13:38<18:52, 87.09s/cell] \nExecuting:  85%|########4 | 66/78 [13:38<12:15, 61.27s/cell]\nExecuting:  86%|########5 | 67/78 [13:38<07:53, 43.06s/cell]\nExecuting:  87%|########7 | 68/78 [13:38<05:02, 30.26s/cell]\nExecuting:  88%|########8 | 69/78 [13:38<03:11, 21.25s/cell]\nExecuting:  90%|########9 | 70/78 [13:39<01:59, 14.94s/cell]\nExecuting:  91%|#########1| 71/78 [13:39<01:13, 10.53s/cell]\nExecuting:  92%|#########2| 72/78 [13:39<00:44,  7.41s/cell]\nExecuting:  94%|#########3| 73/78 [13:39<00:26,  5.24s/cell]\nExecuting:  95%|#########4| 74/78 [13:40<00:15,  3.80s/cell]\nExecuting:  96%|#########6| 75/78 [13:40<00:08,  2.69s/cell]\nExecuting:  97%|#########7| 76/78 [13:40<00:03,  1.94s/cell]\nExecuting:  99%|#########8| 77/78 [13:40<00:01,  1.44s/cell]\nExecuting: 100%|##########| 78/78 [13:40<00:00,  1.07s/cell]\nExecuting: 100%|##########| 78/78 [13:42<00:00, 10.54s/cell]"
+    },
+    {
+      "ts": "2026-05-30T09:22:41.868771Z",
+      "level": "INFO",
+      "message": "RETRAIN SELESAI"
+    },
+    {
+      "ts": "2026-05-30T09:22:41.887065Z",
+      "level": "INFO",
+      "message": "Model activated: model_20260530_160855"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": {
+    "path": "model\\model_20260530_160855",
+    "version": "model_20260530_160855"
+  }
+}

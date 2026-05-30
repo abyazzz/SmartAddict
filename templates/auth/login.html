@@ -78,6 +78,24 @@
             mask-image: radial-gradient(circle at center, #000 0%, transparent 72%);
             opacity: 0.55;
         }
+        body::after {
+            content: '';
+            position: fixed;
+            inset: -18%;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle, rgba(0,188,212,0.4) 0 1px, transparent 1.8px),
+                radial-gradient(circle, rgba(28,105,212,0.26) 0 1px, transparent 1.8px),
+                radial-gradient(circle, rgba(255,255,255,0.16) 0 1px, transparent 1.8px);
+            background-size: 150px 150px, 220px 220px, 310px 310px;
+            background-position: 0 0, 34px 80px, 120px 30px;
+            opacity: 0.28;
+            animation: particleDrift 22s linear infinite;
+        }
+        @keyframes particleDrift {
+            from { transform: translate3d(0, 0, 0); }
+            to { transform: translate3d(42px, -58px, 0); }
+        }
 
         /* ═══════ SPLIT LAYOUT WRAPPER ═══════ */
         .split-wrapper {
@@ -93,6 +111,20 @@
             animation: cardEnter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             position: relative;
             z-index: 1;
+            transform-style: preserve-3d;
+            --auth-mx: 0;
+            --auth-my: 0;
+        }
+        .split-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            z-index: 2;
+            pointer-events: none;
+            background: linear-gradient(120deg, transparent 0%, rgba(0,188,212,0.18) 42%, transparent 70%);
+            opacity: 0.18;
+            transform: translate3d(calc(var(--auth-mx) * -0.7px), calc(var(--auth-my) * -0.7px), 0);
+            transition: transform 0.18s ease-out;
         }
         @keyframes cardEnter {
             from { opacity: 0; transform: translateY(30px) scale(0.98); }
@@ -167,6 +199,9 @@
             position: relative;
             display: grid;
             place-items: center;
+            transform: translate3d(calc(var(--auth-mx) * 0.8px), calc(var(--auth-my) * 0.8px), 0) rotateX(calc(var(--auth-my) * -0.22deg)) rotateY(calc(var(--auth-mx) * 0.22deg));
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease-out;
         }
         .device-visual::before,
         .device-visual::after {
@@ -180,6 +215,43 @@
             inset: 34px 8px;
             border-color: rgba(28,105,212,0.28);
             transform: rotate(-10deg);
+        }
+        .orbit-ring,
+        .orbit-dot {
+            position: absolute;
+            pointer-events: none;
+        }
+        .orbit-ring {
+            inset: 4px -8px;
+            border: 1px solid rgba(0,188,212,0.32);
+            border-radius: 50%;
+            transform: rotate(-18deg);
+            animation: orbitSpin 14s linear infinite;
+        }
+        .orbit-ring-b {
+            inset: 20px -18px;
+            border-color: rgba(28,105,212,0.26);
+            animation-duration: 19s;
+            animation-direction: reverse;
+        }
+        .orbit-dot {
+            top: 50%;
+            left: 50%;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--m-blue-light);
+            box-shadow: 0 0 14px var(--m-blue-light);
+            z-index: 4;
+            transform-origin: 0 0;
+            animation: orbitDot 5.8s linear infinite;
+        }
+        @keyframes orbitSpin {
+            to { transform: rotate(342deg); }
+        }
+        @keyframes orbitDot {
+            from { transform: rotate(0deg) translateX(78px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(78px) rotate(-360deg); }
         }
         .phone-shell {
             width: 72px;
@@ -247,7 +319,8 @@
             line-height: 1.15;
             color: var(--text-panel);
             margin-bottom: 20px;
-            letter-spacing: -0.02em;
+            letter-spacing: 0;
+            animation: authReveal 0.78s cubic-bezier(0.16, 1, 0.3, 1) both 0.16s;
         }
         [data-theme="dark"] .brand-tagline { color: #ffffff; }
         .brand-copy {
@@ -256,6 +329,7 @@
             font-size: 0.86rem;
             line-height: 1.7;
             margin: -6px 0 20px;
+            animation: authReveal 0.78s cubic-bezier(0.16, 1, 0.3, 1) both 0.24s;
         }
         [data-theme="dark"] .brand-copy { color: rgba(255,255,255,0.68); }
 
@@ -393,12 +467,14 @@
             margin: 0 auto 16px;
             color: #fff;
             box-shadow: 0 8px 24px rgba(28, 105, 212, 0.25);
+            animation: authReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
         }
         .form-title {
             font-family: 'Outfit', sans-serif;
             font-size: 1.5rem;
             font-weight: 800;
             margin-bottom: 6px;
+            animation: authReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both 0.26s;
         }
         .form-desc {
             color: var(--text-secondary);
@@ -407,7 +483,10 @@
 
         .form-group {
             margin-bottom: 22px;
+            animation: authReveal 0.64s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
+        .form-group:nth-of-type(1) { animation-delay: 0.32s; }
+        .form-group:nth-of-type(2) { animation-delay: 0.38s; }
         .form-label {
             display: block;
             font-size: 0.72rem;
@@ -488,6 +567,7 @@
             justify-content: center;
             gap: 8px;
             box-shadow: 0 6px 20px rgba(28, 105, 212, 0.25);
+            animation: authReveal 0.64s cubic-bezier(0.16, 1, 0.3, 1) both 0.46s;
         }
         .btn-login:hover {
             transform: translateY(-2px);
@@ -548,6 +628,11 @@
             color: #34d399;
         }
 
+        @keyframes authReveal {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Theme Toggle */
         .theme-toggle {
             position: absolute;
@@ -587,6 +672,8 @@
             .brand-copy, .diagnostic-card { display: none; }
             .device-visual { width: 96px; height: 112px; margin-bottom: 18px; }
             .phone-shell { width: 58px; height: 96px; }
+            .orbit-ring { opacity: 0.55; }
+            .orbit-dot { animation-duration: 7.5s; }
             .form-panel { padding: 36px 28px; }
         }
         @media (max-width: 480px) {
@@ -597,6 +684,19 @@
             .form-panel { padding: 28px 20px; }
             .form-title { font-size: 1.25rem; }
         }
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .device-visual,
+            .split-wrapper::before {
+                transform: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -606,6 +706,9 @@
             <div class="brand-top">
                 <a href="{{ url_for('dashboard') }}" class="brand-logo">SmartAddict<span class="brand-logo-ml">ML</span></a>
                 <div class="device-visual" aria-hidden="true">
+                    <span class="orbit-ring orbit-ring-a"></span>
+                    <span class="orbit-ring orbit-ring-b"></span>
+                    <span class="orbit-dot"></span>
                     <div class="phone-shell">
                         <span class="scan-line"></span>
                         <span class="signal-dot dot-a"></span>
@@ -725,6 +828,22 @@
                 button.setAttribute('aria-label', isHidden ? 'Sembunyikan password' : 'Tampilkan password');
             });
         });
+        (function initAuthParallax() {
+            const shell = document.querySelector('.split-wrapper');
+            const canParallax = window.matchMedia('(pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!shell || !canParallax) return;
+            let frame = null;
+            document.addEventListener('mousemove', (event) => {
+                if (frame) return;
+                frame = window.requestAnimationFrame(() => {
+                    const mx = ((event.clientX / window.innerWidth) - 0.5) * 12;
+                    const my = ((event.clientY / window.innerHeight) - 0.5) * 12;
+                    shell.style.setProperty('--auth-mx', mx.toFixed(2));
+                    shell.style.setProperty('--auth-my', my.toFixed(2));
+                    frame = null;
+                });
+            }, { passive: true });
+        })();
     </script>
 </body>
 </html>

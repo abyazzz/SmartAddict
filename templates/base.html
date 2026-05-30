@@ -43,6 +43,12 @@
             --nav-active-glow: none;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             --text-logo-dark: #ffffff;
+            --sa-grid-dot: rgba(0, 188, 212, 0.16);
+            --sa-card-glow: rgba(0, 188, 212, 0.16);
+            --sa-blue-glow: rgba(0, 188, 212, 0.24);
+            --sa-deep-glow: rgba(28, 105, 212, 0.18);
+            --sa-hud-line: rgba(0, 188, 212, 0.26);
+            --sa-ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         [data-theme="light"] {
@@ -73,6 +79,16 @@
             --nav-active-glow: none;
             --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), 0 4px 10px rgba(15, 23, 42, 0.03);
             --text-logo-dark: #0f172a;
+            --sa-grid-dot: rgba(21, 101, 192, 0.14);
+            --sa-card-glow: rgba(0, 172, 193, 0.14);
+            --sa-blue-glow: rgba(0, 172, 193, 0.18);
+            --sa-deep-glow: rgba(21, 101, 192, 0.13);
+            --sa-hud-line: rgba(21, 101, 192, 0.22);
+            --sa-ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -81,6 +97,81 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+            isolation: isolate;
+        }
+
+        .sa-bg-stage {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .sa-bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle, var(--sa-grid-dot) 1px, transparent 1.25px);
+            background-size: 30px 30px;
+            mask-image: radial-gradient(circle at 50% 12%, #000 0%, rgba(0,0,0,0.76) 40%, transparent 82%);
+            -webkit-mask-image: radial-gradient(circle at 50% 12%, #000 0%, rgba(0,0,0,0.76) 40%, transparent 82%);
+            opacity: 0.5;
+        }
+
+        .sa-bg-glow {
+            position: absolute;
+            width: min(520px, 42vw);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            filter: blur(74px);
+            opacity: 0.58;
+            transform: translate3d(calc(var(--sa-mx, 0) * 1px), calc(var(--sa-my, 0) * 1px), 0);
+            transition: transform 0.2s ease-out;
+        }
+
+        .sa-bg-glow-a {
+            top: 8%;
+            right: -12%;
+            background: var(--sa-blue-glow);
+        }
+
+        .sa-bg-glow-b {
+            left: -14%;
+            bottom: 8%;
+            background: var(--sa-deep-glow);
+            transform: translate3d(calc(var(--sa-mx, 0) * -0.8px), calc(var(--sa-my, 0) * -0.8px), 0);
+        }
+
+        .sa-orbit-lines {
+            position: absolute;
+            top: 92px;
+            right: -150px;
+            width: min(760px, 62vw);
+            height: min(760px, 62vw);
+            opacity: 0.52;
+            transform: translate3d(calc(var(--sa-mx, 0) * -0.35px), calc(var(--sa-my, 0) * 0.35px), 0);
+            transition: transform 0.22s ease-out;
+        }
+
+        .sa-orbit-path {
+            fill: none;
+            stroke: var(--sa-hud-line);
+            stroke-width: 1;
+            stroke-dasharray: 7 14;
+        }
+
+        .sa-orbit-dot {
+            fill: var(--m-blue-light);
+            filter: drop-shadow(0 0 8px var(--m-blue-light));
+        }
+
+        body > .nav-spacer,
+        body > main,
+        body > .content,
+        body > .footer {
+            position: relative;
+            z-index: 1;
         }
 
         /* ═══════ SMARTADDICT BRAND STRIPE ═══════ */
@@ -344,16 +435,142 @@
         .glass-card {
             padding: 32px; border-radius: 0px;
             background: var(--bg-card); border: 1px solid var(--border-card);
-            backdrop-filter: none; -webkit-backdrop-filter: none;
-            box-shadow: none;
-            transition: border-color 0.3s ease;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 18px 48px rgba(0, 0, 0, 0.12);
+            transition: transform 0.35s var(--sa-ease-premium), border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
         }
 
         .gradient-text {
-            color: #ffffff;
+            background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .hidden { display: none !important; }
+
+        :where(.page-header h1, .hero-title, .form-title, .section-title, .main-card-title) {
+            text-wrap: balance;
+        }
+
+        :where(.page-header h1, .hero-title, .form-title) {
+            font-family: 'Outfit', 'Inter', sans-serif;
+        }
+
+        :where(.brand-logo-ml, .highlight-accent, .metric-accent) {
+            background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        :where(
+            .glass-card,
+            .stat-card,
+            .feature-card,
+            .summary-card,
+            .chart-card,
+            .sidebar-card,
+            .main-card,
+            .question-card,
+            .history-card,
+            .profile-card,
+            .profile-panel,
+            .admin-card,
+            .metric-card,
+            .table-container,
+            .stats-chart-card,
+            .dataset-source,
+            .cta-section,
+            .diagnostic-card,
+            .feature-pills .pill
+        ) {
+            transition:
+                transform 0.35s var(--sa-ease-premium),
+                border-color 0.35s ease,
+                box-shadow 0.35s ease,
+                background 0.35s ease,
+                opacity 0.5s var(--sa-ease-premium);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            :where(
+                .glass-card,
+                .stat-card,
+                .feature-card,
+                .summary-card,
+                .chart-card,
+                .sidebar-card,
+                .main-card,
+                .question-card,
+                .history-card,
+                .profile-card,
+                .profile-panel,
+                .admin-card,
+                .metric-card,
+                .table-container,
+                .stats-chart-card,
+                .dataset-source,
+                .cta-section,
+                .diagnostic-card,
+                .feature-pills .pill
+            ):hover {
+                border-color: var(--m-blue-light);
+                box-shadow: 0 18px 52px var(--sa-card-glow);
+                transform: translateY(-3px);
+            }
+
+            :where(
+                .btn-primary,
+                .btn-secondary,
+                .btn-nav-login,
+                .btn-nav-logout,
+                .submit-btn,
+                .submit-btn-accent,
+                .template-download-btn,
+                .export-btn,
+                .action-btn,
+                .btn-login
+            ):hover {
+                box-shadow: 0 0 24px var(--sa-card-glow);
+            }
+        }
+
+        body.sa-motion-ready .sa-reveal {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.65s var(--sa-ease-premium), transform 0.65s var(--sa-ease-premium), border-color 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        body.sa-motion-ready .sa-reveal.sa-visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: var(--sa-delay, 0s);
+        }
+
+        main.content > section.sa-numbered-section {
+            position: relative;
+        }
+
+        main.content > section.sa-numbered-section::before {
+            counter-increment: saSection;
+            content: counter(saSection, decimal-leading-zero);
+            position: absolute;
+            top: 18px;
+            right: 24px;
+            color: var(--m-blue-light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.22em;
+            opacity: 0.72;
+            pointer-events: none;
+        }
+
+        main.content {
+            counter-reset: saSection;
+        }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -368,6 +585,11 @@
         }
 
         @media (max-width: 768px) {
+            .sa-bg-grid { background-size: 24px 24px; opacity: 0.34; }
+            .sa-bg-glow { width: 72vw; opacity: 0.3; filter: blur(58px); }
+            .sa-bg-glow-a { right: -34%; top: 8%; }
+            .sa-bg-glow-b { left: -42%; bottom: 18%; }
+            .sa-orbit-lines { display: none; }
             .navbar { padding: 0 16px; height: auto; flex-direction: column; gap: 8px; padding-bottom: 12px; }
             .nav-spacer { height: 110px; }
             .logo { font-size: 1.15rem; margin-top: 10px; }
@@ -379,6 +601,33 @@
             .profile-chip-name { max-width: 88px; }
             .profile-dropdown { right: 50%; transform: translate(50%, -8px); }
             .profile-menu.open .profile-dropdown { transform: translate(50%, 0); }
+            :where(.btn-primary, .btn-secondary, .btn-nav-login, .btn-nav-logout, .submit-btn, .submit-btn-accent, .template-download-btn, .export-btn, .action-btn) {
+                min-height: 44px;
+            }
+            body.sa-motion-ready .sa-reveal {
+                transform: translateY(14px);
+            }
+            main.content > section.sa-numbered-section::before {
+                top: 12px;
+                right: 14px;
+                font-size: 0.66rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            body.sa-motion-ready .sa-reveal,
+            body.sa-motion-ready .sa-reveal.sa-visible {
+                opacity: 1;
+                transform: none;
+            }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -433,6 +682,21 @@
         </nav>
     </div>
     <div class="nav-spacer"></div>
+    <div class="sa-bg-stage" aria-hidden="true">
+        <div class="sa-bg-grid"></div>
+        <div class="sa-bg-glow sa-bg-glow-a"></div>
+        <div class="sa-bg-glow sa-bg-glow-b"></div>
+        <svg class="sa-orbit-lines" viewBox="0 0 900 900" focusable="false" aria-hidden="true">
+            <path id="sa-orbit-path-a" class="sa-orbit-path" d="M760 168 C650 44 438 58 288 154 C118 264 96 520 242 660 C408 820 694 742 776 542 C830 408 842 262 760 168Z"></path>
+            <path class="sa-orbit-path" d="M780 250 C608 142 390 134 244 252 C98 370 130 592 322 682 C514 772 742 682 804 492 C832 404 850 294 780 250Z"></path>
+            <path class="sa-orbit-path" d="M700 112 C496 116 292 210 202 384 C112 558 220 716 426 732 C632 748 800 610 812 424 C820 286 802 110 700 112Z"></path>
+            <circle class="sa-orbit-dot" r="4">
+                <animateMotion dur="18s" repeatCount="indefinite" rotate="auto">
+                    <mpath href="#sa-orbit-path-a"></mpath>
+                </animateMotion>
+            </circle>
+        </svg>
+    </div>
 
     {% block content %}{% endblock %}
 
@@ -487,6 +751,86 @@
         });
         (function() {
             setTheme(getPreferredTheme());
+        })();
+        (function initSmartAddictMotion() {
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+            document.querySelectorAll('main.content > section').forEach((section) => {
+                if (!section.classList.contains('hero-section') && !section.classList.contains('hero')) {
+                    section.classList.add('sa-numbered-section');
+                }
+            });
+
+            const revealSelectors = [
+                '.page-header',
+                '.glass-card',
+                '.stat-card',
+                '.feature-card',
+                '.summary-card',
+                '.chart-card',
+                '.sidebar-card',
+                '.main-card',
+                '.question-card',
+                '.history-card',
+                '.profile-card',
+                '.profile-panel',
+                '.admin-card',
+                '.metric-card',
+                '.table-container',
+                '.stats-chart-card',
+                '.dataset-source',
+                '.cta-section',
+                '.batch-detail-container',
+                '.features-comparison-container',
+                '.predict-flow',
+                '.predict-flow-step',
+                '.two-col'
+            ];
+            const revealTargets = Array.from(document.querySelectorAll(revealSelectors.join(',')))
+                .filter((el) => !el.closest('.navbar-wrap') && !el.closest('.profile-dropdown'));
+
+            if (reduceMotion) {
+                revealTargets.forEach((el) => el.classList.add('sa-visible'));
+                return;
+            }
+
+            revealTargets.forEach((el, index) => {
+                el.classList.add('sa-reveal');
+                el.style.setProperty('--sa-delay', `${Math.min((index % 7) * 0.045, 0.27)}s`);
+            });
+            document.body.classList.add('sa-motion-ready');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (!entry.isIntersecting) return;
+                        entry.target.classList.add('sa-visible');
+                        window.setTimeout(() => entry.target.style.setProperty('--sa-delay', '0s'), 900);
+                        observer.unobserve(entry.target);
+                    });
+                }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+                revealTargets.forEach((el) => observer.observe(el));
+            } else {
+                revealTargets.forEach((el) => {
+                    el.classList.add('sa-visible');
+                    el.style.setProperty('--sa-delay', '0s');
+                });
+            }
+
+            if (finePointer) {
+                let frame = null;
+                document.addEventListener('mousemove', (event) => {
+                    if (frame) return;
+                    frame = window.requestAnimationFrame(() => {
+                        const mx = ((event.clientX / window.innerWidth) - 0.5) * 18;
+                        const my = ((event.clientY / window.innerHeight) - 0.5) * 18;
+                        document.documentElement.style.setProperty('--sa-mx', mx.toFixed(2));
+                        document.documentElement.style.setProperty('--sa-my', my.toFixed(2));
+                        frame = null;
+                    });
+                }, { passive: true });
+            }
         })();
     </script>
     {% block scripts %}{% endblock %}

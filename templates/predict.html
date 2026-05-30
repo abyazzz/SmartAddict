@@ -34,6 +34,87 @@
         letter-spacing: 1.5px;
     }
 
+    .predict-flow {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+        margin: -12px 0 34px;
+        position: relative;
+    }
+
+    .predict-flow::before {
+        content: '';
+        position: absolute;
+        left: 12%;
+        right: 12%;
+        top: 21px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--m-blue-light), var(--m-blue-dark), transparent);
+        opacity: 0.42;
+    }
+
+    .predict-flow-step {
+        position: relative;
+        z-index: 1;
+        min-height: 86px;
+        padding: 16px 16px 14px;
+        background: rgba(12, 12, 12, 0.52);
+        border: 1px solid var(--border-card);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        display: grid;
+        align-content: end;
+        overflow: hidden;
+    }
+
+    [data-theme="light"] .predict-flow-step {
+        background: rgba(255, 255, 255, 0.74);
+    }
+
+    .predict-flow-step::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(120deg, rgba(0,188,212,0.12), transparent 32%),
+            linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .predict-flow-step:hover::before {
+        opacity: 1;
+    }
+
+    .predict-flow-step span {
+        position: absolute;
+        top: 12px;
+        left: 14px;
+        color: var(--m-blue-light);
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+    }
+
+    .predict-flow-step strong {
+        font-size: 0.9rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        color: var(--text-primary);
+    }
+
+    .predict-flow-step em {
+        margin-top: 5px;
+        color: var(--text-secondary);
+        font-style: normal;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
     .alert {
         padding: 16px 20px;
         border-radius: 0px;
@@ -728,6 +809,28 @@
     }
 
     @media (max-width: 600px) {
+        .predict-flow {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: -18px;
+        }
+        .predict-flow::before {
+            left: 20px;
+            right: auto;
+            top: 12px;
+            bottom: 12px;
+            width: 1px;
+            height: auto;
+            background: linear-gradient(180deg, transparent, var(--m-blue-light), var(--m-blue-dark), transparent);
+        }
+        .predict-flow-step {
+            min-height: 72px;
+            padding-left: 58px;
+        }
+        .predict-flow-step span {
+            left: 16px;
+            top: 22px;
+        }
         .main-card {
             padding: 16px;
         }
@@ -751,6 +854,24 @@
     <div class="page-header">
         <h1>PREDIKSI LEVEL KECANDUAN</h1>
         <p>PILIH MODEL ML, METODE DATA INPUT, LALU ISI DATA PREDIKSI</p>
+    </div>
+
+    <div class="predict-flow" aria-label="Alur prediksi SmartAddict">
+        <div class="predict-flow-step">
+            <span>01</span>
+            <strong>Input</strong>
+            <em>Manual / CSV</em>
+        </div>
+        <div class="predict-flow-step">
+            <span>02</span>
+            <strong>Model</strong>
+            <em>DT / KNN / NN / SVM</em>
+        </div>
+        <div class="predict-flow-step">
+            <span>03</span>
+            <strong>Diagnosis</strong>
+            <em>Rendah / Sedang / Tinggi</em>
+        </div>
     </div>
 
     {% if errors %}

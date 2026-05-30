@@ -12,6 +12,8 @@ import subprocess
 from datetime import datetime
 import threading
 import csv
+import uuid
+from flask import jsonify
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -225,6 +227,235 @@ def get_available_retrain_versions():
     versions.sort(key=lambda x: x["version_name"], reverse=True)
     return versions
 
+
+# Retrain status persistence (file-based)
+STATUS_DIR = os.path.join("instance", "retrain_statuses")
+os.makedirs(STATUS_DIR, exist_ok=True)
+RETRAIN_JOB_ID = None
+
+RETRAIN_STEP_PLAN = [
+    "Load library",
+    "Load dataset",
+    "Label encoding kolom kategorikal",
+    "Visualisasi sederhana EDA",
+    "Ambil feature dan label",
+    "Split train/test 80/20",
+    "SMOTE",
+    "Feature scaling",
+    "PCA",
+    "SVM",
+    "HPO SVM",
+    "Evaluation",
+    "k-NN classifier",
+    "HPO dan evaluasi k-NN",
+    "Decision Tree",
+    "HPO Decision Tree",
+    "Neural Network",
+    "HPO Neural Network",
+    "Tabel perbandingan sebelum HPO",
+    "Tabel perbandingan setelah HPO",
+    "Confusion matrix Decision Tree",
+    "Deploy",
+]
+
+def build_retrain_steps(current_step=None, completed_steps=None, finished=False):
+    completed_steps = set(completed_steps or [])
+    steps = []
+    for index, name in enumerate(RETRAIN_STEP_PLAN):
+        if finished or name in completed_steps:
+            status = 'done'
+        elif current_step == name:
+            status = 'running'
+        else:
+            status = 'pending'
+        steps.append({
+            'name': name,
+            'status': status,
+            'index': index,
+            'is_current': name == current_step,
+        })
+    return steps
+
+def _default_retrain_status(job_id=None):
+    return {
+        'job_id': job_id,
+        'triggered_at': None,
+        'started_at': None,
+        'finished_at': None,
+        'status': 'idle',
+        'progress': 0,
+        'current_step': None,
+        'steps': build_retrain_steps(),
+        'logs': [],
+        'metrics': {},
+        'model_artifact': None,
+    }
+
+def _status_path(job_id):
+    return os.path.join(STATUS_DIR, f"{job_id}.json")
+
+def write_status(job_id, payload):
+    try:
+        payload = dict(payload or {})
+        payload.setdefault('job_id', job_id)
+        with open(_status_path(job_id), "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, ensure_ascii=False)
+    except Exception:
+        app.logger.exception("Gagal menulis status retrain")
+
+def read_status(job_id):
+    try:
+        with open(_status_path(job_id), "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+def get_latest_retrain_status():
+    statuses = list_statuses()
+    return statuses[0] if statuses else None
+
+def get_current_retrain_status():
+    if RETRAIN_JOB_ID:
+        current = read_status(RETRAIN_JOB_ID)
+        if current and current.get('status') in ('pending', 'running'):
+            return current
+    return _default_retrain_status()
+
+def list_statuses():
+    items = []
+    for fname in os.listdir(STATUS_DIR):
+        if fname.endswith('.json'):
+            try:
+                with open(os.path.join(STATUS_DIR, fname), 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    items.append(data)
+            except Exception:
+                app.logger.exception(f"Gagal membaca status file {fname}")
+    items.sort(key=lambda x: x.get('started_at') or x.get('triggered_at') or '', reverse=True)
+    return items
+
+
+def list_statuses_paginated(page=1, per_page=20):
+    all_items = list_statuses()
+    total = len(all_items)
+    try:
+        page = int(page)
+    except Exception:
+        page = 1
+    try:
+        per_page = int(per_page)
+    except Exception:
+        per_page = 20
+    if per_page <= 0:
+        per_page = 20
+    start = (page - 1) * per_page
+    end = start + per_page
+    items = all_items[start:end]
+    total_pages = (total + per_page - 1) // per_page
+    return {
+        'items': items,
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'total_pages': total_pages
+    }
+
+
+def cleanup_statuses(retain_days=30, max_entries=200):
+    """Remove status files older than retain_days and keep only most recent max_entries."""
+    files = []
+    for fname in os.listdir(STATUS_DIR):
+        if not fname.endswith('.json'):
+            continue
+        path = os.path.join(STATUS_DIR, fname)
+        try:
+            mtime = os.path.getmtime(path)
+            files.append((mtime, path))
+        except Exception:
+            app.logger.exception(f"Gagal membaca file status untuk cleanup: {path}")
+    files.sort(reverse=True)  # newest first
+    # delete older than retain_days
+    cutoff = None
+    if retain_days is not None and retain_days > 0:
+        cutoff = (datetime.utcnow().timestamp() - (retain_days * 86400))
+    removed = 0
+    # First remove by age
+    for mtime, path in list(files):
+        if cutoff and mtime < cutoff:
+            try:
+                os.remove(path)
+                files.remove((mtime, path))
+                removed += 1
+            except Exception:
+                app.logger.exception(f"Gagal menghapus status file: {path}")
+    # Then keep only max_entries
+    if max_entries is not None and max_entries > 0 and len(files) > max_entries:
+        for mtime, path in files[max_entries:]:
+            try:
+                os.remove(path)
+                removed += 1
+            except Exception:
+                app.logger.exception(f"Gagal menghapus status file saat trimming: {path}")
+    return removed
+
+def append_log(job_id, level, message):
+    s = read_status(job_id) or {}
+    logs = s.get('logs', [])
+    logs.append({'ts': datetime.utcnow().isoformat() + 'Z', 'level': level, 'message': message})
+    s['logs'] = logs
+    write_status(job_id, s)
+
+def update_progress(job_id, **kwargs):
+    s = read_status(job_id) or {}
+    s.update(kwargs)
+    write_status(job_id, s)
+
+def checkpoint_step(job_id, step_name, progress=None, note=None):
+    s = read_status(job_id) or _default_retrain_status(job_id)
+    steps = s.get('steps') or build_retrain_steps()
+    seen = []
+    new_steps = []
+    found = False
+    for step in steps:
+        current_name = step.get('name')
+        if current_name == step_name:
+            found = True
+            new_steps.append({**step, 'status': 'running', 'is_current': True})
+        elif found and step.get('status') == 'running':
+            new_steps.append({**step, 'status': 'done', 'is_current': False})
+        else:
+            new_steps.append(step)
+        if step.get('status') == 'done':
+            seen.append(current_name)
+    if not found:
+        new_steps = build_retrain_steps(current_step=step_name, completed_steps=seen)
+    if progress is None:
+        done_count = sum(1 for step in new_steps if step.get('status') == 'done')
+        progress = round((done_count / max(len(new_steps), 1)) * 100, 2)
+    s['steps'] = new_steps
+    s['current_step'] = step_name
+    s['status'] = 'running'
+    s['progress'] = progress
+    if note:
+        logs = s.get('logs', [])
+        logs.append({'ts': datetime.utcnow().isoformat() + 'Z', 'level': 'INFO', 'message': note})
+        s['logs'] = logs
+    write_status(job_id, s)
+
+def finish_retrain_job(job_id, model_artifact=None):
+    s = read_status(job_id) or _default_retrain_status(job_id)
+    s['status'] = 'success'
+    s['finished_at'] = datetime.utcnow().isoformat() + 'Z'
+    s['progress'] = 100
+    s['current_step'] = 'Deploy'
+    s['steps'] = build_retrain_steps(finished=True)
+    if model_artifact:
+        s['model_artifact'] = model_artifact
+    logs = s.get('logs', [])
+    logs.append({'ts': datetime.utcnow().isoformat() + 'Z', 'level': 'INFO', 'message': 'RETRAIN SELESAI'})
+    s['logs'] = logs
+    write_status(job_id, s)
+
 def load_model_version(version_name):
     base_path = os.path.join("model", version_name)
     models = {}
@@ -386,16 +617,34 @@ def average_rows(rows):
 RETRAIN_LOCK = threading.Lock()
 IS_RETRAINING = False
 
-def _execute_retrain_job(app_instance):
+def _execute_retrain_job(app_instance, job_id=None):
     global ACTIVE_MODEL_VERSION, ml_models, scaler
+    if job_id is None:
+        job_id = str(uuid.uuid4())
+
+    # initialize status file
+    init_payload = _default_retrain_status(job_id)
+    init_payload.update({
+        'triggered_at': datetime.utcnow().isoformat() + 'Z',
+        'started_at': datetime.utcnow().isoformat() + 'Z',
+        'status': 'running',
+        'progress': 0.0,
+        'steps': build_retrain_steps(),
+        'logs': [{'ts': datetime.utcnow().isoformat() + 'Z', 'level': 'INFO', 'message': 'Job queued'}],
+    })
+    write_status(job_id, init_payload)
+
     with app_instance.app_context():
         app_instance.logger.info("Retrain pipeline: Mengambil baris dari predict_user_session...")
+        update_progress(job_id, started_at=datetime.utcnow().isoformat() + 'Z', status='running')
+        append_log(job_id, 'INFO', 'Job started')
         rows = PredictUserSession.query.order_by(PredictUserSession.timestamp.asc()).all()
 
         # Jika ada baris, tambahkan ke CSV dan kosongkan database sesi
         if len(rows) > 0:
             csv_path = os.path.join("dataset-notebook", "Smartphone_Usage_And_Addiction_Analysis_7500_Rows.csv")
             app_instance.logger.info(f"Retrain pipeline: Menambahkan {len(rows)} baris ke {csv_path}...")
+            append_log(job_id, 'INFO', f'Appending {len(rows)} rows to dataset')
 
             with open(csv_path, "a", newline="", encoding="utf-8") as f:
                 writer = csv.writer(f)
@@ -421,6 +670,7 @@ def _execute_retrain_job(app_instance):
 
             # Kosongkan tabel sesi
             app_instance.logger.info("Retrain pipeline: Mengosongkan tabel predict_user_session...")
+            append_log(job_id, 'INFO', 'Clearing PredictUserSession buffer')
             PredictUserSession.query.delete()
             db.session.commit()
 
@@ -437,13 +687,20 @@ def _execute_retrain_job(app_instance):
 
         papermill_python = get_venv_python_executable() or os.environ.get("PYTHON_EXECUTABLE") or "python"
         papermill_script = (
-            "import papermill as pm; "
-            f"pm.execute_notebook(r'{notebook_in}', r'{notebook_out}', parameters={{'output_model_dir': r'{output_dir}'}})"
+            "import os, papermill as pm; "
+            f"os.environ['RETRAIN_JOB_ID'] = r'{job_id}'; "
+            f"os.environ['RETRAIN_STATUS_FILE'] = r'{_status_path(job_id)}'; "
+            f"os.environ['OUTPUT_MODEL_DIR'] = r'{output_dir}'; "
+            f"pm.execute_notebook(r'{notebook_in}', r'{notebook_out}')"
         )
 
         app_instance.logger.info(
             f"Retrain pipeline: Mengeksekusi papermill via {papermill_python} ({notebook_in} -> {output_dir})..."
         )
+        # Do not pre-set progress to 50% here — rely on the notebook's checkpoint() calls
+        # to report step-level progress. Set status running and progress 0 to reflect start.
+        update_progress(job_id, current_step=None, progress=0.0, status='running')
+        append_log(job_id, 'INFO', f'Executing papermill: {notebook_in} -> {output_dir}')
         completed = subprocess.run(
             [papermill_python, "-c", papermill_script],
             capture_output=True,
@@ -452,9 +709,13 @@ def _execute_retrain_job(app_instance):
         )
         if completed.stdout:
             app_instance.logger.info(f"Retrain pipeline stdout: {completed.stdout.strip()}")
+            append_log(job_id, 'DEBUG', completed.stdout.strip())
         if completed.stderr:
             app_instance.logger.error(f"Retrain pipeline stderr: {completed.stderr.strip()}")
+            append_log(job_id, 'ERROR', completed.stderr.strip())
         if completed.returncode != 0:
+            append_log(job_id, 'ERROR', f'Papermill failed with code {completed.returncode}')
+            update_progress(job_id, status='failed', finished_at=datetime.utcnow().isoformat() + 'Z', progress=100.0)
             raise RuntimeError(f"Papermill gagal dijalankan dengan kode {completed.returncode}.")
 
         # Bersihkan file temp executed notebook
@@ -472,23 +733,30 @@ def _execute_retrain_job(app_instance):
             scaler = new_scaler
             save_active_version_to_config(output_version)
             app_instance.logger.info(f"Retrain pipeline: Berhasil melatih model baru dan mengaktifkannya: {output_version}")
+            finish_retrain_job(job_id, model_artifact={'path': output_dir, 'version': output_version})
+            append_log(job_id, 'INFO', f'Model activated: {output_version}')
             return output_version
 
         app_instance.logger.error("Retrain pipeline: Gagal memuat model baru pasca training.")
+        append_log(job_id, 'ERROR', 'Failed to load trained models after papermill')
+        update_progress(job_id, status='failed', finished_at=datetime.utcnow().isoformat() + 'Z', progress=100.0)
         return None
 
 
 def run_retrain_pipeline(app_instance):
-    global IS_RETRAINING
+    global IS_RETRAINING, RETRAIN_JOB_ID
 
-    def job():
-        global IS_RETRAINING
+    def job(job_id):
+        global IS_RETRAINING, RETRAIN_JOB_ID
         try:
-            _execute_retrain_job(app_instance)
+            _execute_retrain_job(app_instance, job_id=job_id)
         except Exception as e:
             app_instance.logger.error(f"Retrain pipeline: Terjadi error saat retraining: {e}")
+            append_log(job_id, 'ERROR', f'Exception during retrain: {e}')
         finally:
             IS_RETRAINING = False
+            if RETRAIN_JOB_ID == job_id:
+                RETRAIN_JOB_ID = None
             if RETRAIN_LOCK.locked():
                 try:
                     RETRAIN_LOCK.release()
@@ -497,11 +765,14 @@ def run_retrain_pipeline(app_instance):
 
     if RETRAIN_LOCK.acquire(blocking=False):
         IS_RETRAINING = True
-        thread = threading.Thread(target=job)
+        job_id = str(uuid.uuid4())
+        RETRAIN_JOB_ID = job_id
+        write_status(job_id, _default_retrain_status(job_id))
+        thread = threading.Thread(target=job, args=(job_id,))
         thread.daemon = True
         thread.start()
-        return True
-    return False
+        return job_id
+    return None
 
 # Inisialisasi model aktif saat startup aplikasi
 init_active_model()
@@ -937,28 +1208,12 @@ def admin_retrain_manual():
 
     from flask import current_app
     app_obj = current_app._get_current_object()
-    if not RETRAIN_LOCK.acquire(blocking=False):
-        flash("Proses retraining sedang berjalan. Harap tunggu hingga selesai.", "warning")
-        return redirect(url_for('admin_dashboard'))
-
-    IS_RETRAINING = True
-    try:
-        output_version = _execute_retrain_job(app_obj)
-        if output_version:
-            flash(f"Retraining manual selesai dan model aktif berpindah ke {output_version}.", "success")
-        else:
-            flash("Retraining manual selesai, tetapi model baru gagal dimuat.", "warning")
-    except Exception as exc:
-        app_obj.logger.error(f"Retrain manual gagal: {exc}")
-        flash(f"Retraining manual gagal: {exc}", "error")
-    finally:
-        IS_RETRAINING = False
-        if RETRAIN_LOCK.locked():
-            try:
-                RETRAIN_LOCK.release()
-            except RuntimeError:
-                pass
-    return redirect(url_for('admin_dashboard'))
+    job_id = run_retrain_pipeline(app_obj)
+    if job_id:
+        flash(f"Retraining dimulai di background (job_id={job_id}). Pantau status di halaman retrain.", "info")
+    else:
+        flash("Gagal memulai proses retraining. Mungkin ada proses yang sedang berjalan.", "error")
+    return redirect(url_for('admin_retrain_status'))
 
 @app.route("/admin/clear-retrains", methods=["POST"])
 @admin_required
@@ -1039,6 +1294,54 @@ def admin_delete_retrain(version_name):
 def admin_history():
     all_preds = Prediction.query.order_by(Prediction.timestamp.desc()).all()
     return render_template("admin/all_history.html", predictions=all_preds, active_page='admin_history')
+
+
+@app.route("/admin/retrain-status")
+@admin_required
+def admin_retrain_status():
+    return redirect(url_for('admin_dashboard'))
+
+
+@app.route("/api/retrain-status")
+@admin_required
+def api_retrain_status_list():
+    page = request.args.get('page', 1)
+    per_page = request.args.get('per_page', 20)
+    data = list_statuses_paginated(page=page, per_page=per_page)
+    return jsonify(data)
+
+
+@app.route("/api/retrain-status/<job_id>")
+@admin_required
+def api_retrain_status_detail(job_id):
+    s = read_status(job_id)
+    if not s:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(s)
+
+
+@app.route("/api/retrain-status/current")
+@admin_required
+def api_retrain_status_current():
+    current = get_current_retrain_status()
+    if not current:
+        current = _default_retrain_status()
+    return jsonify(current)
+
+
+@app.route('/admin/retrain-status/cleanup', methods=['POST'])
+@admin_required
+def admin_retrain_status_cleanup():
+    # Use defaults or allow query args
+    retain_days = request.form.get('retain_days') or request.args.get('retain_days') or 30
+    max_entries = request.form.get('max_entries') or request.args.get('max_entries') or 200
+    try:
+        removed = cleanup_statuses(retain_days=int(retain_days), max_entries=int(max_entries))
+        flash(f"Cleanup selesai. Menghapus {removed} file status.", 'success')
+    except Exception as e:
+        app.logger.exception('Cleanup retrain status gagal')
+        flash(f"Cleanup gagal: {e}", 'error')
+    return redirect(url_for('admin_retrain_status'))
 
 @app.route("/admin/users")
 @admin_required

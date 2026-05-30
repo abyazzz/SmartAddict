@@ -324,17 +324,311 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
+    .retrain-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 80;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px;
+    }
+
+    .retrain-modal.hidden {
+        display: none !important;
+    }
+
+    .retrain-modal__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.68);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .retrain-modal__panel {
+        position: relative;
+        width: min(1080px, 94vw);
+        max-height: 86vh;
+        overflow: auto;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--bg-card) 94%, #000 6%), var(--bg-card));
+        border: 1px solid var(--border-card);
+        box-shadow: var(--card-shadow);
+        padding: 24px;
+    }
+
+    .retrain-modal__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 18px;
+    }
+
+    .retrain-modal__eyebrow {
+        font-size: 0.65rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--m-blue-light);
+        margin-bottom: 8px;
+    }
+
+    #retrainModalTitle {
+        font-size: 1.25rem;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .retrain-modal__actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .retrain-modal__close {
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--border-card);
+        background: transparent;
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .retrain-modal__summary {
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) minmax(320px, 1.2fr);
+        gap: 18px;
+        align-items: center;
+        padding: 18px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-input);
+        margin-bottom: 18px;
+    }
+
+    .retrain-modal__status {
+        display: grid;
+        gap: 10px;
+    }
+
+    .retrain-modal__text {
+        font-size: 0.95rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-primary);
+    }
+
+    .retrain-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        padding: 6px 12px;
+        border: 1px solid var(--border-card);
+        font-size: 0.68rem;
+        font-weight: 900;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+    }
+
+    .retrain-badge.is-running {
+        color: var(--m-blue-light);
+        border-color: var(--m-blue-light);
+        background: rgba(0, 188, 212, 0.08);
+    }
+
+    .retrain-badge.is-success {
+        color: var(--accent-emerald);
+        border-color: var(--accent-emerald);
+        background: rgba(52, 211, 153, 0.08);
+    }
+
+    .retrain-badge.is-idle,
+    .retrain-badge.is-failed {
+        color: var(--text-muted);
+        border-color: var(--border-card);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .retrain-modal__progress-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .retrain-modal__progress-bar {
+        height: 10px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-card);
+        overflow: hidden;
+    }
+
+    .retrain-modal__progress-fill {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark));
+        transition: width 0.3s ease;
+    }
+
+    .retrain-modal__body {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .retrain-modal__section {
+        border: 1px solid var(--border-card);
+        background: var(--bg-input);
+        padding: 16px;
+        min-height: auto;
+    }
+
+    .retrain-modal__section h4 {
+        margin-bottom: 14px;
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 1.8px;
+        text-transform: uppercase;
+        color: var(--text-primary);
+    }
+
+    .retrain-step-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .retrain-step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-card);
+    }
+
+    .retrain-step__icon {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 900;
+        border: 1px solid var(--border-card);
+        color: var(--text-muted);
+        position: relative;
+    }
+
+    .retrain-step.is-running {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 0 0 1px rgba(0, 188, 212, 0.08) inset;
+    }
+
+    .retrain-step.is-running .retrain-step__icon {
+        border-color: var(--m-blue-light);
+        color: var(--m-blue-light);
+    }
+
+    .retrain-step.is-done .retrain-step__icon {
+        border-color: var(--accent-emerald);
+        color: var(--accent-emerald);
+    }
+
+    .retrain-step.is-pending .retrain-step__icon::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--text-muted);
+    }
+
+    .retrain-step.is-running .retrain-step__icon::after {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        border-top-color: var(--m-blue-light);
+        border-right-color: var(--m-blue-light);
+        animation: retrainSpin 0.9s linear infinite;
+    }
+
+    .retrain-step.is-running .retrain-step__title {
+        color: var(--m-blue-dark);
+    }
+
+    .retrain-step.is-running .retrain-step__state {
+        color: var(--m-blue-light);
+    }
+
+    .retrain-step.is-done .retrain-step__icon::after {
+        content: '✓';
+    }
+
+    .retrain-step__meta {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .retrain-step__title {
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.3;
+    }
+
+    .retrain-step__state {
+        font-size: 0.65rem;
+        font-weight: 900;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    .retrain-modal__empty {
+        padding: 18px;
+        border: 1px dashed var(--border-card);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.6px;
+        font-size: 0.72rem;
+        font-weight: 900;
+    }
+
+    @keyframes retrainSpin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 900px) {
         .stats-grid { grid-template-columns: repeat(3, 1fr); }
         .charts-row { grid-template-columns: 1fr; }
         .admin-command-hero { align-items: stretch; }
         .command-visual-panel { width: 100%; }
+        .retrain-modal__summary,
+        .retrain-modal__body { grid-template-columns: 1fr; }
+        .retrain-modal__panel { width: min(96vw, 1080px); }
     }
 
     @media (max-width: 600px) {
         .admin-command-hero { padding: 22px 18px; }
         .command-metrics { grid-template-columns: 1fr; }
         .stats-grid { grid-template-columns: 1fr; }
+        .retrain-modal { padding: 12px; }
+        .retrain-modal__panel { padding: 18px; }
     }
 </style>
 {% endblock %}
@@ -452,6 +746,7 @@
             <form action="{{ url_for('admin_clear_retrains') }}" method="POST" style="margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua retrain model?');">
                 <button type="submit" class="btn-secondary" style="border-color: var(--m-red); color: var(--m-red);">HAPUS SEMUA RETRAIN MODEL</button>
             </form>
+            <button type="button" class="btn-secondary" id="openRetrainModalBtn" style="border-color: var(--border-card); color: var(--text-primary);">LIHAT JOB RETRAIN</button>
         </div>
 
         <!-- Info about currently active model -->
@@ -537,6 +832,45 @@
         {% endif %}
     </div>
 </main>
+
+<div id="retrainModal" class="retrain-modal hidden" aria-hidden="true">
+    <div class="retrain-modal__backdrop" data-close-modal="true"></div>
+    <div class="retrain-modal__panel" role="dialog" aria-modal="true" aria-labelledby="retrainModalTitle">
+        <div class="retrain-modal__header">
+            <div>
+                <div class="retrain-modal__eyebrow">RETRAIN MONITOR</div>
+                <h3 id="retrainModalTitle">STATUS RETRAIN MODEL</h3>
+            </div>
+            <div class="retrain-modal__actions">
+                <button type="button" class="btn-secondary retrain-modal__refresh" id="refreshRetrainModalBtn">REFRESH</button>
+                <button type="button" class="retrain-modal__close" data-close-modal="true" aria-label="Tutup modal">×</button>
+            </div>
+        </div>
+
+        <div class="retrain-modal__summary">
+            <div class="retrain-modal__status">
+                <span id="retrainModalBadge" class="retrain-badge is-idle">IDLE</span>
+                <span id="retrainModalText" class="retrain-modal__text">TIDAK ADA RETRAINING SAAT INI</span>
+            </div>
+            <div class="retrain-modal__progress-shell">
+                <div class="retrain-modal__progress-label">
+                    <span>PROGRESS</span>
+                    <strong id="retrainModalProgressLabel">0%</strong>
+                </div>
+                <div class="retrain-modal__progress-bar">
+                    <div id="retrainModalProgressFill" class="retrain-modal__progress-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="retrain-modal__body">
+            <div class="retrain-modal__section">
+                <h4>STEP LIST</h4>
+                <div id="retrainStepList" class="retrain-step-list"></div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -721,6 +1055,131 @@
 
     // Listen to theme changes
     window.addEventListener('themechanged', renderCharts);
+
+    const retrainModal = document.getElementById('retrainModal');
+    const openRetrainModalBtn = document.getElementById('openRetrainModalBtn');
+    const refreshRetrainModalBtn = document.getElementById('refreshRetrainModalBtn');
+    const retrainModalBadge = document.getElementById('retrainModalBadge');
+    const retrainModalText = document.getElementById('retrainModalText');
+    const retrainModalProgressLabel = document.getElementById('retrainModalProgressLabel');
+    const retrainModalProgressFill = document.getElementById('retrainModalProgressFill');
+    const retrainStepList = document.getElementById('retrainStepList');
+    let retrainModalTimer = null;
+
+    function formatRetrainTime(ts) {
+        if (!ts) return '-';
+        try {
+            return new Date(ts).toLocaleString('id-ID', { hour12: false });
+        } catch (err) {
+            return ts;
+        }
+    }
+
+    function setRetrainModalOpen(open) {
+        if (!retrainModal) return;
+        retrainModal.classList.toggle('hidden', !open);
+        retrainModal.setAttribute('aria-hidden', open ? 'false' : 'true');
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    function renderRetrainModal(data) {
+        const status = (data && data.status) ? String(data.status).toLowerCase() : 'idle';
+        const progress = Math.max(0, Math.min(100, Number(data && data.progress != null ? data.progress : 0) || 0));
+        const steps = (data && Array.isArray(data.steps)) ? data.steps : [];
+        const currentStep = data && data.current_step ? data.current_step : null;
+
+        retrainModalProgressLabel.textContent = `${progress.toFixed(0)}%`;
+        retrainModalProgressFill.style.width = `${progress}%`;
+
+        retrainModalBadge.classList.remove('is-running', 'is-success', 'is-idle', 'is-failed');
+        if (status === 'running' || status === 'pending') {
+            retrainModalBadge.classList.add('is-running');
+            retrainModalBadge.textContent = 'RETRAIN BERJALAN';
+            retrainModalText.textContent = currentStep ? `SEDANG MENGERJAKAN: ${currentStep.toUpperCase()}` : 'RETRAIN SEDANG BERJALAN';
+        } else if (status === 'success') {
+            retrainModalBadge.classList.add('is-success');
+            retrainModalBadge.textContent = 'RETRAIN SELESAI';
+            retrainModalText.textContent = 'RETRAIN SELESAI';
+        } else if (status === 'failed') {
+            retrainModalBadge.classList.add('is-failed');
+            retrainModalBadge.textContent = 'RETRAIN GAGAL';
+            retrainModalText.textContent = 'TERJADI KESALAHAN SAAT RETRAINING';
+        } else {
+            retrainModalBadge.classList.add('is-idle');
+            retrainModalBadge.textContent = 'IDLE';
+            retrainModalText.textContent = 'TIDAK ADA RETRAINING SAAT INI';
+        }
+
+        if (status === 'success' || status === 'failed' || status === 'idle') {
+            if (retrainModalTimer) {
+                window.clearInterval(retrainModalTimer);
+                retrainModalTimer = null;
+            }
+        }
+
+        if (steps.length) {
+            retrainStepList.innerHTML = steps.map((step, index) => {
+                const stepStatus = String(step.status || 'pending').toLowerCase();
+                const isCurrent = !!step.is_current || step.name === currentStep || stepStatus === 'running';
+                const stateLabel = stepStatus === 'done' ? 'SELESAI' : (stepStatus === 'running' ? 'MENGEKSEKUSI KODE...' : 'MENUNGGU');
+                const icon = stepStatus === 'done' ? '✓' : (stepStatus === 'running' ? index + 1 : index + 1);
+                return `
+                    <div class="retrain-step ${stepStatus === 'done' ? 'is-done' : (stepStatus === 'running' ? 'is-running' : 'is-pending')} ${isCurrent ? 'is-current' : ''}">
+                        <div class="retrain-step__icon">${icon}</div>
+                        <div class="retrain-step__meta">
+                            <div class="retrain-step__title">${step.name}</div>
+                            <div class="retrain-step__state">${stateLabel}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            retrainStepList.innerHTML = '<div class="retrain-modal__empty">BELUM ADA STEP RETRAIN</div>';
+        }
+    }
+
+    function loadRetrainModal() {
+        fetch('{{ url_for("api_retrain_status_current") }}')
+            .then((response) => response.json())
+            .then((data) => renderRetrainModal(data))
+            .catch(() => {
+                renderRetrainModal({ status: 'idle', progress: 0, steps: [] });
+            });
+    }
+
+    function openRetrainModal() {
+        setRetrainModalOpen(true);
+        loadRetrainModal();
+        if (retrainModalTimer) window.clearInterval(retrainModalTimer);
+        retrainModalTimer = window.setInterval(loadRetrainModal, 3000);
+    }
+
+    function closeRetrainModal() {
+        setRetrainModalOpen(false);
+        if (retrainModalTimer) {
+            window.clearInterval(retrainModalTimer);
+            retrainModalTimer = null;
+        }
+    }
+
+    if (openRetrainModalBtn) {
+        openRetrainModalBtn.addEventListener('click', openRetrainModal);
+    }
+    if (refreshRetrainModalBtn) {
+        refreshRetrainModalBtn.addEventListener('click', loadRetrainModal);
+    }
+    if (retrainModal) {
+        retrainModal.addEventListener('click', (event) => {
+            if (event.target && event.target.dataset && event.target.dataset.closeModal === 'true') {
+                closeRetrainModal();
+            }
+        });
+    }
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeRetrainModal();
+        }
+    });
 
     // Dropdown detail akurasi model retrain
     document.addEventListener('DOMContentLoaded', function() {

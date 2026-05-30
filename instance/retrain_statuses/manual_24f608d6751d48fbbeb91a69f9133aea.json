@@ -1,0 +1,172 @@
+{
+  "job_id": "manual_24f608d6751d48fbbeb91a69f9133aea",
+  "triggered_at": "2026-05-30T05:08:26.242692Z",
+  "started_at": "2026-05-30T05:08:26.244830Z",
+  "finished_at": "2026-05-30T05:23:28.907780Z",
+  "status": "failed",
+  "progress": 100.0,
+  "current_step": "papermill",
+  "steps": [
+    {
+      "name": "Load library",
+      "status": "pending",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "pending",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "pending",
+      "index": 2,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "pending",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "pending",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "pending",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "pending",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "PCA",
+      "status": "pending",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "SVM",
+      "status": "pending",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "k-NN classifier",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Decision Tree",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Neural Network",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 17,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 18,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 19,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 20,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "pending",
+      "index": 21,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-05-30T05:08:26.242692Z",
+      "level": "INFO",
+      "message": "Job queued"
+    },
+    {
+      "ts": "2026-05-30T05:08:26.280194Z",
+      "level": "INFO",
+      "message": "Job started"
+    },
+    {
+      "ts": "2026-05-30T05:08:26.321867Z",
+      "level": "INFO",
+      "message": "Executing papermill: dataset-notebook\\Tubes_FIX.ipynb -> model\\model_20260530_120826"
+    },
+    {
+      "ts": "2026-05-30T05:23:28.871794Z",
+      "level": "ERROR",
+      "message": "Passed unknown parameter: job_id\nPassed unknown parameter: status_file_path\n\nExecuting:   0%|          | 0/79 [00:00<?, ?cell/s]\nExecuting:   1%|1         | 1/79 [00:04<05:55,  4.56s/cell]\nExecuting:   4%|3         | 3/79 [00:04<01:32,  1.22s/cell]\nExecuting:   8%|7         | 6/79 [00:04<00:36,  2.01cell/s]\nExecuting:  10%|#         | 8/79 [00:10<01:39,  1.40s/cell]\nExecuting:  13%|#2        | 10/79 [00:10<01:05,  1.05cell/s]\nExecuting:  15%|#5        | 12/79 [00:11<00:44,  1.52cell/s]\nExecuting:  18%|#7        | 14/79 [00:11<00:30,  2.15cell/s]\nExecuting:  20%|##        | 16/79 [00:11<00:23,  2.67cell/s]\nExecuting:  23%|##2       | 18/79 [00:11<00:16,  3.61cell/s]\nExecuting:  25%|##5       | 20/79 [00:14<00:34,  1.70cell/s]\nExecuting:  28%|##7       | 22/79 [00:14<00:24,  2.33cell/s]\nExecuting:  30%|###       | 24/79 [00:14<00:17,  3.16cell/s]\nExecuting:  33%|###2      | 26/79 [00:14<00:12,  4.24cell/s]\nExecuting:  35%|###5      | 28/79 [00:16<00:22,  2.25cell/s]\nExecuting:  38%|###7      | 30/79 [00:16<00:17,  2.82cell/s]\nExecuting:  41%|####      | 32/79 [00:16<00:12,  3.74cell/s]\nExecuting:  43%|####3     | 34/79 [00:16<00:09,  4.84cell/s]\nExecuting:  47%|####6     | 37/79 [00:17<00:06,  6.72cell/s]\nExecuting:  49%|####9     | 39/79 [00:29<01:12,  1.82s/cell]\nExecuting:  52%|#####1    | 41/79 [05:16<26:11, 41.35s/cell]\nExecuting:  54%|#####4    | 43/79 [05:16<17:44, 29.56s/cell]\nExecuting:  57%|#####6    | 45/79 [05:17<11:59, 21.15s/cell]\nExecuting:  59%|#####9    | 47/79 [05:17<07:59, 14.98s/cell]\nExecuting:  62%|######2   | 49/79 [05:17<05:18, 10.61s/cell]\nExecuting:  63%|######3   | 50/79 [05:30<05:07, 10.61s/cell]\nExecuting:  65%|######4   | 51/79 [05:34<04:40, 10.02s/cell]\nExecuting:  66%|######5   | 52/79 [05:35<03:44,  8.32s/cell]\nExecuting:  68%|######8   | 54/79 [05:35<02:19,  5.57s/cell]\nExecuting:  71%|#######   | 56/79 [05:35<01:27,  3.81s/cell]\nExecuting:  72%|#######2  | 57/79 [05:50<01:23,  3.81s/cell]\nExecuting:  73%|#######3  | 58/79 [06:06<02:38,  7.54s/cell]\nExecuting:  75%|#######4  | 59/79 [06:06<02:03,  6.17s/cell]\nExecuting:  77%|#######7  | 61/79 [06:07<01:13,  4.08s/cell]\nExecuting:  77%|#######7  | 61/79 [06:20<01:13,  4.08s/cell]\nExecuting:  78%|#######8  | 62/79 [06:23<01:49,  6.42s/cell]\nExecuting:  81%|########1 | 64/79 [06:23<01:02,  4.14s/cell]\nExecuting:  81%|########1 | 64/79 [06:40<01:02,  4.14s/cell]\nExecuting:  82%|########2 | 65/79 [14:52<25:06, 107.62s/cell]\nExecuting:  84%|########3 | 66/79 [14:53<18:05, 83.53s/cell] \nExecuting:  85%|########4 | 67/79 [14:53<12:37, 63.15s/cell]\nExecuting:  86%|########6 | 68/79 [14:54<08:35, 46.84s/cell]\nExecuting:  87%|########7 | 69/79 [14:54<05:42, 34.24s/cell]\nExecuting:  89%|########8 | 70/79 [14:54<03:42, 24.74s/cell]\nExecuting:  90%|########9 | 71/79 [14:54<02:21, 17.74s/cell]\nExecuting:  91%|#########1| 72/79 [14:54<01:28, 12.65s/cell]\nExecuting:  92%|#########2| 73/79 [14:54<00:53,  8.99s/cell]\nExecuting:  94%|#########3| 74/79 [14:54<00:31,  6.38s/cell]\nExecuting:  95%|#########4| 75/79 [14:55<00:18,  4.62s/cell]\nExecuting:  96%|#########6| 76/79 [14:55<00:09,  3.28s/cell]\nExecuting:  97%|#########7| 77/79 [14:55<00:04,  2.34s/cell]\nExecuting:  99%|#########8| 78/79 [14:55<00:01,  1.75s/cell]\nExecuting: 100%|##########| 79/79 [14:57<00:00,  1.75s/cell]\nExecuting: 100%|##########| 79/79 [14:59<00:00, 11.38s/cell]\nTraceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\papermill\\execute.py\", line 131, in execute_notebook\n    raise_for_execution_errors(nb, output_path)\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\papermill\\execute.py\", line 251, in raise_for_execution_errors\n    raise error\npapermill.exceptions.PapermillExecutionError: \n---------------------------------------------------------------------------\nException encountered at \"In [56]\":\n---------------------------------------------------------------------------\nAttributeError                            Traceback (most recent call last)\nCell In[56], line 1\n----> 1 checkpoint('Deploy', finalize=True, message='RETRAIN SELESAI')\n\nCell In[1], line 73, in checkpoint(step_name, finalize, message)\n     69     payload['steps'] = steps\n     70     payload['current_step'] = None if finalize else step_name\n     71     payload['status'] = 'success' if finalize else 'running'\n     72     payload['progress'] = round((sum(1 for step in steps if step.get('status') == 'done') / max(len(steps), 1)) * 100, 2)\n---> 73     payload['finished_at'] = datetime.utcnow().isoformat() + 'Z' if finalize else payload.get('finished_at')\n     74     logs = payload.get('logs', [])\n     75     logs.append({\n     76         'ts': datetime.utcnow().isoformat() + 'Z',\n\nAttributeError: module 'datetime' has no attribute 'utcnow'"
+    },
+    {
+      "ts": "2026-05-30T05:23:28.905762Z",
+      "level": "ERROR",
+      "message": "Papermill failed with code 1"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

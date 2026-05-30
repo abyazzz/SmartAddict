@@ -1,0 +1,47 @@
+{
+  "job_id": "6df77da7-8fa1-4d5f-8735-9877b6b79836",
+  "triggered_at": "2026-05-29T09:58:58.559370Z",
+  "started_at": "2026-05-29T09:58:58.561749Z",
+  "finished_at": "2026-05-29T10:09:55.152143Z",
+  "status": "success",
+  "progress": 100.0,
+  "current_step": "papermill",
+  "steps": [],
+  "logs": [
+    {
+      "ts": "2026-05-29T09:58:58.594218Z",
+      "level": "INFO",
+      "message": "Job started"
+    },
+    {
+      "ts": "2026-05-29T09:58:58.612851Z",
+      "level": "INFO",
+      "message": "Appending 10 rows to dataset"
+    },
+    {
+      "ts": "2026-05-29T09:58:58.634301Z",
+      "level": "INFO",
+      "message": "Clearing PredictUserSession buffer"
+    },
+    {
+      "ts": "2026-05-29T09:58:58.680999Z",
+      "level": "INFO",
+      "message": "Executing papermill: dataset-notebook\\Tubes_FIX.ipynb -> model\\model_20260529_165858"
+    },
+    {
+      "ts": "2026-05-29T10:09:55.044251Z",
+      "level": "ERROR",
+      "message": "Executing:   0%|          | 0/55 [00:00<?, ?cell/s]\nExecuting:   2%|1         | 1/55 [00:02<02:32,  2.82s/cell]\nExecuting:   9%|9         | 5/55 [00:05<00:54,  1.09s/cell]\nExecuting:  13%|#2        | 7/55 [00:06<00:33,  1.42cell/s]\nExecuting:  16%|#6        | 9/55 [00:06<00:21,  2.11cell/s]\nExecuting:  20%|##        | 11/55 [00:06<00:15,  2.88cell/s]\nExecuting:  25%|##5       | 14/55 [00:07<00:16,  2.54cell/s]\nExecuting:  31%|###       | 17/55 [00:07<00:10,  3.74cell/s]\nExecuting:  36%|###6      | 20/55 [00:08<00:08,  4.09cell/s]\nExecuting:  38%|###8      | 21/55 [00:08<00:08,  3.98cell/s]\nExecuting:  44%|####3     | 24/55 [00:08<00:05,  5.82cell/s]\nExecuting:  47%|####7     | 26/55 [00:20<00:04,  5.82cell/s]\nExecuting:  49%|####9     | 27/55 [00:21<00:43,  1.56s/cell]\nExecuting:  53%|#####2    | 29/55 [04:05<12:41, 29.28s/cell]\nExecuting:  56%|#####6    | 31/55 [04:06<08:40, 21.70s/cell]\nExecuting:  62%|######1   | 34/55 [04:07<04:52, 13.91s/cell]\nExecuting:  65%|######5   | 36/55 [04:20<03:47, 12.00s/cell]\nExecuting:  67%|######7   | 37/55 [04:20<03:03, 10.19s/cell]\nExecuting:  71%|#######   | 39/55 [04:20<01:53,  7.10s/cell]\nExecuting:  75%|#######4  | 41/55 [04:52<02:17,  9.79s/cell]\nExecuting:  78%|#######8  | 43/55 [04:52<01:22,  6.85s/cell]\nExecuting:  80%|########  | 44/55 [05:05<01:27,  7.99s/cell]\nExecuting:  84%|########3 | 46/55 [10:51<09:32, 63.58s/cell]\nExecuting:  85%|########5 | 47/55 [10:52<06:51, 51.44s/cell]\nExecuting:  89%|########9 | 49/55 [10:52<03:18, 33.13s/cell]\nExecuting:  93%|#########2| 51/55 [10:53<01:27, 21.98s/cell]\nExecuting:  96%|#########6| 53/55 [10:53<00:29, 14.89s/cell]\nExecuting: 100%|##########| 55/55 [10:53<00:00, 10.21s/cell]\nExecuting: 100%|##########| 55/55 [10:54<00:00, 11.90s/cell]"
+    },
+    {
+      "ts": "2026-05-29T10:09:55.184420Z",
+      "level": "INFO",
+      "message": "Model activated: model_20260529_165858"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": {
+    "path": "model\\model_20260529_165858",
+    "version": "model_20260529_165858"
+  }
+}

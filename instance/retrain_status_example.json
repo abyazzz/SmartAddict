@@ -1,0 +1,28 @@
+{
+  "job_id": "c9b1f3a2-6d4b-4e1a-9a3f-2b7d8f6c1234",
+  "trigger": {"by": "admin@company", "source": "manual", "reason": "periodic update"},
+  "started_at": "2026-05-29T15:30:00Z",
+  "finished_at": null,
+  "status": "running",
+  "progress": 42.5,
+  "current_step": "training",
+  "steps": [
+    {"name": "validate_data", "status": "done", "started_at": "2026-05-29T15:30:00Z", "finished_at": "2026-05-29T15:32:10Z"},
+    {"name": "preprocess", "status": "done", "started_at": "2026-05-29T15:32:11Z", "finished_at": "2026-05-29T15:35:00Z"},
+    {"name": "training", "status": "running", "started_at": "2026-05-29T15:35:01Z", "finished_at": null}
+  ],
+  "logs": [
+    {"ts": "2026-05-29T15:30:01Z", "level": "INFO", "message": "Job queued"},
+    {"ts": "2026-05-29T15:32:12Z", "level": "INFO", "message": "Preprocessing completed"},
+    {"ts": "2026-05-29T15:36:00Z", "level": "WARN", "message": "GPU memory high"}
+  ],
+  "metrics": {
+    "train_loss": 0.42,
+    "val_loss": 0.48,
+    "train_accuracy": 0.85,
+    "val_accuracy": 0.82
+  },
+  "model_artifact": {"path": "model/model_20260529_153600/", "version": "20260529_153600", "checksum": "sha256:..."},
+  "retry_count": 0,
+  "tags": ["scheduled", "v2-experiment"]
+}

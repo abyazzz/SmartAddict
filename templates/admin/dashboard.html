@@ -740,10 +740,10 @@
         <h3>🔄 RETRAIN MODEL</h3>
         <!-- Top of container buttons -->
         <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
-            <form action="{{ url_for('admin_retrain_manual') }}" method="POST" style="margin: 0;">
+            <form action="{{ url_for('admin.admin_retrain_manual') }}" method="POST" style="margin: 0;">
                 <button type="submit" class="btn-primary" style="border-color: var(--m-blue-light); color: var(--text-primary);">RETRAIN MANUAL</button>
             </form>
-            <form action="{{ url_for('admin_clear_retrains') }}" method="POST" style="margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua retrain model?');">
+            <form action="{{ url_for('admin.admin_clear_retrains') }}" method="POST" style="margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua retrain model?');">
                 <button type="submit" class="btn-secondary" style="border-color: var(--m-red); color: var(--m-red);">HAPUS SEMUA RETRAIN MODEL</button>
             </form>
             <button type="button" class="btn-secondary" id="openRetrainModalBtn" style="border-color: var(--border-card); color: var(--text-primary);">LIHAT JOB RETRAIN</button>
@@ -789,13 +789,13 @@
                     <td>
                         <div style="display: flex; gap: 8px;" onclick="event.stopPropagation();">
                             {% if not ver.is_active %}
-                            <form action="{{ url_for('admin_use_retrain', version_name=ver.version_name) }}" method="POST" style="margin: 0;">
+                            <form action="{{ url_for('admin.admin_use_retrain', version_name=ver.version_name) }}" method="POST" style="margin: 0;">
                                 <button type="submit" class="btn-primary" style="font-size: 0.7rem; padding: 6px 12px; border-color: var(--m-blue-light); color: var(--m-blue-light);">GUNAKAN RETRAIN INI</button>
                             </form>
                             {% else %}
                             <button class="btn-secondary" style="font-size: 0.7rem; padding: 6px 12px; border-color: var(--border-card); color: var(--text-muted); cursor: not-allowed;" disabled>SEDANG DIGUNAKAN</button>
                             {% endif %}
-                            <form action="{{ url_for('admin_delete_retrain', version_name=ver.version_name) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Hapus versi model ini?');">
+                            <form action="{{ url_for('admin.admin_delete_retrain', version_name=ver.version_name) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Hapus versi model ini?');">
                                 <button type="submit" class="btn-secondary" style="font-size: 0.7rem; padding: 6px 12px; border-color: var(--m-red); color: var(--m-red);">HAPUS</button>
                             </form>
                         </div>
@@ -1139,7 +1139,7 @@
     }
 
     function loadRetrainModal() {
-        fetch('{{ url_for("api_retrain_status_current") }}')
+        fetch('{{ url_for("admin.api_retrain_status_current") }}')
             .then((response) => response.json())
             .then((data) => renderRetrainModal(data))
             .catch(() => {

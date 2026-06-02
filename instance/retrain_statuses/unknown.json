@@ -1,8 +1,8 @@
 {
   "job_id": "manual_24f608d6751d48fbbeb91a69f9133aea",
-  "status": "running",
-  "progress": 95.45,
-  "current_step": "Deploy",
+  "status": "success",
+  "progress": 100.0,
+  "current_step": null,
   "steps": [
     {
       "name": "Load library",
@@ -90,7 +90,7 @@
     },
     {
       "name": "Deploy",
-      "status": "running"
+      "status": "done"
     }
   ],
   "logs": [
@@ -203,7 +203,122 @@
       "ts": "2026-05-30T05:23:24.626820Z",
       "level": "INFO",
       "message": "Sedang menjalankan: Deploy"
+    },
+    {
+      "ts": "2026-05-31T07:41:24.176216Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-05-31T07:41:28.293690Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-05-31T07:41:28.385698Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Label encoding kolom kategorikal"
+    },
+    {
+      "ts": "2026-05-31T07:41:28.552390Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Visualisasi sederhana EDA"
+    },
+    {
+      "ts": "2026-05-31T07:41:30.507230Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Ambil feature dan label"
+    },
+    {
+      "ts": "2026-05-31T07:41:30.545833Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Split train/test 80/20"
+    },
+    {
+      "ts": "2026-05-31T07:41:30.569785Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SMOTE"
+    },
+    {
+      "ts": "2026-05-31T07:41:32.459407Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Feature scaling"
+    },
+    {
+      "ts": "2026-05-31T07:41:32.487945Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: PCA"
+    },
+    {
+      "ts": "2026-05-31T07:41:32.505914Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SVM"
+    },
+    {
+      "ts": "2026-05-31T07:41:44.082727Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO SVM"
+    },
+    {
+      "ts": "2026-05-31T07:46:19.553372Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Evaluation"
+    },
+    {
+      "ts": "2026-05-31T07:46:20.898250Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: k-NN classifier"
+    },
+    {
+      "ts": "2026-05-31T07:46:21.136167Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO dan evaluasi k-NN"
+    },
+    {
+      "ts": "2026-05-31T07:46:39.901079Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Decision Tree"
+    },
+    {
+      "ts": "2026-05-31T07:46:40.079552Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO Decision Tree"
+    },
+    {
+      "ts": "2026-05-31T07:47:20.725095Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Neural Network"
+    },
+    {
+      "ts": "2026-05-31T07:47:41.286366Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO Neural Network"
+    },
+    {
+      "ts": "2026-05-31T07:55:38.294001Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Tabel perbandingan sebelum HPO"
+    },
+    {
+      "ts": "2026-05-31T07:55:38.333553Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Tabel perbandingan setelah HPO"
+    },
+    {
+      "ts": "2026-05-31T07:55:38.378125Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Confusion matrix Decision Tree"
+    },
+    {
+      "ts": "2026-05-31T07:55:38.470842Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Deploy"
+    },
+    {
+      "ts": "2026-05-31T07:55:38.531551Z",
+      "level": "INFO",
+      "message": "RETRAIN SELESAI"
     }
   ],
-  "finished_at": null
+  "finished_at": "2026-05-31T07:55:38.531551Z"
 }

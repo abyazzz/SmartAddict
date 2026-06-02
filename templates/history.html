@@ -520,7 +520,7 @@
         {% if predictions %}
         <div class="header-actions">
             <div class="count-badge">📊 <span id="visibleCount">{{ predictions|length }}</span> LOG RECORDED</div>
-            <form method="post" action="{{ url_for('clear_my_history') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT?')">
+            <form method="post" action="{{ url_for('user.clear_my_history') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT?')">
                 <button type="submit" class="btn-danger">🗑️ HAPUS SELURUH LOG</button>
             </form>
         </div>
@@ -573,7 +573,7 @@
                     <span class="history-model-chip">MODEL: {{ entry.model_name | upper }}</span>
                 </div>
                 <div class="result-badge {{ level_class }}">{{ entry.result }}</div>
-                <form method="post" action="{{ url_for('delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')" onclick="event.stopPropagation()">
+                        <form method="post" action="{{ url_for('user.delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')" onclick="event.stopPropagation()">
                     <button type="submit" class="delete-btn" title="Hapus Log">🗑</button>
                 </form>
             </div>
@@ -613,7 +613,7 @@
         <div class="empty-icon">📭</div>
         <h3>BELUM ADA LOG RIWAYAT PREDIKSI</h3>
         <p>SELESAIKAN PROSES PREDIKSI PERTAMA ANDA UNTUK MELIHAT LOG PREDIKSI DI SINI.</p>
-        <a href="{{ url_for('predict') }}" class="btn-primary">🚀 MULAI ANALISIS PREDIKSI</a>
+        <a href="{{ url_for('user.predict') }}" class="btn-primary">🚀 MULAI ANALISIS PREDIKSI</a>
     </div>
     {% endif %}
 </main>

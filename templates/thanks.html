@@ -997,9 +997,9 @@
 
     <div class="actions">
         <button onclick="exportPDF()" class="btn-primary" id="exportBtn">📥 EXPORT LAPORAN PDF</button>
-        <a href="{{ url_for('predict') }}" class="btn-secondary">🔄 PREDIKSI BARU</a>
-        <a href="{{ url_for('history_page') }}" class="btn-secondary">📋 RIWAYAT LOG</a>
-        <a href="{{ url_for('dashboard') }}" class="btn-secondary">🏠 BERANDA</a>
+        <a href="{{ url_for('user.predict') }}" class="btn-secondary">🔄 PREDIKSI BARU</a>
+        <a href="{{ url_for('user.history_page') }}" class="btn-secondary">📋 RIWAYAT LOG</a>
+        <a href="{{ url_for('user.dashboard') }}" class="btn-secondary">🏠 BERANDA</a>
     </div>
 
     <!-- ═══════ THANK YOU SECTION ═══════ -->
@@ -1022,7 +1022,7 @@
         <div class="empty-icon">🔍</div>
         <h2>BELUM ADA HASIL RECORD PREDIKSI</h2>
         <p>SILAKAN SELESAIKAN PROSES PREDIKSI TERLEBIH DAHULU UNTUK MEMBUKA PANEL DIAGNOSIS INI.</p>
-        <a href="{{ url_for('predict') }}" class="btn-primary">🚀 MULAI PREDIKSI</a>
+        <a href="{{ url_for('user.predict') }}" class="btn-primary">🚀 MULAI PREDIKSI</a>
     </div>
     {% endif %}
 </main>

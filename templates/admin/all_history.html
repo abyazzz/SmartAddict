@@ -307,7 +307,7 @@
             <span class="admin-badge" style="margin-right: 8px;">🛡️ ADMIN</span>
             <div class="count-badge">📊 <span id="vc">{{ predictions|length }}</span> LOGS</div>
             {% if predictions %}
-            <form method="post" action="{{ url_for('admin_clear_all') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT DI SISTEM?')">
+            <form method="post" action="{{ url_for('admin.admin_clear_all') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT DI SISTEM?')">
                 <button type="submit" class="btn-danger">🗑️ HAPUS SEMUA RIWAYAT</button>
             </form>
             {% endif %}
@@ -373,7 +373,7 @@
                     </td>
                     <td style="color:var(--text-muted); font-family: monospace; font-size:0.75rem">{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</td>
                     <td>
-                        <form method="post" action="{{ url_for('delete_prediction', pred_id=p.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')">
+                        <form method="post" action="{{ url_for('user.delete_prediction', pred_id=p.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')">
                             <button class="del-btn" title="Hapus entry">🗑</button>
                         </form>
                     </td>

@@ -404,11 +404,11 @@
             <p>Sistem analisis machine learning performa tinggi yang memproses parameter aktivitas digital secara real-time untuk mendiagnosis tingkatan kecanduan smartphone Anda secara presisi.</p>
             <div class="hero-actions">
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('predict') }}" class="btn-primary">🚀 Mulai Prediksi</a>
-                <a href="{{ url_for('history_page') }}" class="btn-secondary">📊 Lihat History</a>
+                <a href="{{ url_for('user.predict') }}" class="btn-primary">🚀 Mulai Prediksi</a>
+                <a href="{{ url_for('user.history_page') }}" class="btn-secondary">📊 Lihat History</a>
                 {% else %}
-                <a href="{{ url_for('login') }}" class="btn-primary">🔐 Login untuk Mulai</a>
-                <a href="{{ url_for('register') }}" class="btn-secondary">🚀 Daftar Akun</a>
+                <a href="{{ url_for('auth.login') }}" class="btn-primary">🔐 Login untuk Mulai</a>
+                <a href="{{ url_for('auth.register') }}" class="btn-secondary">🚀 Daftar Akun</a>
                 {% endif %}
             </div>
         </div>
@@ -495,9 +495,9 @@
         <h2>Siap Memulai Pengujian Performa?</h2>
         <p>Mulai evaluasi sekarang dengan mengisi 10 parameter penggunaan atau unggah dokumen CSV.</p>
         {% if current_user.is_authenticated %}
-        <a href="{{ url_for('predict') }}" class="btn-primary">Mulai Sekarang →</a>
+        <a href="{{ url_for('user.predict') }}" class="btn-primary">Mulai Sekarang →</a>
         {% else %}
-        <a href="{{ url_for('login') }}" class="btn-primary">Login untuk Mulai →</a>
+        <a href="{{ url_for('auth.login') }}" class="btn-primary">Login untuk Mulai →</a>
         {% endif %}
     </section>
 </main>

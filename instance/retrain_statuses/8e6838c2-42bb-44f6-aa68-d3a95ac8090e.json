@@ -1,0 +1,162 @@
+{
+  "job_id": "8e6838c2-42bb-44f6-aa68-d3a95ac8090e",
+  "triggered_at": null,
+  "started_at": "2026-05-31T07:41:22.449619Z",
+  "finished_at": "2026-05-31T07:55:39.075261Z",
+  "status": "failed",
+  "progress": 100,
+  "current_step": null,
+  "steps": [
+    {
+      "name": "Load library",
+      "status": "pending",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "pending",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "pending",
+      "index": 2,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "pending",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "pending",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "pending",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "pending",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "PCA",
+      "status": "pending",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "SVM",
+      "status": "pending",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "k-NN classifier",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Decision Tree",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Neural Network",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 17,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 18,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 19,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 20,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "running",
+      "index": 21,
+      "is_current": true
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-05-31T07:41:22.444752Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-05-31T07:41:22.485252Z",
+      "level": "INFO",
+      "message": "Memulai retrain notebook"
+    },
+    {
+      "ts": "2026-05-31T07:55:39.110888Z",
+      "level": "ERROR",
+      "message": "Retrain gagal: Model hasil retrain belum lengkap atau gagal dimuat."
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

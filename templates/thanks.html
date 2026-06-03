@@ -58,8 +58,8 @@
     }
 
     .level-badge.rendah {
-        border-color: var(--m-blue-light);
-        color: var(--m-blue-light);
+        border-color: var(--accent-emerald);
+        color: var(--accent-emerald);
     }
 
     .level-badge.sedang {
@@ -211,7 +211,7 @@
         letter-spacing: 0.03em;
     }
 
-    .diagnostic-hero-grid.result-level-rendah .diagnostic-readout-main { color: var(--m-blue-light); }
+    .diagnostic-hero-grid.result-level-rendah .diagnostic-readout-main { color: var(--accent-emerald); }
     .diagnostic-hero-grid.result-level-sedang .diagnostic-readout-main { color: var(--m-blue-dark); }
     .diagnostic-hero-grid.result-level-tinggi .diagnostic-readout-main { color: var(--m-red); }
 
@@ -420,7 +420,7 @@
     }
 
     .batch-detail-table .row-diagnosis.rendah {
-        color: var(--m-blue-light);
+        color: var(--accent-emerald);
     }
 
     .batch-detail-table .row-diagnosis.sedang {
@@ -524,7 +524,7 @@
     }
 
     .comparison-table .pct-bar-fill.low {
-        background: var(--m-blue-light);
+        background: var(--accent-emerald);
     }
 
     .comparison-table .pct-label {
@@ -544,7 +544,7 @@
     }
 
     .comparison-table .pct-label.low {
-        color: var(--m-blue-light);
+        color: var(--accent-emerald);
     }
 
     .actions {
@@ -761,7 +761,7 @@
             <div class="summary-label">TOTAL BARIS CSV</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" style="{% if dominant_level == 'Rendah' %}color: var(--m-blue-light);{% elif dominant_level == 'Sedang' %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">{{ dominant_level | upper }}</div>
+            <div class="summary-value" style="{% if dominant_level == 'Rendah' %}color: var(--accent-emerald);{% elif dominant_level == 'Sedang' %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">{{ dominant_level | upper }}</div>
             <div class="summary-label">LEVEL DOMINAN</div>
         </div>
         <div class="summary-card">
@@ -778,7 +778,7 @@
             <div class="summary-label">USIA PENGGUNA</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" style="{% if result['prediction_raw'] == 0 %}color: var(--m-blue-light);{% elif result['prediction_raw'] == 1 %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">
+            <div class="summary-value" style="{% if result['prediction_raw'] == 0 %}color: var(--accent-emerald);{% elif result['prediction_raw'] == 1 %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">
                 {{ result['diagnosis'] | upper }}
             </div>
             <div class="summary-label">INDEX KECANDUAN</div>
@@ -809,7 +809,7 @@
             </div>
             <div class="batch-stat-card">
                 <div class="stat-label">Rendah</div>
-                <div class="stat-value" style="color: var(--m-blue-light);">{{ batch_rendah }}</div>
+                <div class="stat-value" style="color: var(--accent-emerald);">{{ batch_rendah }}</div>
                 <div class="stat-subvalue">HASIL DIAGNOSIS</div>
             </div>
             <div class="batch-stat-card">
@@ -1042,7 +1042,7 @@
     const diagnosis = "{{ result['diagnosis'] }}".toUpperCase();
     const result_model = "{{ result['model'] }}";
 
-    const mBlueLight = '#0066b1';
+    const mBlueLight = '#16a34a';
     const mBlueDark = '#1c69d4';
     const mRed = '#e22718';
 
@@ -1057,7 +1057,7 @@
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         const legendColor = isLight ? '#334155' : '#ffffff';
         const unselectedBorder = isLight ? '#e2e8f0' : '#111111';
-        const unselectedBG0 = isLight ? 'rgba(0, 188, 212, 0.08)' : 'rgba(0, 102, 177, 0.1)';
+        const unselectedBG0 = isLight ? 'rgba(52, 211, 153, 0.08)' : 'rgba(22, 163, 74, 0.1)';
         const unselectedBG1 = isLight ? 'rgba(28, 105, 212, 0.08)' : 'rgba(28, 105, 212, 0.1)';
         const unselectedBG2 = isLight ? 'rgba(226, 39, 24, 0.08)' : 'rgba(226, 39, 24, 0.1)';
         const batchColors = [mBlueLight, mBlueDark, mRed];
@@ -1134,7 +1134,7 @@
 
         const rootStyles = getComputedStyle(document.documentElement);
         const palette = [
-            rootStyles.getPropertyValue('--m-blue-light').trim() || '#00bcd4',
+            rootStyles.getPropertyValue('--accent-emerald').trim() || '#16a34a',
             rootStyles.getPropertyValue('--m-blue-dark').trim() || '#1c69d4',
             rootStyles.getPropertyValue('--m-red').trim() || '#e22718'
         ];
@@ -1306,10 +1306,10 @@
             // ── Warna tema ──────────────────────────────────────────
             const WHITE  = [255, 255, 255];
             const MUTED  = [100, 100, 100];
-            const BLUE_L = [0, 102, 177];
+            const GREEN_G = [22, 163, 74];
             const BLUE_D = [28, 105, 212];
             const RED_M  = [226, 39, 24];
-            const levelColors = { 0: BLUE_L, 1: BLUE_D, 2: RED_M };
+            const levelColors = { 0: GREEN_G, 1: BLUE_D, 2: RED_M };
             const diagColor = levelColors[predictionRaw] || WHITE;
 
             // Solid blue bar top
@@ -1558,7 +1558,7 @@
                     rowValues.forEach((value, index) => {
                         pdf.setFont('helvetica', index === 11 ? 'bold' : 'normal');
                         if (index === 11) {
-                            const rowColor = row.diagnosis === 'Rendah' ? BLUE_L : (row.diagnosis === 'Sedang' ? BLUE_D : RED_M);
+                            const rowColor = row.diagnosis === 'Rendah' ? GREEN_G : (row.diagnosis === 'Sedang' ? BLUE_D : RED_M);
                             pdf.setTextColor(...rowColor);
                         } else {
                             pdf.setTextColor(...WHITE);

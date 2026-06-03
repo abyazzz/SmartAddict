@@ -1,8 +1,8 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, session, send_file, current_app
-from flask_login import current_user, login_required
-
 import json
 import os
+
+from flask import Blueprint, current_app, flash, redirect, render_template, request, send_file, session, url_for
+from flask_login import current_user, login_required
 
 import smartaddict.runtime as runtime
 from smartaddict.extensions import db
@@ -10,10 +10,17 @@ from smartaddict.models.prediction import Prediction
 from smartaddict.models.predict_user_session import PredictUserSession
 from smartaddict.models.user import User
 from smartaddict.services.csv_service import average_rows, parse_csv_rows
-from smartaddict.services.retrain_service import run_retrain_pipeline
+from smartaddict.services.retrain_service import maybe_trigger_retrain
+from smartaddict.services.prediction_service import process_batch, process_single
 from smartaddict.utils.constants import FEATURE_KEYS, MODEL_FILES, QUESTIONS
 
 user_bp = Blueprint('user', __name__)
+
+
+def _commit_prediction_payload(prediction_entries, session_entries):
+    db.session.add_all(prediction_entries)
+    db.session.add_all(session_entries)
+    db.session.commit()
 
 
 @user_bp.route("/profile", methods=["GET", "POST"], endpoint='profile')
@@ -73,7 +80,7 @@ def profile():
         "profile.html",
         active_page='profile',
         prediction_count=prediction_count,
-        latest_prediction=latest_prediction
+        latest_prediction=latest_prediction,
     )
 
 
@@ -88,9 +95,7 @@ def dashboard():
 @login_required
 def predict():
     selected_model = "Decision Tree"
-    model_name = None
     errors = []
-    selected_model = request.form.get("model") or selected_model if request.method == 'POST' else selected_model
 
     if request.method == "POST":
         selected_model = request.form.get("model") or selected_model
@@ -123,86 +128,23 @@ def predict():
                     elif len(csv_rows) == 1:
                         values = csv_rows[0]
                     else:
-                        batch_rows = []
-                        prediction_entries = []
-                        session_entries = []
-                        distribution = {"Rendah": 0, "Sedang": 0, "Tinggi": 0}
-
-                        for row_number, row_values in enumerate(csv_rows, start=1):
-                            row_result = runtime.predict_with_model(row_values, selected_model, include_comparison=False)
-                            row_diagnosis = row_result["diagnosis"]
-                            row_prediction_raw = int(row_result["prediction_raw"])
-
-                            batch_rows.append({
-                                "row_number": row_number,
-                                "values": row_values,
-                                "diagnosis": row_diagnosis,
-                                "prediction_raw": row_prediction_raw,
-                            })
-
-                            if row_diagnosis in distribution:
-                                distribution[row_diagnosis] += 1
-
-                            prediction_entries.append(Prediction(
-                                user_id=current_user.id,
-                                model_name=selected_model,
-                                input_values=json.dumps(row_values),
-                                result=row_diagnosis,
-                                prediction_raw=row_prediction_raw,
-                            ))
-
-                            session_entries.append(PredictUserSession(
-                                user_id=current_user.id,
-                                age=int(row_values[0]),
-                                gender=int(row_values[1]),
-                                daily_screen_time_hours=float(row_values[2]),
-                                social_media_hours=float(row_values[3]),
-                                gaming_hours=float(row_values[4]),
-                                work_study_hours=float(row_values[5]),
-                                sleep_hours=float(row_values[6]),
-                                notifications_per_day=int(row_values[7]),
-                                app_opens_per_day=int(row_values[8]),
-                                weekend_screen_time=float(row_values[9]),
-                                result=row_diagnosis,
-                            ))
-
-                        values = average_rows(csv_rows)
-                        aggregate_result = runtime.predict_with_model(values, selected_model, include_comparison=True)
-                        male_count = sum(1 for row in csv_rows if int(row[1]) == 1)
-                        female_count = len(csv_rows) - male_count
-
-                        try:
-                            db.session.add_all(prediction_entries)
-                            db.session.add_all(session_entries)
-                            db.session.commit()
-                        except Exception:
-                            db.session.rollback()
-                            raise
-
-                        try:
-                            session_count = PredictUserSession.query.count()
-                            if session_count >= 50:
-                                app_obj = current_app._get_current_object()
-                                triggered = run_retrain_pipeline(app_obj)
-                                if triggered:
-                                    flash("Retraining otomatis berjalan di background (50 data terpenuhi)!", "info")
-                        except Exception as db_err:
-                            current_app.logger.error(f"Gagal memeriksa trigger retraining batch: {db_err}")
-
+                        result = process_batch(csv_rows, selected_model, current_user.id, trigger_app=current_app._get_current_object())
+                        values = result["values"]
+                        aggregate_result = result["aggregate"]
                         session['last_prediction'] = {
                             "values": values,
                             "labels": FEATURE_KEYS,
                             "diagnosis": aggregate_result["diagnosis"],
                             "model": selected_model,
                             "prediction_raw": aggregate_result["prediction_raw"],
-                            "comparison": aggregate_result["comparison"],
+                            "comparison": aggregate_result.get("comparison"),
                             "batch_mode": True,
-                            "batch_count": len(batch_rows),
-                            "batch_rows": batch_rows,
-                            "distribution": distribution,
+                            "batch_count": result["batch_count"],
+                            "batch_rows": result["batch_rows"],
+                            "distribution": result["distribution"],
                             "batch_stats": {
-                                "male_count": male_count,
-                                "female_count": female_count,
+                                "male_count": result["male_count"],
+                                "female_count": result["female_count"],
                                 "avg_age": values[0],
                                 "avg_screen_time": values[2],
                                 "avg_social_media": values[3],
@@ -213,7 +155,9 @@ def predict():
                             },
                             "feature_averages": values,
                         }
-                        flash(f"Prediksi batch berhasil! {len(batch_rows)} baris diproses dan disimpan.", "success")
+                        if result.get("triggered"):
+                            flash("Retraining otomatis berjalan di background (threshold terpenuhi)!", "info")
+                        flash(f"Prediksi batch berhasil! {result['batch_count']} baris diproses dan disimpan.", "success")
                         return redirect(url_for('user.thanks'))
                 except Exception as e:
                     errors.append(f"Error membaca CSV: {str(e)}")
@@ -222,69 +166,33 @@ def predict():
 
         if not errors and values:
             try:
-                result_payload = runtime.predict_with_model(values, selected_model, include_comparison=True)
-                prediction = result_payload["prediction_raw"]
-                diagnosis = result_payload["diagnosis"]
-                model_name = selected_model
-
-                pred_entry = Prediction(
-                    user_id=current_user.id,
-                    model_name=model_name,
-                    input_values=json.dumps(values),
-                    result=diagnosis,
-                    prediction_raw=int(prediction),
-                )
-                new_session = PredictUserSession(
-                    user_id=current_user.id,
-                    age=int(values[0]),
-                    gender=int(values[1]),
-                    daily_screen_time_hours=float(values[2]),
-                    social_media_hours=float(values[3]),
-                    gaming_hours=float(values[4]),
-                    work_study_hours=float(values[5]),
-                    sleep_hours=float(values[6]),
-                    notifications_per_day=int(values[7]),
-                    app_opens_per_day=int(values[8]),
-                    weekend_screen_time=float(values[9]),
-                    result=diagnosis
-                )
-                try:
-                    db.session.add(pred_entry)
-                    db.session.add(new_session)
-                    db.session.commit()
-                except Exception as db_err:
-                    db.session.rollback()
-                    current_app.logger.error(f"Gagal mencatat sesi prediksi ke database: {db_err}")
-
-                # Trigger retraining when session buffer has reached minimum threshold.
-                try:
-                    session_count = PredictUserSession.query.count()
-                    if session_count >= 50:
-                        app_obj = current_app._get_current_object()
-                        triggered = run_retrain_pipeline(app_obj)
-                        if triggered:
-                            flash("Retraining otomatis berjalan di background (50 data terpenuhi)!", "info")
-                except Exception as db_err:
-                    current_app.logger.error(f"Gagal memeriksa trigger retraining: {db_err}")
-
+                result = process_single(values, selected_model, current_user.id, trigger_app=current_app._get_current_object())
                 session['last_prediction'] = {
                     "values": values,
                     "labels": FEATURE_KEYS,
-                    "diagnosis": diagnosis,
-                    "model": model_name,
-                    "prediction_raw": int(prediction),
-                    "comparison": result_payload.get("comparison"),
+                    "diagnosis": result.get("diagnosis"),
+                    "model": selected_model,
+                    "prediction_raw": int(result.get("prediction_raw")) if result.get("prediction_raw") is not None else None,
+                    "comparison": None,
                     "batch_mode": False,
                     "feature_averages": values,
                 }
+                if result.get("triggered"):
+                    flash("Retraining otomatis berjalan di background (threshold terpenuhi)!", "info")
                 flash("Prediksi berhasil!", "success")
                 return redirect(url_for('user.thanks'))
             except Exception as exc:
                 current_app.logger.error(f"Terjadi kesalahan saat memprediksi: {exc}")
                 errors.append(f"Terjadi kesalahan saat memprediksi: {exc}")
 
-    return render_template("predict.html", questions=QUESTIONS, models=list(MODEL_FILES.keys()),
-        selected_model=selected_model, errors=errors, active_page='predict')
+    return render_template(
+        "predict.html",
+        questions=QUESTIONS,
+        models=list(MODEL_FILES.keys()),
+        selected_model=selected_model,
+        errors=errors,
+        active_page='predict',
+    )
 
 
 @user_bp.route("/history", endpoint='history_page')

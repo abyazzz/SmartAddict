@@ -1,4 +1,3 @@
-import importlib
 import json
 import logging
 import subprocess
@@ -21,6 +20,40 @@ from smartaddict.utils.constants import RETRAIN_STEP_PLAN
 RETRAIN_LOCK = threading.Lock()
 IS_RETRAINING = False
 RETRAIN_JOB_ID = None
+
+
+def should_trigger_retrain(session_count_before, inserted_count, threshold=50):
+    try:
+        session_count_before = int(session_count_before)
+        inserted_count = int(inserted_count)
+        threshold = int(threshold)
+    except Exception:
+        return False
+    if inserted_count <= 0 or threshold <= 0:
+        return False
+    return session_count_before < threshold <= (session_count_before + inserted_count)
+
+
+def maybe_trigger_retrain(app_instance, session_count_before, inserted_count, threshold=50):
+    if not should_trigger_retrain(session_count_before, inserted_count, threshold=threshold):
+        return None
+    job_id = run_retrain_pipeline(app_instance)
+    if job_id:
+        app_instance.logger.info(
+            "Retraining otomatis dipicu: before=%s added=%s threshold=%s job_id=%s",
+            session_count_before,
+            inserted_count,
+            threshold,
+            job_id,
+        )
+    else:
+        app_instance.logger.info(
+            "Retraining otomatis tidak dipicu karena job sudah berjalan: before=%s added=%s threshold=%s",
+            session_count_before,
+            inserted_count,
+            threshold,
+        )
+    return job_id
 
 
 def _get_logger():
@@ -304,19 +337,27 @@ def execute_training_notebook(output_dir, job_id=None):
 
 
 def _refresh_app_model_state(version_name):
+    """Reload runtime model state after successful retrain"""
     try:
-        app_module = importlib.import_module("app")
-        if hasattr(app_module, "init_active_model"):
-            app_module.init_active_model()
-            return
-        models, scaler_obj, success = load_model_version(version_name)
-        if success:
-            if hasattr(app_module, "ml_models"):
-                app_module.ml_models = models
-            if hasattr(app_module, "scaler"):
-                app_module.scaler = scaler_obj
-    except Exception:
-        _get_logger().exception("Gagal memuat ulang state model aktif setelah retrain")
+        # Import runtime module and force reload
+        import smartaddict.runtime as runtime
+        
+        # Force reload the model state
+        runtime.init_active_model()
+        
+        # Verify the reload worked
+        if runtime.ACTIVE_MODEL_VERSION == version_name:
+            _get_logger().info(f"Runtime model state berhasil di-reload ke {version_name}")
+            _get_logger().info(f"Available models: {list(runtime.ml_models.keys())}")
+            return True
+        else:
+            _get_logger().error(
+                f"Runtime reload failed: expected {version_name}, got {runtime.ACTIVE_MODEL_VERSION}"
+            )
+            return False
+    except Exception as exc:
+        _get_logger().exception(f"Gagal memuat ulang state model aktif setelah retrain: {exc}")
+        return False
 
 
 def _reset_predict_user_sessions(app_instance):
@@ -339,20 +380,34 @@ def _execute_retrain_job(app_instance, job_id):
         execute_training_notebook(model_dir, job_id=job_id)
 
         update_progress(job_id, progress=85, current_step="Deploy", steps=build_retrain_steps(current_step="Deploy"))
+        append_log(job_id, "INFO", f"Notebook selesai, deploy model ke {version_name}")
+        
         metadata = _read_json_file(_resolve_metadata_file(model_dir))
         metrics_payload = _read_json_file(model_dir / "metrics.json")
         metrics_for_status = metadata.get("model_metrics") or metadata.get("metrics") or metrics_payload.get("metrics") or metrics_payload
+        
+        append_log(job_id, "INFO", "Memuat dan validasi model hasil retrain...")
         models, scaler_obj, success = load_model_version(version_name)
         if not success:
             raise RuntimeError("Model hasil retrain belum lengkap atau gagal dimuat.")
 
+        append_log(job_id, "INFO", f"Model berhasil dimuat: {list(models.keys())}")
+        append_log(job_id, "INFO", f"Mengaktifkan model version: {version_name}")
         save_active_version_to_config(version_name)
-        _refresh_app_model_state(version_name)
+        
+        append_log(job_id, "INFO", "Reload runtime model state...")
+        reload_success = _refresh_app_model_state(version_name)
+        if not reload_success:
+            app_instance.logger.warning("Runtime reload gagal atau tidak optimal, tapi model sudah tersimpan")
+        
+        append_log(job_id, "INFO", "Reset tabel predict_user_session...")
         removed_sessions = _reset_predict_user_sessions(app_instance)
         app_instance.logger.info("Reset tabel predict_user_session: %s baris dihapus", removed_sessions)
+        append_log(job_id, "INFO", f"Tabel predict_user_session di-reset: {removed_sessions} baris dihapus")
 
         finish_retrain_job(job_id, model_artifact=str(model_dir), metrics=metrics_for_status or {})
         app_instance.logger.info("Retrain pipeline selesai: %s", version_name)
+        append_log(job_id, "INFO", f"Retrain pipeline SELESAI: {version_name}")
         return version_name
     except Exception as exc:
         try:

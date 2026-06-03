@@ -5,11 +5,12 @@ from flask_login import current_user, login_required
 import os
 
 import smartaddict.runtime as runtime
+from smartaddict.extensions import db
 from smartaddict.models.prediction import Prediction
 from smartaddict.models.predict_user_session import PredictUserSession
 from smartaddict.models.user import User
-from smartaddict.services.model_service import get_available_retrain_versions, load_model_version, save_active_version_to_config
-from smartaddict.services.retrain_service import cleanup_statuses, get_current_retrain_status, list_statuses_paginated, read_status, run_retrain_pipeline
+from smartaddict.services.model_service import activate_model_version, get_available_retrain_versions
+from smartaddict.services.retrain_service import cleanup_statuses, run_retrain_pipeline
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -80,10 +81,7 @@ def admin_clear_retrains():
         except Exception as e:
             current_app.logger.error(f"Gagal menghapus folder {version_dir}: {e}")
 
-    models, scaler_obj, success = load_model_version("model_default")
-    if success:
-        save_active_version_to_config("model_default")
-        runtime.init_active_model()
+    if activate_model_version("model_default"):
         flash(f"Berhasil menghapus {deleted_count} model retrain. Sistem kembali menggunakan model_default.", "success")
     else:
         flash("Semua model retrain dihapus, namun model_default gagal dimuat.", "error")
@@ -94,10 +92,7 @@ def admin_clear_retrains():
 @admin_bp.route("/admin/use-retrain/<version_name>", methods=["POST"], endpoint='admin_use_retrain')
 @admin_required
 def admin_use_retrain(version_name):
-    models, scaler_obj, success = load_model_version(version_name)
-    if success:
-        save_active_version_to_config(version_name)
-        runtime.init_active_model()
+    if activate_model_version(version_name):
         flash(f"Berhasil mengubah model aktif ke versi {version_name}!", "success")
     else:
         flash(f"Gagal memuat model dari versi {version_name}. Tetap menggunakan versi sebelumnya.", "error")
@@ -139,36 +134,6 @@ def admin_history():
 @admin_required
 def admin_retrain_status():
     return redirect(url_for('admin.admin_dashboard'))
-
-
-@admin_bp.route("/api/retrain-status", endpoint='api_retrain_status_list')
-@admin_required
-def api_retrain_status_list():
-    page = request.args.get('page', 1)
-    per_page = request.args.get('per_page', 20)
-    data = list_statuses_paginated(page=page, per_page=per_page)
-    return jsonify(data)
-
-
-@admin_bp.route("/api/retrain-status/<job_id>", endpoint='api_retrain_status_detail')
-@admin_required
-def api_retrain_status_detail(job_id):
-    s = read_status(job_id)
-    if not s:
-        return jsonify({"error": "not found"}), 404
-    return jsonify(s)
-
-
-@admin_bp.route("/api/retrain-status/current", endpoint='api_retrain_status_current')
-@admin_required
-def api_retrain_status_current():
-    current = get_current_retrain_status()
-    if not current:
-        current = {
-            'job_id': None,
-            'status': 'idle'
-        }
-    return jsonify(current)
 
 
 @admin_bp.route('/admin/retrain-status/cleanup', methods=['POST'], endpoint='admin_retrain_status_cleanup')

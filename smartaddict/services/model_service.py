@@ -125,17 +125,46 @@ def load_model_version(version_name):
             if not model_path.exists():
                 continue
             try:
-                loaded_model = load(model_path)
+                # Try loading with joblib - handle numpy compatibility issues
+                import warnings
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('ignore', category=UserWarning)
+                    loaded_model = load(model_path)
+                _get_logger().info(f"Berhasil memuat model {name} dari {model_path}")
                 break
             except Exception as exc:
-                last_error = exc
+                # Try alternative loading with pickle for numpy compatibility
+                if "BitGenerator" in str(exc) or "numpy" in str(exc).lower():
+                    try:
+                        import pickle
+                        _get_logger().warning(f"Numpy compatibility issue detected, trying pickle for {name}")
+                        with open(model_path, 'rb') as f:
+                            # Use pickle with custom unpickler to handle numpy issues
+                            loaded_model = pickle.load(f)
+                        _get_logger().info(f"Berhasil memuat model {name} dengan fallback pickle method")
+                        last_error = None
+                        break
+                    except Exception as fallback_exc:
+                        _get_logger().error(f"Fallback loading juga gagal untuk {name}: {fallback_exc}")
+                        last_error = fallback_exc
+                else:
+                    last_error = exc
                 _get_logger().error(f"Gagal memuat model {name} dari {model_path}: {exc}")
+        
         if loaded_model is None:
             if last_error is None:
-                _get_logger().error(f"File model {name} tidak ditemukan di {base_path}")
+                _get_logger().warning(f"File model {name} tidak ditemukan di {base_path}")
+            else:
+                _get_logger().error(f"Model {name} gagal di-load: {last_error}")
+                _get_logger().warning(f"Model {name} akan di-skip, model lain tetap tersedia")
+            # Don't return False, continue loading other models
             continue
         models[name] = loaded_model
         loaded_any_model = True
+
+    if not loaded_any_model:
+        _get_logger().error(f"Tidak ada model yang berhasil di-load dari {base_path}")
+        return None, None, False
 
     scaler_obj = None
     last_scaler_error = None
@@ -145,6 +174,7 @@ def load_model_version(version_name):
             continue
         try:
             scaler_obj = load(scaler_path)
+            _get_logger().info(f"Berhasil memuat scaler dari {scaler_path}")
             break
         except Exception as exc:
             last_scaler_error = exc
@@ -152,8 +182,28 @@ def load_model_version(version_name):
 
     if scaler_obj is None:
         if last_scaler_error is None:
-            _get_logger().error(f"File scaler tidak ditemukan di {base_path}")
-        return None, None, False
-    if not loaded_any_model:
-        return None, None, False
+            _get_logger().warning(f"File scaler tidak ditemukan di {base_path} - model akan jalan tanpa scaling")
+        else:
+            _get_logger().warning(f"Scaler gagal di-load: {last_scaler_error} - model akan jalan tanpa scaling")
+        # IMPORTANT: Jangan return False, biarkan model tetap available tanpa scaler
+    
+    _get_logger().info(f"Model version {version_name} berhasil di-load: {len(models)} model(s), scaler={'Ya' if scaler_obj else 'Tidak'}")
     return models, scaler_obj, True
+
+
+def activate_model_version(version_name):
+    _models, _scaler_obj, success = load_model_version(version_name)
+    if not success:
+        return False
+
+    save_active_version_to_config(version_name)
+
+    try:
+        from smartaddict import runtime
+
+        runtime.init_active_model()
+    except Exception as exc:
+        _get_logger().error(f"Gagal memuat ulang runtime model aktif untuk {version_name}: {exc}")
+        return False
+
+    return True

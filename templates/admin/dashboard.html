@@ -299,8 +299,8 @@
     }
 
     .badge-sm.r {
-        border-color: var(--m-blue-light);
-        color: var(--m-blue-light);
+        border-color: var(--accent-emerald);
+        color: var(--accent-emerald);
     }
 
     .badge-sm.s {
@@ -781,7 +781,7 @@
                     </td>
                     <td>
                         {% if ver.is_active %}
-                        <span class="badge-sm r" style="font-size: 0.6rem; padding: 2px 6px; background: rgba(59, 130, 246, 0.15); color: var(--m-blue-light); border: 1px solid var(--m-blue-light);">SEDANG DIGUNAKAN</span>
+                        <span class="badge-sm r" style="font-size: 0.6rem; padding: 2px 6px; background: rgba(22, 163, 74, 0.15); color: #16a34a; border: 1px solid #16a34a;">SEDANG DIGUNAKAN</span>
                         {% else %}
                         <span style="font-size: 0.7rem; color: var(--text-muted);">-</span>
                         {% endif %}
@@ -970,7 +970,7 @@
 
     function renderCharts() {
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-        const mBlueLight = isLight ? '#00acc1' : '#00bcd4';
+        const mBlueLight = '#16a34a';
         const mBlueDark = isLight ? '#1565c0' : '#1c69d4';
         const mRed = isLight ? '#d32f2f' : '#e22718';
         const textColor = isLight ? '#475569' : '#aaaaaa';
@@ -1139,7 +1139,7 @@
     }
 
     function loadRetrainModal() {
-        fetch('{{ url_for("admin.api_retrain_status_current") }}')
+        fetch('{{ url_for("api.api_retrain_status_current") }}')
             .then((response) => response.json())
             .then((data) => renderRetrainModal(data))
             .catch(() => {

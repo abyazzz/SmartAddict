@@ -1,0 +1,119 @@
+{
+  "job_id": "unknown",
+  "status": "running",
+  "progress": 4.55,
+  "current_step": "Load dataset",
+  "steps": [
+    {
+      "name": "Load library",
+      "status": "done"
+    },
+    {
+      "name": "Load dataset",
+      "status": "running"
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "pending"
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "pending"
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "pending"
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "pending"
+    },
+    {
+      "name": "SMOTE",
+      "status": "pending"
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending"
+    },
+    {
+      "name": "PCA",
+      "status": "pending"
+    },
+    {
+      "name": "SVM",
+      "status": "pending"
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending"
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending"
+    },
+    {
+      "name": "k-NN classifier",
+      "status": "pending"
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending"
+    },
+    {
+      "name": "Decision Tree",
+      "status": "pending"
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending"
+    },
+    {
+      "name": "Neural Network",
+      "status": "pending"
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending"
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending"
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending"
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending"
+    },
+    {
+      "name": "Deploy",
+      "status": "pending"
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-03T20:02:31.495178Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-06-03T20:02:34.356040Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-06-03T20:04:21.066503Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-06-03T20:04:23.696002Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    }
+  ],
+  "finished_at": null
+}

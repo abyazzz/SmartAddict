@@ -10,7 +10,7 @@ from smartaddict.models.prediction import Prediction
 from smartaddict.models.predict_user_session import PredictUserSession
 from smartaddict.models.user import User
 from smartaddict.runtime import init_active_model
-from smartaddict.routes import auth_routes, admin_routes, user_routes
+from smartaddict.routes import api_routes, auth_routes, admin_routes, user_routes
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -42,6 +42,7 @@ init_active_model()
 app.register_blueprint(auth_routes.auth_bp)
 app.register_blueprint(user_routes.user_bp)
 app.register_blueprint(admin_routes.admin_bp)
+app.register_blueprint(api_routes.api_bp)
 
 @app.errorhandler(404)
 def page_not_found(error):

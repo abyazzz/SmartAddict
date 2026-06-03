@@ -1,0 +1,293 @@
+{
+  "job_id": "52a68d9e-96ae-4079-a389-d69bdb5ef21c",
+  "triggered_at": null,
+  "started_at": "2026-06-03T21:33:20.425069Z",
+  "finished_at": "2026-06-03T21:48:11.351845Z",
+  "status": "success",
+  "progress": 100,
+  "current_step": "Deploy",
+  "steps": [
+    {
+      "name": "Load library",
+      "status": "done",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "done",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "done",
+      "index": 2,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "done",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "done",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "done",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "done",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "done",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "PCA",
+      "status": "done",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "SVM",
+      "status": "done",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "done",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "done",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "k-NN classifier",
+      "status": "done",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "done",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Decision Tree",
+      "status": "done",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "done",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Neural Network",
+      "status": "done",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "done",
+      "index": 17,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "done",
+      "index": 18,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "done",
+      "index": 19,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "done",
+      "index": 20,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "done",
+      "index": 21,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-03T21:33:20.421379Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-06-03T21:33:20.499938Z",
+      "level": "INFO",
+      "message": "Memulai retrain notebook"
+    },
+    {
+      "ts": "2026-06-03T21:33:22.011343Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-06-03T21:33:27.989569Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-06-03T21:33:28.109123Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Label encoding kolom kategorikal"
+    },
+    {
+      "ts": "2026-06-03T21:33:28.336069Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Visualisasi sederhana EDA"
+    },
+    {
+      "ts": "2026-06-03T21:33:29.574784Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Ambil feature dan label"
+    },
+    {
+      "ts": "2026-06-03T21:33:29.629762Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Split train/test 80/20"
+    },
+    {
+      "ts": "2026-06-03T21:33:29.663245Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SMOTE"
+    },
+    {
+      "ts": "2026-06-03T21:33:30.477344Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Feature scaling"
+    },
+    {
+      "ts": "2026-06-03T21:33:30.514956Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO SVM"
+    },
+    {
+      "ts": "2026-06-03T21:38:09.932835Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Evaluation"
+    },
+    {
+      "ts": "2026-06-03T21:38:11.023077Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO dan evaluasi k-NN"
+    },
+    {
+      "ts": "2026-06-03T21:38:28.905614Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO Decision Tree"
+    },
+    {
+      "ts": "2026-06-03T21:39:08.165359Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO Neural Network"
+    },
+    {
+      "ts": "2026-06-03T21:48:09.279298Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Tabel perbandingan setelah HPO"
+    },
+    {
+      "ts": "2026-06-03T21:48:09.390715Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Confusion matrix Decision Tree"
+    },
+    {
+      "ts": "2026-06-03T21:48:09.652091Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Deploy"
+    },
+    {
+      "ts": "2026-06-03T21:48:09.758128Z",
+      "level": "INFO",
+      "message": "RETRAIN SELESAI"
+    },
+    {
+      "ts": "2026-06-03T21:48:10.895209Z",
+      "level": "INFO",
+      "message": "Notebook selesai, deploy model ke model_20260603_213320"
+    },
+    {
+      "ts": "2026-06-03T21:48:10.964499Z",
+      "level": "INFO",
+      "message": "Memuat dan validasi model hasil retrain..."
+    },
+    {
+      "ts": "2026-06-03T21:48:11.120372Z",
+      "level": "INFO",
+      "message": "Model berhasil dimuat: ['Decision Tree', 'K-Nearest Neighbors', 'Neural Network', 'Support Vector Machine']"
+    },
+    {
+      "ts": "2026-06-03T21:48:11.148716Z",
+      "level": "INFO",
+      "message": "Mengaktifkan model version: model_20260603_213320"
+    },
+    {
+      "ts": "2026-06-03T21:48:11.178229Z",
+      "level": "INFO",
+      "message": "Reload runtime model state..."
+    },
+    {
+      "ts": "2026-06-03T21:48:11.265023Z",
+      "level": "INFO",
+      "message": "Reset tabel predict_user_session..."
+    },
+    {
+      "ts": "2026-06-03T21:48:11.314909Z",
+      "level": "INFO",
+      "message": "Tabel predict_user_session di-reset: 50 baris dihapus"
+    },
+    {
+      "ts": "2026-06-03T21:48:11.351845Z",
+      "level": "INFO",
+      "message": "RETRAIN SELESAI"
+    },
+    {
+      "ts": "2026-06-03T21:48:11.392261Z",
+      "level": "INFO",
+      "message": "Retrain pipeline SELESAI: model_20260603_213320"
+    }
+  ],
+  "metrics": {
+    "dt": 0.5776805251641138,
+    "knn": 0.5485047410649161,
+    "nn": 0.5638220277169949,
+    "svm": 0.5587162654996353,
+    "timestamp": "20260603_213320"
+  },
+  "model_artifact": "D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\model\\model_20260603_213320"
+}

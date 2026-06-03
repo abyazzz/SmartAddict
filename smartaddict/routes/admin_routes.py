@@ -126,8 +126,20 @@ def admin_delete_retrain(version_name):
 @admin_bp.route("/admin/history", endpoint='admin_history')
 @admin_required
 def admin_history():
-    all_preds = Prediction.query.order_by(Prediction.timestamp.desc()).all()
-    return render_template("admin/all_history.html", predictions=all_preds, active_page='admin_history')
+    # Pagination: 15 items per page
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+    
+    pagination = Prediction.query.order_by(Prediction.timestamp.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    
+    return render_template(
+        "admin/all_history.html", 
+        predictions=pagination.items,
+        pagination=pagination,
+        active_page='admin_history'
+    )
 
 
 @admin_bp.route("/admin/retrain-status", endpoint='admin_retrain_status')

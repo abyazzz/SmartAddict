@@ -185,10 +185,13 @@ def predict():
                 current_app.logger.error(f"Terjadi kesalahan saat memprediksi: {exc}")
                 errors.append(f"Terjadi kesalahan saat memprediksi: {exc}")
 
+    # Get available models from runtime (only models that are actually loaded)
+    available_models = list(runtime.ml_models.keys()) if runtime.ml_models else list(MODEL_FILES.keys())
+    
     return render_template(
         "predict.html",
         questions=QUESTIONS,
-        models=list(MODEL_FILES.keys()),
+        models=available_models,
         selected_model=selected_model,
         errors=errors,
         active_page='predict',

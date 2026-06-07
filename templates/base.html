@@ -644,6 +644,7 @@
             <div class="nav-center">
                 {% if current_user.is_authenticated and current_user.is_admin %}
                 <a href="{{ url_for('admin.admin_dashboard') }}" {% if active_page == 'admin_dashboard' %}class="active"{% endif %}><span class="nav-icon">🛡️</span>Admin</a>
+                <a href="{{ url_for('admin.admin_retrain_page') }}" {% if active_page == 'admin_retrain' %}class="active"{% endif %}><span class="nav-icon">🔄</span>Retrain</a>
                 <a href="{{ url_for('admin.admin_history') }}" {% if active_page == 'admin_history' %}class="active"{% endif %}><span class="nav-icon">📋</span>History</a>
                 <a href="{{ url_for('admin.admin_users') }}" {% if active_page == 'admin_users' %}class="active"{% endif %}><span class="nav-icon">👥</span>Users</a>
                 <a href="{{ url_for('user.about') }}" {% if active_page == 'about' %}class="active"{% endif %}><span class="nav-icon">📖</span>About</a>

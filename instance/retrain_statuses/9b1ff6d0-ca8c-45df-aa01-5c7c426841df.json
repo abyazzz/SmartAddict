@@ -1,0 +1,178 @@
+{
+  "job_id": "9b1ff6d0-ca8c-45df-aa01-5c7c426841df",
+  "triggered_at": "2026-06-07T22:35:49.460064Z",
+  "started_at": "2026-06-07T22:35:49.491979Z",
+  "finished_at": "2026-06-07T22:35:58.337237Z",
+  "status": "failed",
+  "progress": 100,
+  "current_step": null,
+  "steps": [
+    {
+      "name": "Insert data session ke dataset",
+      "status": "pending",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load library",
+      "status": "done",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "done",
+      "index": 2,
+      "is_current": true
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "done",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "running",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "pending",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "pending",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "pending",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "pending",
+      "index": 17,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-07T22:35:49.487189Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-06-07T22:35:49.538139Z",
+      "level": "INFO",
+      "message": "Memulai retrain pipeline"
+    },
+    {
+      "ts": "2026-06-07T22:35:49.561312Z",
+      "level": "INFO",
+      "message": "📊 STEP 1: Menambahkan data dari predict_user_session ke dataset CSV..."
+    },
+    {
+      "ts": "2026-06-07T22:35:49.777514Z",
+      "level": "INFO",
+      "message": "✅ VALID: Dataset bertambah 1 rows (sesuai 1 data session). Total dataset: 7620 rows"
+    },
+    {
+      "ts": "2026-06-07T22:35:49.832222Z",
+      "level": "INFO",
+      "message": "✅ Insert data session ke dataset: SELESAI"
+    },
+    {
+      "ts": "2026-06-07T22:35:49.905156Z",
+      "level": "INFO",
+      "message": "📚 STEP 2: Menjalankan notebook training dengan dataset yang sudah diupdate..."
+    },
+    {
+      "ts": "2026-06-07T22:35:51.259553Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-06-07T22:35:56.503421Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-06-07T22:35:56.597060Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Label encoding kolom kategorikal"
+    },
+    {
+      "ts": "2026-06-07T22:35:56.821353Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Visualisasi sederhana EDA"
+    },
+    {
+      "ts": "2026-06-07T22:35:58.400576Z",
+      "level": "ERROR",
+      "message": "❌ Retrain gagal: D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\dataset-notebook\\Tubes_FIX.ipynb:15: FutureWarning: \n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.\n\n  \"    'instance',\\n\",\nOpenBLAS error: Memory allocation still failed after 10 retries, giving up."
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

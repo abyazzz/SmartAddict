@@ -207,3 +207,34 @@ def activate_model_version(version_name):
         return False
 
     return True
+
+
+def select_and_activate_best_model():
+    """
+    Automatically select and activate the model with highest average accuracy.
+    Returns (version_name, average_accuracy) if successful, (None, None) otherwise.
+    """
+    versions = get_available_retrain_versions()
+    
+    if not versions:
+        _get_logger().warning("Tidak ada model retrain yang tersedia untuk di-select")
+        return None, None
+    
+    # Sort by average accuracy descending
+    versions_sorted = sorted(versions, key=lambda v: v['average_accuracy'], reverse=True)
+    best_version = versions_sorted[0]
+    
+    version_name = best_version['version_name']
+    avg_accuracy = best_version['average_accuracy']
+    
+    _get_logger().info(
+        f"Auto-selecting model dengan akurasi tertinggi: {version_name} "
+        f"(avg accuracy: {avg_accuracy * 100:.2f}%)"
+    )
+    
+    if activate_model_version(version_name):
+        _get_logger().info(f"Model {version_name} berhasil diaktifkan sebagai model aktif")
+        return version_name, avg_accuracy
+    else:
+        _get_logger().error(f"Gagal mengaktifkan model {version_name}")
+        return None, None

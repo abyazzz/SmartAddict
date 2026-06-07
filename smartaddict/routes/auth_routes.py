@@ -22,7 +22,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user)
-            flash(f"Selamat datang, {user.username}! ≡ƒæï", "success")
+            flash(f"Selamat datang, {user.username}! =ƒæï", "success")
             next_page = request.args.get("next")
             if user.is_admin:
                 return redirect(next_page or url_for("admin.admin_dashboard"))
@@ -39,23 +39,18 @@ def register():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
         confirm = request.form.get("confirm_password", "")
-        if len(username) < 3:
-            flash("Username minimal 3 karakter.", "error")
-        elif len(password) < 6:
-            flash("Password minimal 6 karakter.", "error")
-        elif password != confirm:
-            flash("Konfirmasi password tidak cocok.", "error")
-        else:
-            if User.query.filter_by(username=username).first():
-                flash("Username sudah dipakai.", "error")
-            else:
+        
+        # Validation without flash messages
+        if len(username) >= 3 and len(password) >= 6 and password == confirm:
+            if not User.query.filter_by(username=username).first():
                 user = User(username=username, role="user")
                 user.set_password(password)
                 db.session.add(user)
                 db.session.commit()
                 login_user(user)
-                flash("Registrasi berhasil! Selamat datang! ≡ƒÄë", "success")
+                flash("Registrasi berhasil! Selamat datang! =ƒÄë", "success")
                 return redirect(url_for("user.dashboard"))
+        # Removed all validation error flash messages
     return render_template("auth/register.html")
 
 

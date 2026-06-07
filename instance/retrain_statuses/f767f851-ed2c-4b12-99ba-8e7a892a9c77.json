@@ -1,0 +1,193 @@
+{
+  "job_id": "f767f851-ed2c-4b12-99ba-8e7a892a9c77",
+  "triggered_at": "2026-06-07T20:07:20.009472Z",
+  "started_at": "2026-06-07T20:07:20.047890Z",
+  "finished_at": "2026-06-07T20:07:57.230846Z",
+  "status": "failed",
+  "progress": 44.44,
+  "current_step": "HPO SVM",
+  "steps": [
+    {
+      "name": "Insert data session ke dataset",
+      "status": "pending",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load library",
+      "status": "done",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "done",
+      "index": 2,
+      "is_current": true
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "done",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "done",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "done",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "done",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "done",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "done",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "running",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "pending",
+      "index": 17,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-07T20:07:20.045033Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-06-07T20:07:20.106609Z",
+      "level": "INFO",
+      "message": "Memulai retrain pipeline"
+    },
+    {
+      "ts": "2026-06-07T20:07:20.130904Z",
+      "level": "INFO",
+      "message": "📊 STEP 1: Menambahkan data dari predict_user_session ke dataset CSV..."
+    },
+    {
+      "ts": "2026-06-07T20:07:20.198757Z",
+      "level": "INFO",
+      "message": "Gagal write ke CSV: dict contains fields not in fieldnames: 'Notifications_per_day', 'Sleep_hours', 'Social_Media_hours', 'Work_Study_hours', 'Age', 'Weekend_Screen_Time', 'Addiction_Level', 'Gaming_hours', 'Daily_Screen_Time_hours', 'Gender', 'App_Opens_per_day'"
+    },
+    {
+      "ts": "2026-06-07T20:07:20.249912Z",
+      "level": "INFO",
+      "message": "📚 STEP 2: Menjalankan notebook training dengan dataset yang sudah diupdate..."
+    },
+    {
+      "ts": "2026-06-07T20:07:21.482496Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-06-07T20:07:25.900179Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-06-07T20:07:25.964076Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Label encoding kolom kategorikal"
+    },
+    {
+      "ts": "2026-06-07T20:07:26.122180Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Visualisasi sederhana EDA"
+    },
+    {
+      "ts": "2026-06-07T20:07:27.014999Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Ambil feature dan label"
+    },
+    {
+      "ts": "2026-06-07T20:07:27.051347Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Split train/test 80/20"
+    },
+    {
+      "ts": "2026-06-07T20:07:27.082238Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SMOTE"
+    },
+    {
+      "ts": "2026-06-07T20:07:27.794824Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Feature scaling"
+    },
+    {
+      "ts": "2026-06-07T20:07:27.830833Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: HPO SVM"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

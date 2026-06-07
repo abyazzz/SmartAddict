@@ -1,0 +1,1394 @@
+{% extends "base.html" %}
+{% block title %}Retrain Model - Admin{% endblock %}
+
+{% block head %}
+<style>
+    .content {
+        padding: 60px 40px;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        margin-bottom: 48px;
+    }
+
+    .page-header h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.8rem;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        margin-bottom: 12px;
+    }
+
+    .page-header p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        letter-spacing: 0.5px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        padding: 28px;
+        border-radius: 0px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        backdrop-filter: blur(16px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--m-blue-light), var(--m-blue-dark));
+    }
+
+    .stat-card.warning::before {
+        background: linear-gradient(180deg, #fbbf24, #f59e0b);
+    }
+
+    .stat-card.success::before {
+        background: linear-gradient(180deg, #34d399, #10b981);
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        font-family: 'Outfit', sans-serif;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .stat-card.warning .stat-value {
+        background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    .stat-card.success .stat-value {
+        background: linear-gradient(90deg, #34d399, #10b981);
+        -webkit-background-clip: text;
+        background-clip: text;
+    }
+
+    /* Notification Banner */
+    .notification-banner {
+        padding: 20px 28px;
+        border-radius: 0px;
+        background: var(--bg-card);
+        border: 1px solid var(--accent-amber);
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .notification-banner .icon {
+        font-size: 2rem;
+    }
+
+    .notification-banner .content h3 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 4px;
+        color: var(--accent-amber);
+    }
+
+    .notification-banner .content p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    /* Data Review Section */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .section-header h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 900;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-start-retrain {
+        padding: 12px 28px;
+        border-radius: 0px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        background: transparent;
+        color: var(--m-blue-light);
+        border: 1px solid var(--m-blue-light);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-start-retrain:hover:not(:disabled) {
+        background: var(--m-blue-light);
+        color: var(--bg-primary);
+        box-shadow: 0 0 24px var(--sa-card-glow);
+    }
+
+    .btn-start-retrain:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Search & Filter */
+    .filter-bar {
+        margin-bottom: 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+        padding: 12px 16px;
+        border-radius: 0px;
+        border: 1px solid var(--border-input);
+        background: var(--bg-input);
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        font-family: inherit;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+        outline: none;
+        border-color: var(--m-blue-light);
+    }
+
+    /* Data Table */
+    .table-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 0px;
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table thead {
+        background: var(--bg-input);
+    }
+
+    .data-table th {
+        padding: 16px 12px;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-card);
+    }
+
+    .data-table td {
+        padding: 14px 12px;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border-card);
+        color: var(--text-primary);
+    }
+
+    .data-table tbody tr:hover {
+        background: var(--bg-input);
+    }
+
+    .btn-delete {
+        padding: 6px 14px;
+        border-radius: 0px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: transparent;
+        color: var(--m-red);
+        border: 1px solid var(--m-red);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-delete:hover {
+        background: var(--m-red);
+        color: #ffffff;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: var(--text-secondary);
+    }
+
+    .empty-state .icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    /* ═══════ RETRAIN MODEL CONTAINER STYLES ═══════ */
+    .recent-section {
+        padding: 28px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 0px;
+        backdrop-filter: blur(16px);
+        box-shadow: var(--card-shadow);
+    }
+
+    .recent-section h3 {
+        font-size: 1.2rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 24px;
+        color: var(--text-primary);
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-card);
+    }
+
+    .recent-table thead {
+        background: var(--bg-input);
+    }
+
+    .recent-table th {
+        padding: 14px 12px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-card);
+    }
+
+    .recent-table td {
+        padding: 14px 12px;
+        font-size: 0.85rem;
+        border-bottom: 1px solid var(--border-card);
+        color: var(--text-primary);
+    }
+
+    .recent-table tbody tr:hover {
+        background: var(--bg-input);
+    }
+
+    .retrain-row {
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .retrain-details {
+        display: table-row;
+    }
+
+    .retrain-details.hidden {
+        display: none;
+    }
+
+    .badge-sm {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 0.65rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 0px;
+    }
+
+    .badge-sm.r {
+        background: rgba(22, 163, 74, 0.15);
+        color: #16a34a;
+        border: 1px solid #16a34a;
+    }
+
+    /* ═══════ RETRAIN MONITOR MODAL ═══════ */
+    .retrain-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+        animation: fadeIn 0.3s ease;
+    }
+
+    .retrain-modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .retrain-modal-content {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 0px;
+        padding: 0;
+        width: 90%;
+        max-width: 900px;
+        max-height: 85vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .retrain-modal-header {
+        padding: 24px 32px;
+        border-bottom: 1px solid var(--border-card);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg-input);
+    }
+
+    .retrain-modal-header h2 {
+        font-size: 1.4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+
+    .retrain-modal-header .job-id {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-family: monospace;
+        margin-top: 4px;
+    }
+
+    .retrain-modal-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .retrain-modal-body {
+        padding: 32px;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .retrain-status-card {
+        padding: 20px 24px;
+        background: var(--bg-input);
+        border: 2px solid var(--border-card);
+        border-radius: 0px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .retrain-status-card.running {
+        border-color: var(--m-blue-light);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .retrain-status-card.success {
+        border-color: var(--accent-emerald);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .retrain-status-card.failed {
+        border-color: var(--m-red);
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .retrain-status-icon {
+        font-size: 2rem;
+        animation: spin 2s linear infinite;
+    }
+
+    .retrain-status-card.success .retrain-status-icon,
+    .retrain-status-card.failed .retrain-status-icon {
+        animation: none;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    .retrain-status-text h3 {
+        font-size: 1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0 0 4px 0;
+    }
+
+    .retrain-status-text p {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .retrain-progress {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: var(--m-blue-light);
+        font-family: 'Outfit', sans-serif;
+        margin-left: auto;
+    }
+
+    .retrain-progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--bg-input);
+        border-radius: 0px;
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
+
+    .retrain-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark));
+        transition: width 0.5s ease;
+    }
+
+    .retrain-steps-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .retrain-step-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--border-card);
+    }
+
+    .retrain-step-item:last-child {
+        border-bottom: none;
+    }
+
+    .retrain-step-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .retrain-step-item.pending .retrain-step-icon {
+        background: var(--bg-input);
+        color: var(--text-secondary);
+        border: 2px solid var(--border-card);
+    }
+
+    .retrain-step-item.running .retrain-step-icon {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--m-blue-light);
+        border: 2px solid var(--m-blue-light);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .retrain-step-item.done .retrain-step-icon {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-emerald);
+        border: 2px solid var(--accent-emerald);
+    }
+
+    .retrain-step-text {
+        flex: 1;
+    }
+
+    .retrain-step-text h4 {
+        font-size: 0.9rem;
+        font-weight: 800;
+        margin: 0 0 2px 0;
+        color: var(--text-primary);
+    }
+
+    .retrain-step-item.pending .retrain-step-text h4 {
+        color: var(--text-secondary);
+    }
+
+    .retrain-step-item.running .retrain-step-text h4 {
+        color: var(--m-blue-light);
+    }
+
+    .retrain-step-text p {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .btn-close-modal {
+        padding: 10px 20px;
+        border-radius: 0px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border-card);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-close-modal:hover {
+        background: var(--m-red);
+        border-color: var(--m-red);
+        color: #ffffff;
+    }
+
+    .btn-refresh-status {
+        padding: 10px 20px;
+        border-radius: 0px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: transparent;
+        color: var(--m-blue-light);
+        border: 1px solid var(--m-blue-light);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-refresh-status:hover {
+        background: var(--m-blue-light);
+        color: var(--bg-primary);
+    }
+
+    @media (max-width: 768px) {
+        .content {
+            padding: 40px 20px;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            min-width: 800px;
+        }
+
+        .retrain-modal-content {
+            width: 95%;
+            max-height: 90vh;
+        }
+
+        .retrain-modal-header {
+            padding: 16px 20px;
+        }
+
+        .retrain-modal-body {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="content">
+    <div class="page-header">
+        <h1><span class="gradient-text">Retrain</span> Management</h1>
+        <p>Review data dan kelola proses retrain model machine learning</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Data Session</div>
+            <div class="stat-value">{{ total_session_data }}</div>
+        </div>
+        <div class="stat-card success">
+            <div class="stat-label">Total Retrain</div>
+            <div class="stat-value">{{ total_retrains }}</div>
+        </div>
+        <div class="stat-card {% if threshold_reached %}warning{% endif %}">
+            <div class="stat-label">Status Threshold</div>
+            <div class="stat-value">{% if threshold_reached %}READY{% else %}{{ total_session_data }}/50{% endif %}</div>
+        </div>
+    </div>
+
+    <!-- Notification Banner (only show when threshold reached) -->
+    {% if threshold_reached %}
+    <div class="notification-banner">
+        <div class="icon">⚠️</div>
+        <div class="content">
+            <h3>Data Siap untuk Retrain!</h3>
+            <p>Sudah ada {{ total_session_data }} data baru di predict_users_session. Review data dan hapus outlier/spam sebelum memulai retrain.</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Data Review Section -->
+    <div class="section-header">
+        <h2>Review Data Session</h2>
+        <div class="action-btns">
+            <button class="btn-start-retrain" onclick="startRetrain()" {% if total_session_data < 50 %}disabled{% endif %}>
+                🔄 Start Retrain
+            </button>
+            <button class="btn-secondary" onclick="forceResetJob()" style="border-color: var(--m-red); color: var(--m-red); padding: 12px 28px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">
+                ⚠️ Reset Stuck Job
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Search by user, age, gender..." onkeyup="filterTable()">
+        <select id="filterGender" onchange="filterTable()">
+            <option value="">All Gender</option>
+            <option value="1">Male (1)</option>
+            <option value="0">Female (0)</option>
+        </select>
+        <select id="filterAddiction" onchange="filterTable()">
+            <option value="">All Addiction Level</option>
+            <option value="Rendah">Rendah</option>
+            <option value="Sedang">Sedang</option>
+            <option value="Tinggi">Tinggi</option>
+        </select>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+        {% if session_data %}
+        <table class="data-table" id="dataTable">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Timestamp</th>
+                    <th>User</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Screen Time</th>
+                    <th>Social Media</th>
+                    <th>Gaming</th>
+                    <th>Work/Study</th>
+                    <th>Sleep</th>
+                    <th>Notifications</th>
+                    <th>App Opens</th>
+                    <th>Weekend Screen</th>
+                    <th>Addiction Level</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for data in session_data %}
+                <tr data-id="{{ data.id }}" class="data-row">
+                    <td class="row-number"></td>
+                    <td>{{ data.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ data.user.username if data.user else 'N/A' }}</td>
+                    <td>{{ data.age }}</td>
+                    <td>{{ '🚹 Male' if data.gender == 1 else '🚺 Female' }}</td>
+                    <td>{{ data.daily_screen_time_hours }}h</td>
+                    <td>{{ data.social_media_hours }}h</td>
+                    <td>{{ data.gaming_hours }}h</td>
+                    <td>{{ data.work_study_hours }}h</td>
+                    <td>{{ data.sleep_hours }}h</td>
+                    <td>{{ data.notifications_per_day }}</td>
+                    <td>{{ data.app_opens_per_day }}</td>
+                    <td>{{ data.weekend_screen_time }}h</td>
+                    <td>
+                        {% if data.result == 'Rendah' %}
+                        <span style="color: var(--accent-emerald);">🟢 Rendah</span>
+                        {% elif data.result == 'Sedang' %}
+                        <span style="color: var(--accent-amber);">🟡 Sedang</span>
+                        {% else %}
+                        <span style="color: var(--m-red);">🔴 Tinggi</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn-delete" onclick="deleteData({{ data.id }})">🗑️ Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 24px; padding: 16px;">
+            <button id="prevPage" class="btn-secondary" style="padding: 8px 16px; font-size: 0.75rem;">← Previous</button>
+            <span id="pageInfo" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary);">Page 1 of 1</span>
+            <button id="nextPage" class="btn-secondary" style="padding: 8px 16px; font-size: 0.75rem;">Next →</button>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="icon">📊</div>
+            <h3>Tidak ada data</h3>
+            <p>Belum ada data di predict_users_session. Data akan muncul setelah user melakukan prediksi.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Active Model Info -->
+    <div class="section-header" style="margin-top: 60px;">
+        <h2>Active Model: {{ active_model_version }}</h2>
+    </div>
+
+    <!-- ═══════ RETRAIN MODEL CONTAINER (Moved from dashboard) ═══════ -->
+    <div class="recent-section" style="margin-top: 40px;">
+        <h3>🔄 RETRAIN MODEL</h3>
+        <!-- Top of container buttons -->
+        <div style="display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+            <button type="button" onclick="startRetrainManual()" class="btn-primary" style="border-color: var(--m-blue-light); color: var(--text-primary);">RETRAIN MANUAL</button>
+            <form action="{{ url_for('admin.admin_clear_retrains') }}" method="POST" style="margin: 0;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus semua retrain model?');">
+                <button type="submit" class="btn-secondary" style="border-color: var(--m-red); color: var(--m-red);">HAPUS SEMUA RETRAIN MODEL</button>
+            </form>
+            <button type="button" class="btn-secondary" id="openRetrainModalBtn" style="border-color: var(--border-card); color: var(--text-primary);">LIHAT JOB RETRAIN</button>
+        </div>
+
+        <!-- Info about currently active model -->
+        <div style="margin-bottom: 20px; padding: 12px 16px; border: 1px dashed var(--border-card); background: rgba(0,0,0,0.05); font-size: 0.8rem; text-transform: uppercase;">
+            <span>ALGORITMA AKTIF SAAT INI: </span>
+            <strong style="color: var(--m-blue-light); font-family: monospace; letter-spacing: 0.5px;">{{ active_model_version or 'model_default (Bawaan)' }}</strong>
+        </div>
+
+        <!-- List of available retrain versions -->
+        {% if retrain_versions %}
+        <table class="recent-table" style="margin-bottom: 0;">
+            <thead>
+                <tr>
+                    <th>VERSI MODEL</th>
+                    <th>RATA-RATA AKURASI</th>
+                    <th>STATUS</th>
+                    <th>AKSI</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ver in retrain_versions %}
+                <!-- Parent Row -->
+                <tr class="retrain-row" data-target="details-{{ ver.version_name }}" style="cursor: pointer;">
+                    <td style="font-weight: 800; font-family: monospace; text-transform: uppercase;">
+                        📁 {{ ver.version_name }}
+                        {% if ver.is_active %}
+                        <span class="badge-sm r" style="font-size: 0.6rem; padding: 2px 6px; margin-left: 8px;">AKTIF</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family: monospace; font-size: 0.85rem; font-weight: bold; color: var(--m-blue-light);">
+                        {{ "%.2f"|format(ver.average_accuracy * 100) }}%
+                    </td>
+                    <td>
+                        {% if ver.is_active %}
+                        <span class="badge-sm r" style="font-size: 0.6rem; padding: 2px 6px; background: rgba(22, 163, 74, 0.15); color: #16a34a; border: 1px solid #16a34a;">SEDANG DIGUNAKAN</span>
+                        {% else %}
+                        <span style="font-size: 0.7rem; color: var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px;" onclick="event.stopPropagation();">
+                            {% if not ver.is_active %}
+                            <form action="{{ url_for('admin.admin_use_retrain', version_name=ver.version_name) }}" method="POST" style="margin: 0;">
+                                <button type="submit" class="btn-primary" style="font-size: 0.7rem; padding: 6px 12px; border-color: var(--m-blue-light); color: var(--m-blue-light);">GUNAKAN RETRAIN INI</button>
+                            </form>
+                            {% else %}
+                            <button class="btn-secondary" style="font-size: 0.7rem; padding: 6px 12px; border-color: var(--border-card); color: var(--text-muted); cursor: not-allowed;" disabled>SEDANG DIGUNAKAN</button>
+                            {% endif %}
+                            <form action="{{ url_for('admin.admin_delete_retrain', version_name=ver.version_name) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Hapus versi model ini?');">
+                                <button type="submit" class="btn-secondary" style="font-size: 0.7rem; padding: 6px 12px; border-color: var(--m-red); color: var(--m-red);">HAPUS</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Dropdown Row -->
+                <tr id="details-{{ ver.version_name }}" class="retrain-details hidden" style="background: var(--bg-input);">
+                    <td colspan="4" style="padding: 16px 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: center;">
+                            <div style="padding: 10px; border: 1px solid var(--border-card); background: var(--bg-card);">
+                                <span style="display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">DECISION TREE</span>
+                                <strong style="font-family: monospace; font-size: 1rem; color: var(--text-primary);">{{ "%.2f"|format(ver.metrics.get('dt', 0) * 100) }}%</strong>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid var(--border-card); background: var(--bg-card);">
+                                <span style="display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">K-NEAREST NEIGHBORS</span>
+                                <strong style="font-family: monospace; font-size: 1rem; color: var(--text-primary);">{{ "%.2f"|format(ver.metrics.get('knn', 0) * 100) }}%</strong>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid var(--border-card); background: var(--bg-card);">
+                                <span style="display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">NEURAL NETWORK</span>
+                                <strong style="font-family: monospace; font-size: 1rem; color: var(--text-primary);">{{ "%.2f"|format(ver.metrics.get('nn', 0) * 100) }}%</strong>
+                            </div>
+                            <div style="padding: 10px; border: 1px solid var(--border-card); background: var(--bg-card);">
+                                <span style="display: block; font-size: 0.65rem; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">SUPPORT VECTOR MACHINE</span>
+                                <strong style="font-family: monospace; font-size: 1rem; color: var(--text-primary);">{{ "%.2f"|format(ver.metrics.get('svm', 0) * 100) }}%</strong>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:var(--text-muted); text-align:center; padding:32px; font-weight:800; letter-spacing:1px; border: 1px dashed var(--border-card);">BELUM ADA MODEL HASIL RETRAINING DI DIREKTORI.</p>
+        {% endif %}
+    </div>
+</main>
+
+<!-- ═══════ RETRAIN MONITOR MODAL ═══════ -->
+<div id="retrainModal" class="retrain-modal">
+    <div class="retrain-modal-content">
+        <div class="retrain-modal-header">
+            <div>
+                <h2>🔄 RETRAIN MONITOR</h2>
+                <div class="job-id">STATUS RETRAIN MODEL</div>
+            </div>
+            <div class="retrain-modal-actions">
+                <button class="btn-refresh-status" onclick="refreshRetrainStatus()">REFRESH</button>
+                <button class="btn-close-modal" onclick="closeRetrainModal()">✕</button>
+            </div>
+        </div>
+        <div class="retrain-modal-body">
+            <!-- Status Card -->
+            <div id="retrainStatusCard" class="retrain-status-card running">
+                <div class="retrain-status-icon">⏳</div>
+                <div class="retrain-status-text">
+                    <h3 id="retrainStatusTitle">RETRAIN BERJALAN</h3>
+                    <p id="retrainStatusDesc">Retrain sedang berjalan...</p>
+                </div>
+                <div class="retrain-progress" id="retrainProgressPercent">0%</div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="retrain-progress-bar">
+                <div class="retrain-progress-fill" id="retrainProgressBar" style="width: 0%"></div>
+            </div>
+
+            <!-- Steps List -->
+            <ul class="retrain-steps-list" id="retrainStepsList">
+                <!-- Steps will be dynamically inserted here -->
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pagination variables (global scope)
+    let currentPage = 1;
+    const rowsPerPage = 15;
+    let allRows = [];
+    let filteredRows = [];
+
+    // ALL CODE RUNS AFTER DOM IS READY
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize pagination
+        initPagination();
+        
+        // Setup pagination button listeners
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage();
+                }
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage();
+                }
+            });
+        }
+        
+        // Setup retrain model dropdown functionality
+        const retrainRows = document.querySelectorAll('.retrain-row');
+        retrainRows.forEach(row => {
+            row.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const targetDetail = document.getElementById(targetId);
+                
+                const allDetails = document.querySelectorAll('.retrain-details');
+                allDetails.forEach(detail => {
+                    if (detail.id !== targetId) {
+                        detail.classList.add('hidden');
+                    }
+                });
+                
+                if (targetDetail) {
+                    targetDetail.classList.toggle('hidden');
+                }
+            });
+        });
+
+        // Setup "LIHAT JOB RETRAIN" button to open modal
+        const openModalBtn = document.getElementById('openRetrainModalBtn');
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                try {
+                    const response = await fetch('{{ url_for("api.api_retrain_status_current") }}');
+                    const data = await response.json();
+                    
+                    if (data && data.job_id && data.status !== 'idle') {
+                        showRetrainModal(data.job_id);
+                    } else {
+                        alert('ℹ️ Tidak ada job retrain yang sedang berjalan.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Gagal mengecek status retrain.');
+                }
+            });
+        }
+    });
+
+    // Initialize pagination
+    function initPagination() {
+        const tbody = document.getElementById('tableBody');
+        if (!tbody) return;
+        
+        allRows = Array.from(document.querySelectorAll('.data-row'));
+        filteredRows = [...allRows];
+        
+        updatePagination();
+        renderPage();
+    }
+
+    function renderPage() {
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        
+        // Hide all rows first
+        allRows.forEach(row => row.style.display = 'none');
+        
+        // Show only current page rows and update row numbers
+        filteredRows.slice(startIndex, endIndex).forEach((row, index) => {
+            row.style.display = '';
+            const numberCell = row.querySelector('.row-number');
+            if (numberCell) {
+                numberCell.textContent = startIndex + index + 1;
+            }
+        });
+        
+        updatePaginationControls();
+    }
+
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        if (currentPage > totalPages) currentPage = totalPages || 1;
+    }
+
+    function updatePaginationControls() {
+        const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
+        const pageInfo = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevPage');
+        const nextBtn = document.getElementById('nextPage');
+        
+        if (pageInfo) {
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages || 1}`;
+        }
+        
+        if (prevBtn) {
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.style.opacity = currentPage === 1 ? '0.5' : '1';
+            prevBtn.style.cursor = currentPage === 1 ? 'not-allowed' : 'pointer';
+        }
+        
+        if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages;
+            nextBtn.style.opacity = currentPage >= totalPages ? '0.5' : '1';
+            nextBtn.style.cursor = currentPage >= totalPages ? 'not-allowed' : 'pointer';
+        }
+    }
+
+    // Filter table function (updated to work with pagination)
+    function filterTable() {
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const genderFilter = document.getElementById('filterGender').value;
+        const addictionFilter = document.getElementById('filterAddiction').value;
+        
+        // Filter allRows based on criteria
+        filteredRows = allRows.filter(row => {
+            const cells = row.getElementsByTagName('td');
+            
+            // Search across multiple columns
+            const searchText = Array.from(cells).map(cell => cell.textContent.toLowerCase()).join(' ');
+            const matchesSearch = searchText.includes(searchInput);
+
+            // Gender filter
+            const genderCell = cells[4];
+            if (!genderCell) return false;
+            const genderValue = genderCell.textContent.includes('Male') ? '1' : '0';
+            const matchesGender = !genderFilter || genderValue === genderFilter;
+
+            // Addiction level filter - now matching text values
+            const addictionCell = cells[13];
+            if (!addictionCell) return false;
+            const addictionText = addictionCell.textContent.toLowerCase();
+            let addictionValue = '';
+            if (addictionText.includes('rendah')) addictionValue = 'Rendah';
+            else if (addictionText.includes('sedang')) addictionValue = 'Sedang';
+            else if (addictionText.includes('tinggi')) addictionValue = 'Tinggi';
+            const matchesAddiction = !addictionFilter || addictionValue === addictionFilter;
+
+            return matchesSearch && matchesGender && matchesAddiction;
+        });
+        
+        // Reset to page 1 after filtering
+        currentPage = 1;
+        updatePagination();
+        renderPage();
+    }
+
+    // Delete data function
+    async function deleteData(sessionId) {
+        if (!confirm('Yakin ingin menghapus data ini?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/retrain/delete-session/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Remove row from table
+                const row = document.querySelector(`tr[data-id="${sessionId}"]`);
+                if (row) {
+                    row.remove();
+                }
+                
+                // Update counter
+                const totalElement = document.querySelector('.stat-card:first-child .stat-value');
+                if (totalElement) {
+                    const currentTotal = parseInt(totalElement.textContent);
+                    totalElement.textContent = currentTotal - 1;
+                }
+
+                alert('✅ Data berhasil dihapus!');
+                
+                // Reload page to update threshold status
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                alert('❌ Gagal menghapus data: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan saat menghapus data');
+        }
+    }
+
+    // Start retrain function
+    async function startRetrain() {
+        if (!confirm('Yakin ingin memulai proses retrain? Pastikan data sudah direview dan outlier/spam sudah dihapus.')) {
+            return;
+        }
+
+        const button = event.target;
+        button.disabled = true;
+        button.textContent = '⏳ Starting...';
+
+        try {
+            const response = await fetch('/admin/retrain/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Show modal instead of redirect
+                showRetrainModal(result.job_id);
+                button.disabled = false;
+                button.textContent = '🔄 Start Retrain';
+            } else {
+                alert('❌ Gagal memulai retrain: ' + result.message);
+                button.disabled = false;
+                button.textContent = '🔄 Start Retrain';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan saat memulai retrain');
+            button.disabled = false;
+            button.textContent = '🔄 Start Retrain';
+        }
+    }
+
+    // Start retrain manual (from RETRAIN MODEL section)
+    async function startRetrainManual() {
+        if (!confirm('⚠️ RETRAIN MANUAL\n\nIni akan memulai proses retrain menggunakan semua data di predict_users_session.\n\nLanjutkan?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/admin/retrain/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Show modal
+                showRetrainModal(result.job_id);
+            } else {
+                alert('❌ Gagal memulai retrain: ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan saat memulai retrain');
+        }
+    }
+
+    // Force reset stuck job
+    async function forceResetJob() {
+        if (!confirm('⚠️ PERINGATAN: Ini akan membatalkan job retrain yang sedang berjalan atau stuck.\n\nLanjutkan?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/retrain-status/force-reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert('✅ ' + result.message + '\n\nSilakan coba start retrain lagi.');
+                location.reload();
+            } else {
+                alert('ℹ️ ' + result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan saat reset job');
+        }
+    }
+
+    // ═══════ RETRAIN MODAL FUNCTIONS ═══════
+    let retrainPollingInterval = null;
+    let currentJobId = null;
+
+    function showRetrainModal(jobId) {
+        currentJobId = jobId;
+        const modal = document.getElementById('retrainModal');
+        modal.classList.add('show');
+        
+        // Start polling for status updates
+        refreshRetrainStatus();
+        retrainPollingInterval = setInterval(refreshRetrainStatus, 3000); // Poll every 3 seconds
+    }
+
+    function closeRetrainModal() {
+        const modal = document.getElementById('retrainModal');
+        modal.classList.remove('show');
+        
+        // Stop polling
+        if (retrainPollingInterval) {
+            clearInterval(retrainPollingInterval);
+            retrainPollingInterval = null;
+        }
+        
+        // Reload page to update stats
+        location.reload();
+    }
+
+    async function refreshRetrainStatus() {
+        if (!currentJobId) {
+            // Try to get current job
+            try {
+                const response = await fetch('/api/retrain-status/current');
+                const data = await response.json();
+                if (data && data.job_id && data.status !== 'idle') {
+                    currentJobId = data.job_id;
+                } else {
+                    return;
+                }
+            } catch (error) {
+                console.error('Error fetching current job:', error);
+                return;
+            }
+        }
+
+        try {
+            const response = await fetch(`/api/retrain-status/${currentJobId}`);
+            const status = await response.json();
+            
+            if (status.error) {
+                console.error('Job not found:', currentJobId);
+                return;
+            }
+
+            updateRetrainModalUI(status);
+
+            // Stop polling if job finished
+            if (status.status === 'success' || status.status === 'failed') {
+                if (retrainPollingInterval) {
+                    clearInterval(retrainPollingInterval);
+                    retrainPollingInterval = null;
+                }
+            }
+        } catch (error) {
+            console.error('Error refreshing status:', error);
+        }
+    }
+
+    function updateRetrainModalUI(status) {
+        // Update status card
+        const statusCard = document.getElementById('retrainStatusCard');
+        const statusIcon = statusCard.querySelector('.retrain-status-icon');
+        const statusTitle = document.getElementById('retrainStatusTitle');
+        const statusDesc = document.getElementById('retrainStatusDesc');
+        const progressPercent = document.getElementById('retrainProgressPercent');
+        const progressBar = document.getElementById('retrainProgressBar');
+
+        // Remove all status classes
+        statusCard.classList.remove('running', 'success', 'failed');
+
+        if (status.status === 'running' || status.status === 'pending') {
+            statusCard.classList.add('running');
+            statusIcon.textContent = '⏳';
+            statusTitle.textContent = 'SEDANG BERJALAN';
+            statusDesc.textContent = 'Retrain sedang berjalan...';
+        } else if (status.status === 'success') {
+            statusCard.classList.add('success');
+            statusIcon.textContent = '✅';
+            statusTitle.textContent = 'RETRAIN BERHASIL';
+            statusDesc.textContent = 'Model berhasil di-retrain dan diaktifkan!';
+        } else if (status.status === 'failed') {
+            statusCard.classList.add('failed');
+            statusIcon.textContent = '❌';
+            statusTitle.textContent = 'RETRAIN GAGAL';
+            statusDesc.textContent = 'Terjadi kesalahan saat retrain. Check logs untuk detail.';
+        }
+
+        // Update progress
+        const progress = status.progress || 0;
+        progressPercent.textContent = Math.round(progress) + '%';
+        progressBar.style.width = progress + '%';
+
+        // Update steps list
+        updateRetrainSteps(status.steps || []);
+    }
+
+    function updateRetrainSteps(steps) {
+        const stepsList = document.getElementById('retrainStepsList');
+        stepsList.innerHTML = '';
+
+        steps.forEach((step, index) => {
+            const li = document.createElement('li');
+            li.className = `retrain-step-item ${step.status}`;
+
+            let icon = '○';
+            if (step.status === 'done') icon = '✓';
+            else if (step.status === 'running') icon = '⟳';
+
+            li.innerHTML = `
+                <div class="retrain-step-icon">${icon}</div>
+                <div class="retrain-step-text">
+                    <h4>${step.name}</h4>
+                    <p>${getStepDescription(step.status)}</p>
+                </div>
+            `;
+
+            stepsList.appendChild(li);
+        });
+    }
+
+    function getStepDescription(status) {
+        if (status === 'done') return 'Selesai';
+        if (status === 'running') return 'Sedang diproses...';
+        return 'Menunggu...';
+    }
+</script>
+{% endblock %}

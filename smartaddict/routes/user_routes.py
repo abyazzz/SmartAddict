@@ -108,10 +108,8 @@ def profile():
             else:
                 change_password = True
 
-        if errors:
-            for error in errors:
-                flash(error, "error")
-        else:
+        # Removed error flash messages - validation errors no longer shown
+        if not errors:
             changed = False
             if next_username:
                 current_user.username = next_username
@@ -124,7 +122,7 @@ def profile():
                 db.session.commit()
                 flash("Profile berhasil diperbarui.", "success")
                 return redirect(url_for('user.profile'))
-            flash("Tidak ada perubahan profile.", "warning")
+            # Removed warning flash for no changes
 
     return render_template(
         "profile.html",
@@ -193,8 +191,6 @@ def predict():
                     last_payload = _build_batch_session_payload(result, selected_model, values, aggregate_result)
                     session['last_prediction'] = last_payload
                     _remember_prediction_input(values, selected_model, "csv", batch_mode=True, batch_rows=result["batch_rows"])
-                    if result.get("triggered"):
-                        flash("Retraining otomatis berjalan di background (threshold terpenuhi)!", "info")
                     flash(f"Prediksi ulang CSV berhasil! {result['batch_count']} baris diproses dengan model {selected_model}.", "success")
                     return redirect(url_for('user.thanks'))
                 except Exception as e:
@@ -217,9 +213,7 @@ def predict():
                         last_payload = _build_batch_session_payload(result, selected_model, values, aggregate_result)
                         session['last_prediction'] = last_payload
                         _remember_prediction_input(values, selected_model, "csv", batch_mode=True, batch_rows=result["batch_rows"])
-                        if result.get("triggered"):
-                            flash("Retraining otomatis berjalan di background (threshold terpenuhi)!", "info")
-                        flash(f"Prediksi batch berhasil! {result['batch_count']} baris diproses dan disimpan.", "success")
+                        # Flash message removed - silent success
                         return redirect(url_for('user.thanks'))
                 except Exception as e:
                     errors.append(f"Error membaca CSV: {str(e)}")
@@ -240,9 +234,7 @@ def predict():
                     "input_method": input_method,
                 }
                 _remember_prediction_input(values, selected_model, input_method, batch_mode=False)
-                if result.get("triggered"):
-                    flash("Retraining otomatis berjalan di background (threshold terpenuhi)!", "info")
-                flash("Prediksi berhasil!", "success")
+                # Flash message removed - silent success
                 return redirect(url_for('user.thanks'))
             except Exception as exc:
                 current_app.logger.error(f"Terjadi kesalahan saat memprediksi: {exc}")
@@ -383,11 +375,11 @@ def about():
 def delete_prediction(pred_id):
     pred = Prediction.query.get_or_404(pred_id)
     if pred.user_id != current_user.id and not current_user.is_admin:
-        flash("Akses ditolak.", "error")
+        # Removed "Akses ditolak" flash message
         return redirect(url_for('user.history_page'))
     db.session.delete(pred)
     db.session.commit()
-    flash("Prediksi berhasil dihapus!", "success")
+    # Flash message removed - silent success
     if current_user.is_admin and request.referrer and 'admin' in request.referrer:
         return redirect(url_for('admin.admin_history'))
     return redirect(url_for('user.history_page'))

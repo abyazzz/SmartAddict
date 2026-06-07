@@ -27,7 +27,7 @@ def admin_required(view_func):
     @login_required
     def wrapped(*args, **kwargs):
         if not current_user.is_admin:
-            flash('Akses ditolak. Hanya admin yang bisa mengakses halaman ini.', 'error')
+            # Removed "Akses ditolak" flash message
             return redirect(url_for('user.dashboard'))
         return view_func(*args, **kwargs)
 
@@ -78,7 +78,7 @@ def admin_update_dashboard_features():
         sort_order_raw = request.form.get(prefix + "sort_order", feature.sort_order)
 
         if not title or not description:
-            flash("Judul dan deskripsi konten dashboard tidak boleh kosong.", "warning")
+            # Removed validation error flash message
             return redirect(url_for('admin.admin_dashboard'))
         if target_key not in valid_targets:
             target_key = "dashboard"
@@ -109,7 +109,8 @@ def admin_retrain_manual():
     if job_id:
         flash(f"Retraining dimulai di background (job_id={job_id}). Pantau status di halaman retrain.", "info")
     else:
-        flash("Gagal memulai proses retraining. Mungkin ada proses yang sedang berjalan.", "error")
+        # Removed error flash message
+        pass
     return redirect(url_for('admin.admin_retrain_status'))
 
 
@@ -131,7 +132,14 @@ def admin_clear_retrains():
     if activate_model_version("model_default"):
         flash(f"Berhasil menghapus {deleted_count} model retrain. Sistem kembali menggunakan model_default.", "success")
     else:
-        flash("Semua model retrain dihapus, namun model_default gagal dimuat.", "error")
+        # Removed error flash message
+        pass
+
+    if activate_model_version("model_default"):
+        flash(f"Berhasil menghapus {deleted_count} model retrain. Sistem kembali menggunakan model_default.", "success")
+    else:
+        # Removed error flash message
+        pass
 
     return redirect(url_for('admin.admin_dashboard'))
 
@@ -142,7 +150,8 @@ def admin_use_retrain(version_name):
     if activate_model_version(version_name):
         flash(f"Berhasil mengubah model aktif ke versi {version_name}!", "success")
     else:
-        flash(f"Gagal memuat model dari versi {version_name}. Tetap menggunakan versi sebelumnya.", "error")
+        # Removed error flash message
+        pass
 
     return redirect(url_for('admin.admin_dashboard'))
 
@@ -153,8 +162,8 @@ def admin_delete_retrain(version_name):
     import shutil
 
     if version_name == "model_default":
-        flash("Model default bawaan tidak boleh dihapus.", "error")
-        return redirect(url_for('admin.admin_dashboard'))
+        # Removed error flash message
+        return redirect(url_for('admin.admin_retrain_page'))
 
     version_dir = os.path.join("model", version_name)
     try:
@@ -162,12 +171,14 @@ def admin_delete_retrain(version_name):
             shutil.rmtree(version_dir)
             flash(f"Versi model {version_name} berhasil dihapus.", "success")
         else:
-            flash(f"Direktori versi model {version_name} tidak ditemukan.", "error")
+            # Removed error flash message for directory not found
+            pass
     except Exception as e:
-        flash(f"Gagal menghapus folder versi model: {e}", "error")
+        # Removed error flash message
+        pass
 
     runtime.init_active_model()
-    return redirect(url_for('admin.admin_dashboard'))
+    return redirect(url_for('admin.admin_retrain_page'))
 
 
 @admin_bp.route("/admin/history", endpoint='admin_history')
@@ -271,7 +282,8 @@ def admin_retrain_status_cleanup():
         flash(f"Cleanup selesai. Menghapus {removed} file status.", 'success')
     except Exception as e:
         current_app.logger.exception('Cleanup retrain status gagal')
-        flash(f"Cleanup gagal: {e}", 'error')
+        # Removed error flash message
+        pass
     return redirect(url_for('admin.admin_retrain_status'))
 
 
@@ -287,7 +299,8 @@ def admin_users():
 def admin_delete_user(user_id):
     user = User.query.get_or_404(user_id)
     if user.is_admin:
-        flash("Tidak bisa menghapus akun admin.", "error")
+        # Removed error flash message for admin account
+        pass
     else:
         Prediction.query.filter_by(user_id=user.id).delete()
         db.session.delete(user)
@@ -303,3 +316,60 @@ def admin_clear_all():
     db.session.commit()
     flash("Semua history berhasil dihapus!", "success")
     return redirect(url_for('admin.admin_history'))
+
+
+@admin_bp.route("/admin/retrain", endpoint='admin_retrain_page')
+@admin_required
+def admin_retrain_page():
+    """Main retrain page where admin can review predict_users_session data and trigger manual retrain"""
+    # Get all session data for review
+    session_data = PredictUserSession.query.order_by(PredictUserSession.timestamp.desc()).all()
+    total_session_data = len(session_data)
+    
+    # Get retrain versions info
+    versions = get_available_retrain_versions(runtime.ACTIVE_MODEL_VERSION)
+    total_retrains = len(versions)
+    
+    # Check if threshold reached for notification
+    threshold_reached = total_session_data >= 50
+    
+    return render_template(
+        "admin/retrain.html",
+        active_page='admin_retrain',
+        session_data=session_data,
+        total_session_data=total_session_data,
+        total_retrains=total_retrains,
+        threshold_reached=threshold_reached,
+        retrain_versions=versions,
+        active_model_version=runtime.ACTIVE_MODEL_VERSION
+    )
+
+
+@admin_bp.route("/admin/retrain/delete-session/<int:session_id>", methods=["POST"], endpoint='admin_delete_session_data')
+@admin_required
+def admin_delete_session_data(session_id):
+    """Delete a specific predict_users_session entry"""
+    session = PredictUserSession.query.get_or_404(session_id)
+    db.session.delete(session)
+    db.session.commit()
+    return jsonify({"success": True, "message": "Data berhasil dihapus"})
+
+
+@admin_bp.route("/admin/retrain/start", methods=["POST"], endpoint='admin_start_retrain')
+@admin_required
+def admin_start_retrain():
+    """Start manual retrain process"""
+    from flask import current_app
+    app_obj = current_app._get_current_object()
+    job_id = run_retrain_pipeline(app_obj)
+    if job_id:
+        return jsonify({
+            "success": True, 
+            "job_id": job_id,
+            "message": f"Retrain dimulai dengan job_id: {job_id}"
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "Gagal memulai retrain. Mungkin ada proses yang sedang berjalan."
+        }), 400

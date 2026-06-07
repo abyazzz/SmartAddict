@@ -1,0 +1,137 @@
+{
+  "job_id": "b3faeab1-38d2-46c0-96a4-b7f35d62ef72",
+  "triggered_at": "2026-06-07T19:59:29.750248Z",
+  "started_at": "2026-06-07T19:59:29.780050Z",
+  "finished_at": "2026-06-07T19:59:29.943487Z",
+  "status": "failed",
+  "progress": 100,
+  "current_step": null,
+  "steps": [
+    {
+      "name": "Load library",
+      "status": "pending",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "running",
+      "index": 1,
+      "is_current": true
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "pending",
+      "index": 2,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "pending",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "pending",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "pending",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "pending",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-07T19:59:29.777053Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-06-07T19:59:29.832681Z",
+      "level": "INFO",
+      "message": "Memulai retrain notebook"
+    },
+    {
+      "ts": "2026-06-07T19:59:29.882190Z",
+      "level": "INFO",
+      "message": "Menambahkan data dari predict_user_session ke dataset CSV..."
+    },
+    {
+      "ts": "2026-06-07T19:59:29.983508Z",
+      "level": "ERROR",
+      "message": "Retrain gagal: Gagal menulis data ke CSV: dict contains fields not in fieldnames: 'Gender', 'Gaming_hours', 'Notifications_per_day', 'Daily_Screen_Time_hours', 'Sleep_hours', 'Social_Media_hours', 'Work_Study_hours', 'App_Opens_per_day', 'Age', 'Weekend_Screen_Time', 'Addiction_Level'"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

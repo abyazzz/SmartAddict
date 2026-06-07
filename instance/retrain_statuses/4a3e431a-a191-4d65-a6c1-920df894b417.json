@@ -1,0 +1,153 @@
+{
+  "job_id": "4a3e431a-a191-4d65-a6c1-920df894b417",
+  "triggered_at": "2026-06-07T20:11:29.185448Z",
+  "started_at": "2026-06-07T20:11:29.213662Z",
+  "finished_at": "2026-06-07T20:11:29.395646Z",
+  "status": "failed",
+  "progress": 100,
+  "current_step": null,
+  "steps": [
+    {
+      "name": "Insert data session ke dataset",
+      "status": "running",
+      "index": 0,
+      "is_current": true
+    },
+    {
+      "name": "Load library",
+      "status": "pending",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "pending",
+      "index": 2,
+      "is_current": false
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "pending",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "pending",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "pending",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "pending",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "pending",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "pending",
+      "index": 17,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-07T20:11:29.210271Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-06-07T20:11:29.260122Z",
+      "level": "INFO",
+      "message": "Memulai retrain pipeline"
+    },
+    {
+      "ts": "2026-06-07T20:11:29.287597Z",
+      "level": "INFO",
+      "message": "📊 STEP 1: Menambahkan data dari predict_user_session ke dataset CSV..."
+    },
+    {
+      "ts": "2026-06-07T20:11:29.350984Z",
+      "level": "INFO",
+      "message": "Gagal menulis ke CSV: dict contains fields not in fieldnames: 'Work_Study_hours', 'Gaming_hours', 'Daily_Screen_Time_hours', 'Weekend_Screen_Time', 'Sleep_hours', 'App_Opens_per_day', 'Social_Media_hours', 'Notifications_per_day', 'Gender', 'Age', 'Addiction_Level'"
+    },
+    {
+      "ts": "2026-06-07T20:11:29.373093Z",
+      "level": "ERROR",
+      "message": "Validasi insert data GAGAL! Gagal menulis ke CSV: dict contains fields not in fieldnames: 'Work_Study_hours', 'Gaming_hours', 'Daily_Screen_Time_hours', 'Weekend_Screen_Time', 'Sleep_hours', 'App_Opens_per_day', 'Social_Media_hours', 'Notifications_per_day', 'Gender', 'Age', 'Addiction_Level'"
+    },
+    {
+      "ts": "2026-06-07T20:11:29.439161Z",
+      "level": "ERROR",
+      "message": "❌ Retrain gagal: Validasi insert data GAGAL! Gagal menulis ke CSV: dict contains fields not in fieldnames: 'Work_Study_hours', 'Gaming_hours', 'Daily_Screen_Time_hours', 'Weekend_Screen_Time', 'Sleep_hours', 'App_Opens_per_day', 'Social_Media_hours', 'Notifications_per_day', 'Gender', 'Age', 'Addiction_Level'"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

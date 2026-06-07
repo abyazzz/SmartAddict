@@ -1,0 +1,193 @@
+{
+  "job_id": "fa10efa4-c802-4754-b693-a7aba1fb797f",
+  "triggered_at": "2026-06-07T20:23:05.158856Z",
+  "started_at": "2026-06-07T20:23:05.188609Z",
+  "finished_at": "2026-06-07T20:23:14.324154Z",
+  "status": "failed",
+  "progress": 100,
+  "current_step": null,
+  "steps": [
+    {
+      "name": "Insert data session ke dataset",
+      "status": "pending",
+      "index": 0,
+      "is_current": false
+    },
+    {
+      "name": "Load library",
+      "status": "done",
+      "index": 1,
+      "is_current": false
+    },
+    {
+      "name": "Load dataset",
+      "status": "done",
+      "index": 2,
+      "is_current": true
+    },
+    {
+      "name": "Label encoding kolom kategorikal",
+      "status": "done",
+      "index": 3,
+      "is_current": false
+    },
+    {
+      "name": "Visualisasi sederhana EDA",
+      "status": "done",
+      "index": 4,
+      "is_current": false
+    },
+    {
+      "name": "Ambil feature dan label",
+      "status": "done",
+      "index": 5,
+      "is_current": false
+    },
+    {
+      "name": "Split train/test 80/20",
+      "status": "done",
+      "index": 6,
+      "is_current": false
+    },
+    {
+      "name": "SMOTE",
+      "status": "running",
+      "index": 7,
+      "is_current": false
+    },
+    {
+      "name": "Feature scaling",
+      "status": "pending",
+      "index": 8,
+      "is_current": false
+    },
+    {
+      "name": "HPO SVM",
+      "status": "pending",
+      "index": 9,
+      "is_current": false
+    },
+    {
+      "name": "Evaluation",
+      "status": "pending",
+      "index": 10,
+      "is_current": false
+    },
+    {
+      "name": "HPO dan evaluasi k-NN",
+      "status": "pending",
+      "index": 11,
+      "is_current": false
+    },
+    {
+      "name": "HPO Decision Tree",
+      "status": "pending",
+      "index": 12,
+      "is_current": false
+    },
+    {
+      "name": "HPO Neural Network",
+      "status": "pending",
+      "index": 13,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan sebelum HPO",
+      "status": "pending",
+      "index": 14,
+      "is_current": false
+    },
+    {
+      "name": "Tabel perbandingan setelah HPO",
+      "status": "pending",
+      "index": 15,
+      "is_current": false
+    },
+    {
+      "name": "Confusion matrix Decision Tree",
+      "status": "pending",
+      "index": 16,
+      "is_current": false
+    },
+    {
+      "name": "Deploy",
+      "status": "pending",
+      "index": 17,
+      "is_current": false
+    }
+  ],
+  "logs": [
+    {
+      "ts": "2026-06-07T20:23:05.184889Z",
+      "level": "INFO",
+      "message": "Retrain job dimulai"
+    },
+    {
+      "ts": "2026-06-07T20:23:05.239442Z",
+      "level": "INFO",
+      "message": "Memulai retrain pipeline"
+    },
+    {
+      "ts": "2026-06-07T20:23:05.268333Z",
+      "level": "INFO",
+      "message": "📊 STEP 1: Menambahkan data dari predict_user_session ke dataset CSV..."
+    },
+    {
+      "ts": "2026-06-07T20:23:05.397982Z",
+      "level": "INFO",
+      "message": "✅ VALID: Dataset bertambah 10 rows (sesuai 10 data session). Total dataset: 7690 rows"
+    },
+    {
+      "ts": "2026-06-07T20:23:05.440876Z",
+      "level": "INFO",
+      "message": "✅ Insert data session ke dataset: SELESAI"
+    },
+    {
+      "ts": "2026-06-07T20:23:05.490762Z",
+      "level": "INFO",
+      "message": "📚 STEP 2: Menjalankan notebook training dengan dataset yang sudah diupdate..."
+    },
+    {
+      "ts": "2026-06-07T20:23:07.017265Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load library"
+    },
+    {
+      "ts": "2026-06-07T20:23:11.822575Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Load dataset"
+    },
+    {
+      "ts": "2026-06-07T20:23:11.885401Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Label encoding kolom kategorikal"
+    },
+    {
+      "ts": "2026-06-07T20:23:12.046513Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Visualisasi sederhana EDA"
+    },
+    {
+      "ts": "2026-06-07T20:23:12.983106Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Ambil feature dan label"
+    },
+    {
+      "ts": "2026-06-07T20:23:13.024352Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: Split train/test 80/20"
+    },
+    {
+      "ts": "2026-06-07T20:23:13.046330Z",
+      "level": "INFO",
+      "message": "Sedang menjalankan: SMOTE"
+    },
+    {
+      "ts": "2026-06-07T20:23:14.350960Z",
+      "level": "ERROR",
+      "message": "❌ Retrain gagal: D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\dataset-notebook\\Tubes_FIX.ipynb:15: FutureWarning: \n\nPassing `palette` without assigning `hue` is deprecated and will be removed in v0.14.0. Assign the `x` variable to `hue` and set `legend=False` for the same effect.\n\n  \"    'instance',\\n\",\nD:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\dataset-notebook\\Tubes_FIX.ipynb:21: UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown\n  \"    'Insert data session ke dataset',\\n\",\nTraceback (most recent call last):\n  File \"C:\\Users\\hi\\AppData\\Local\\Temp\\tmp3_u3ahqf.py\", line 58, in <module>\n    exec(compile(code, str(notebook_path), 'exec'), namespace)\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\dataset-notebook\\Tubes_FIX.ipynb\", line 10, in <module>\n    \"import os\\n\",\n                   \n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\imblearn\\base.py\", line 204, in fit_resample\n    return super().fit_resample(X, y, **params)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\sklearn\\base.py\", line 1336, in wrapper\n    return fit_method(estimator, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\imblearn\\base.py\", line 107, in fit_resample\n    output = self._fit_resample(X, y, **params)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\imblearn\\over_sampling\\_smote\\base.py\", line 361, in _fit_resample\n    nns = self.nn_k_.kneighbors(X_class, return_distance=False)[:, 1:]\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"D:\\Tel-U\\Tugas\\semester 4\\Dasar Ilmu Data\\TUBES-DASILDAT-main\\venv\\Lib\\site-packages\\sklearn\\neighbors\\_base.py\", line 847, in kneighbors\n    raise ValueError(\nValueError: Expected n_neighbors <= n_samples_fit, but n_neighbors = 6, n_samples_fit = 5, n_samples = 5"
+    }
+  ],
+  "metrics": {},
+  "model_artifact": null
+}

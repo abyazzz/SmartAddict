@@ -338,6 +338,74 @@
         text-transform: uppercase;
     }
 
+    #algoritma-ml,
+    #tips-kecanduan,
+    #edukasi-digital {
+        scroll-margin-top: 110px;
+    }
+
+    .insight-section {
+        margin-bottom: 32px;
+        padding: 32px;
+        border-radius: 0px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        position: relative;
+    }
+
+    .insight-section::before {
+        content: '';
+        position: absolute;
+        top: -1px; left: -1px; right: -1px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark));
+    }
+
+    .insight-section h2 {
+        font-size: 1.2rem;
+        font-weight: 900;
+        margin-bottom: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-primary);
+    }
+
+    .insight-section > p {
+        color: var(--text-secondary);
+        line-height: 1.75;
+        max-width: 980px;
+        margin-bottom: 22px;
+    }
+
+    .insight-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .insight-item {
+        padding: 18px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-primary);
+    }
+
+    .insight-item span {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 900;
+        color: var(--m-blue-light);
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        margin-bottom: 8px;
+    }
+
+    .insight-item p {
+        margin: 0;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 0.86rem;
+    }
+
     .model-lab,
     .model-card,
     .dataset-section {
@@ -357,6 +425,8 @@
         .content { padding: 32px 16px 60px; }
         .page-header h1 { font-size: 1.6rem; }
         .dataset-section { padding: 24px 16px; }
+        .insight-section { padding: 24px 16px; }
+        .insight-grid { grid-template-columns: 1fr; }
         .features-table { font-size: 0.78rem; display: block; overflow-x: auto; white-space: nowrap; }
         .features-table th, .features-table td { padding: 10px; }
     }
@@ -397,7 +467,7 @@
         </div>
     </section>
 
-    <div class="models-grid">
+    <div class="models-grid" id="algoritma-ml">
         <div class="model-card">
             <div class="model-icon">🌳</div>
             <div class="model-name">Decision Tree</div>
@@ -444,6 +514,49 @@
         </div>
     </div>
 
+    <section class="insight-section" id="tips-kecanduan">
+        <h2>TIPS & CIRI KECANDUAN SMARTPHONE</h2>
+        <p>
+            Bagian ini berisi tanda-tanda penggunaan smartphone bermasalah dan tips pencegahan sederhana. SmartAddict ML tetap bersifat alat bantu akademik,
+            bukan pengganti konsultasi profesional, tetapi indikatornya bisa membantu pengguna membaca kebiasaan digital sehari-hari.
+        </p>
+        <div class="insight-grid">
+            <div class="insight-item">
+                <span>Ciri 01</span>
+                <p>Sulit berhenti mengecek smartphone, merasa gelisah saat jauh dari perangkat, atau tetap memakai meskipun sudah mengganggu aktivitas penting.</p>
+            </div>
+            <div class="insight-item">
+                <span>Ciri 02</span>
+                <p>Waktu tidur berkurang, fokus belajar/kerja menurun, dan aktivitas sosial tatap muka mulai tergantikan oleh aktivitas layar.</p>
+            </div>
+            <div class="insight-item">
+                <span>Tips</span>
+                <p>Matikan notifikasi non-prioritas, buat batas waktu aplikasi, jauhkan smartphone saat tidur, dan jadwalkan jeda layar secara konsisten.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="insight-section" id="edukasi-digital">
+        <h2>ARTIKEL EDUKASI DIGITAL</h2>
+        <p>
+            Edukasi digital disajikan sebagai kumpulan artikel ringkas agar pengguna tidak hanya melihat hasil prediksi, tetapi juga memahami konteks kebiasaan digital yang sehat.
+        </p>
+        <div class="insight-grid">
+            <div class="insight-item">
+                <span>Artikel 01</span>
+                <p><strong>Screen time dan fokus belajar.</strong> Penggunaan yang terlalu sering dapat memecah perhatian, membuat belajar tidak efisien, dan menurunkan konsistensi produktif.</p>
+            </div>
+            <div class="insight-item">
+                <span>Artikel 02</span>
+                <p><strong>Notifikasi dan kontrol diri.</strong> Notifikasi yang terus muncul bisa mendorong kebiasaan membuka aplikasi tanpa tujuan, sehingga perlu difilter berdasarkan prioritas.</p>
+            </div>
+            <div class="insight-item">
+                <span>Artikel 03</span>
+                <p><strong>Tidur dan pemulihan mental.</strong> Mengurangi layar sebelum tidur membantu menjaga rutinitas istirahat dan mengurangi distraksi di malam hari.</p>
+            </div>
+        </div>
+    </section>
+
     <div class="dataset-section">
         <h2>📊 FITUR PARAMETER DATASET</h2>
         <table class="features-table">
@@ -465,8 +578,8 @@
                 <tr>
                     <td>02</td>
                     <td class="feat-name">gender</td>
-                    <td>Jenis kelamin pengguna (0: Perempuan, 1: Laki-laki)</td>
-                    <td>0 - 1</td>
+                    <td>Jenis kelamin pengguna, dapat ditulis Perempuan atau Laki-laki pada input CSV</td>
+                    <td>Teks / 0 - 1</td>
                 </tr>
                 <tr>
                     <td>03</td>

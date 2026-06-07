@@ -1,14 +1,21 @@
 from functools import wraps
+import csv
+from io import StringIO
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for, jsonify, current_app
+from flask import Blueprint, Response, flash, redirect, render_template, request, url_for, jsonify, current_app
 from flask_login import current_user, login_required
 import os
 
 import smartaddict.runtime as runtime
 from smartaddict.extensions import db
+from smartaddict.models.dashboard_feature import DashboardFeature
 from smartaddict.models.prediction import Prediction
 from smartaddict.models.predict_user_session import PredictUserSession
 from smartaddict.models.user import User
+from smartaddict.services.dashboard_feature_service import (
+    DASHBOARD_FEATURE_TARGETS,
+    get_dashboard_features,
+)
 from smartaddict.services.model_service import activate_model_version, get_available_retrain_versions
 from smartaddict.services.retrain_service import cleanup_statuses, run_retrain_pipeline
 
@@ -44,13 +51,53 @@ def admin_dashboard():
 
     versions = get_available_retrain_versions(runtime.ACTIVE_MODEL_VERSION)
     total_retrains = len(versions)
+    dashboard_features = get_dashboard_features(include_inactive=True)
 
     return render_template("admin/dashboard.html", active_page='admin_dashboard',
         total_users=total_users, total_preds=total_preds, stats=stats,
         model_usage=model_usage, recent=recent,
         total_predict_session=total_predict_session,
         total_retrains=total_retrains, retrain_versions=versions,
+        dashboard_features=dashboard_features,
+        dashboard_feature_targets=DASHBOARD_FEATURE_TARGETS,
         active_model_version=runtime.ACTIVE_MODEL_VERSION)
+
+
+@admin_bp.route("/admin/dashboard-features/update", methods=["POST"], endpoint='admin_update_dashboard_features')
+@admin_required
+def admin_update_dashboard_features():
+    valid_targets = {target for target, _ in DASHBOARD_FEATURE_TARGETS}
+    features = get_dashboard_features(include_inactive=True)
+
+    for feature in features:
+        prefix = f"feature_{feature.id}_"
+        title = request.form.get(prefix + "title", "").strip()
+        description = request.form.get(prefix + "description", "").strip()
+        icon = request.form.get(prefix + "icon", "").strip()
+        target_key = request.form.get(prefix + "target", "dashboard")
+        sort_order_raw = request.form.get(prefix + "sort_order", feature.sort_order)
+
+        if not title or not description:
+            flash("Judul dan deskripsi konten dashboard tidak boleh kosong.", "warning")
+            return redirect(url_for('admin.admin_dashboard'))
+        if target_key not in valid_targets:
+            target_key = "dashboard"
+
+        try:
+            sort_order = int(sort_order_raw)
+        except (TypeError, ValueError):
+            sort_order = feature.sort_order
+
+        feature.title = title[:90]
+        feature.description = description
+        feature.icon = icon[:32] or feature.icon
+        feature.target_key = target_key
+        feature.sort_order = sort_order
+        feature.is_active = request.form.get(prefix + "is_active") == "on"
+
+    db.session.commit()
+    flash("Konten 6 kotak dashboard berhasil diperbarui.", "success")
+    return redirect(url_for('admin.admin_dashboard'))
 
 
 @admin_bp.route("/admin/retrain-manual", methods=["POST"], endpoint='admin_retrain_manual')
@@ -128,19 +175,85 @@ def admin_delete_retrain(version_name):
 def admin_history():
     # Pagination: 15 items per page
     page = request.args.get('page', 1, type=int)
+    username = request.args.get('username', '').strip()
     per_page = 15
     
-    pagination = Prediction.query.order_by(Prediction.timestamp.desc()).paginate(
+    query = Prediction.query
+    if username:
+        query = query.join(User).filter(User.username == username)
+        
+    pagination = query.order_by(Prediction.timestamp.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
-    
+
+    all_users = User.query.filter_by(role='user').order_by(User.username.asc()).all()
+
     return render_template(
-        "admin/all_history.html", 
+        "admin/all_history.html",
         predictions=pagination.items,
         pagination=pagination,
+        all_users=all_users,
+        selected_username=username,
         active_page='admin_history'
     )
 
+
+@admin_bp.route("/admin/history/download", endpoint='admin_history_download')
+@admin_required
+def admin_history_download():
+    username = request.args.get('username', '').strip()
+    query = Prediction.query
+    if username:
+        query = query.join(User).filter(User.username == username)
+    predictions = query.order_by(Prediction.timestamp.desc()).all()
+    buffer = StringIO()
+    writer = csv.writer(buffer)
+    writer.writerow([
+        "tanggal",
+        "username",
+        "algoritma_machine_learning",
+        "hasil_diagnosis",
+        "prediction_raw",
+        "age",
+        "gender",
+        "daily_screen_time_hours",
+        "social_media_hours",
+        "gaming_hours",
+        "work_study_hours",
+        "sleep_hours",
+        "notifications_per_day",
+        "app_opens_per_day",
+        "weekend_screen_time",
+    ])
+
+    for prediction in predictions:
+        values = prediction.input_list
+        gender = ""
+        if len(values) > 1:
+            gender = "Laki-laki" if int(round(float(values[1]))) == 1 else "Perempuan"
+        writer.writerow([
+            prediction.timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+            prediction.user.username if prediction.user else "",
+            prediction.model_name,
+            prediction.result,
+            prediction.prediction_raw,
+            values[0] if len(values) > 0 else "",
+            gender,
+            values[2] if len(values) > 2 else "",
+            values[3] if len(values) > 3 else "",
+            values[4] if len(values) > 4 else "",
+            values[5] if len(values) > 5 else "",
+            values[6] if len(values) > 6 else "",
+            values[7] if len(values) > 7 else "",
+            values[8] if len(values) > 8 else "",
+            values[9] if len(values) > 9 else "",
+        ])
+
+    return Response(
+        buffer.getvalue(),
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=smartaddict_admin_history.csv"},
+    )
 
 @admin_bp.route("/admin/retrain-status", endpoint='admin_retrain_status')
 @admin_required

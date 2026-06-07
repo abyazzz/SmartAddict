@@ -149,5 +149,6 @@ def process_single(values: List[Any], selected_model: str, user_id: int, trigger
         "values": values,
         "diagnosis": diagnosis,
         "prediction_raw": prediction_raw,
+        "comparison": result_payload.get("comparison", []),
         "triggered": triggered,
     }

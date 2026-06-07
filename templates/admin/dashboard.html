@@ -287,6 +287,133 @@
         border-bottom: none;
     }
 
+    .admin-alert-stack {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .admin-alert {
+        padding: 14px 18px;
+        border: 1px solid var(--m-blue-light);
+        background: rgba(0, 188, 212, 0.08);
+        color: var(--text-primary);
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .admin-article-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .admin-article-card {
+        padding: 18px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-primary);
+    }
+
+    .admin-article-card span {
+        display: block;
+        color: var(--m-blue-light);
+        font-size: 0.68rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        margin-bottom: 8px;
+    }
+
+    .admin-article-card p {
+        margin: 0;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        font-size: 0.84rem;
+    }
+
+    .dashboard-content-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .dashboard-content-card {
+        padding: 16px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-primary);
+        display: grid;
+        gap: 12px;
+    }
+
+    .dashboard-content-card__head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .dashboard-content-card__head span {
+        color: var(--m-blue-light);
+        font-size: 0.66rem;
+        font-weight: 900;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+
+    .dashboard-content-fields {
+        display: grid;
+        grid-template-columns: 80px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .dashboard-content-card label {
+        color: var(--text-muted);
+        font-size: 0.64rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .dashboard-content-card input,
+    .dashboard-content-card textarea,
+    .dashboard-content-card select {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 0px;
+        border: 1px solid var(--border-card);
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.78rem;
+        outline: none;
+    }
+
+    .dashboard-content-card textarea {
+        min-height: 90px;
+        resize: vertical;
+        line-height: 1.5;
+    }
+
+    .dashboard-content-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .dashboard-active-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 0.72rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
     .badge-sm {
         padding: 6px 12px;
         border-radius: 0px;
@@ -629,12 +756,25 @@
         .stats-grid { grid-template-columns: 1fr; }
         .retrain-modal { padding: 12px; }
         .retrain-modal__panel { padding: 18px; }
+        .admin-article-grid,
+        .dashboard-content-grid { grid-template-columns: 1fr; }
+        .dashboard-content-fields { grid-template-columns: 1fr; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="admin-alert-stack">
+        {% for category, msg in messages %}
+        <div class="admin-alert">{{ msg }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="page-header admin-command-hero">
         <div class="header-text command-copy">
             <h1>ADMIN DASHBOARD</h1>
@@ -674,7 +814,7 @@
         <div class="stat-card">
             <div class="stat-icon">🤖</div>
             <div class="stat-num" style="color:var(--text-primary)">4</div>
-            <div class="stat-label">Model ML Aktif</div>
+            <div class="stat-label">Algoritma ML Aktif</div>
         </div>
         <div class="stat-card">
             <div class="stat-icon">📋</div>
@@ -704,29 +844,100 @@
         </div>
     </div>
 
+    <div class="recent-section" style="margin-bottom: 40px;">
+        <h3>KONTEN 6 KOTAK DASHBOARD USER</h3>
+        <p style="color:var(--text-muted); font-size:0.78rem; line-height:1.6; text-transform:uppercase; letter-spacing:1px; margin-bottom:18px;">
+            Ubah judul, deskripsi, ikon, urutan, dan tujuan klik untuk kartu fitur utama di dashboard pengguna.
+        </p>
+        <form method="post" action="{{ url_for('admin.admin_update_dashboard_features') }}">
+            <div class="dashboard-content-grid">
+                {% for feature in dashboard_features %}
+                <div class="dashboard-content-card">
+                    <div class="dashboard-content-card__head">
+                        <span>Slot {{ loop.index }} - {{ feature.slot_key }}</span>
+                        <label class="dashboard-active-toggle">
+                            <input type="checkbox" name="feature_{{ feature.id }}_is_active" {% if feature.is_active %}checked{% endif %}>
+                            Tampil
+                        </label>
+                    </div>
+                    <div class="dashboard-content-fields">
+                        <div>
+                            <label>Ikon</label>
+                            <input type="text" name="feature_{{ feature.id }}_icon" value="{{ feature.icon }}" maxlength="32">
+                        </div>
+                        <div>
+                            <label>Judul</label>
+                            <input type="text" name="feature_{{ feature.id }}_title" value="{{ feature.title }}" maxlength="90" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Deskripsi</label>
+                        <textarea name="feature_{{ feature.id }}_description" required>{{ feature.description }}</textarea>
+                    </div>
+                    <div class="dashboard-content-fields">
+                        <div>
+                            <label>Urutan</label>
+                            <input type="number" name="feature_{{ feature.id }}_sort_order" value="{{ feature.sort_order }}" min="1" max="99">
+                        </div>
+                        <div>
+                            <label>Tujuan Klik</label>
+                            <select name="feature_{{ feature.id }}_target">
+                                {% for target_key, target_label in dashboard_feature_targets %}
+                                <option value="{{ target_key }}" {% if feature.target_key == target_key %}selected{% endif %}>{{ target_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="dashboard-content-actions">
+                <button type="submit" class="btn-primary" style="border-color: var(--m-blue-light); color: var(--text-primary);">SIMPAN KONTEN DASHBOARD</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="recent-section" style="margin-bottom: 40px;">
+        <h3>ARTIKEL EDUKASI DIGITAL</h3>
+        <div class="admin-article-grid">
+            <div class="admin-article-card">
+                <span>Artikel 01</span>
+                <p><strong>Screen time dan fokus.</strong> Gunakan data prediksi untuk melihat pola layar yang berpotensi mengganggu konsentrasi belajar atau kerja.</p>
+            </div>
+            <div class="admin-article-card">
+                <span>Artikel 02</span>
+                <p><strong>Notifikasi dan kebiasaan.</strong> Notifikasi tinggi dapat menjadi sinyal perilaku membuka aplikasi berulang tanpa tujuan yang jelas.</p>
+            </div>
+            <div class="admin-article-card">
+                <span>Artikel 03</span>
+                <p><strong>Tidur dan pemulihan.</strong> Jam tidur yang turun saat screen time naik perlu dicatat sebagai bahan edukasi penggunaan digital sehat.</p>
+            </div>
+        </div>
+    </div>
+
     <div class="recent-section">
         <h3>🕐 LOG DIAGNOSIS TERBARU (SELURUH PENGGUNA)</h3>
         {% if recent %}
         <table class="recent-table">
             <thead>
                 <tr>
-                    <th>NAMA PENGGUNA</th>
-                    <th>MODEL TERPILIH</th>
-                    <th>HASIL DIAGNOSIS</th>
                     <th>WAKTU SISTEM</th>
+                    <th>HASIL DIAGNOSIS</th>
+                    <th>NAMA PENGGUNA</th>
+                    <th>ALGORITMA MACHINE LEARNING</th>
                 </tr>
             </thead>
             <tbody>
                 {% for p in recent %}
                 <tr>
-                    <td style="font-weight:800; color:var(--text-primary); text-transform: uppercase;">{{ p.user.username }}</td>
-                    <td style="font-family: monospace; text-transform: uppercase; font-size: 0.75rem;">{{ p.model_name }}</td>
+                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.75rem">{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</td>
                     <td>
                         <span class="badge-sm {% if p.result == 'Rendah' %}r{% elif p.result == 'Sedang' %}s{% else %}t{% endif %}">
                             {{ p.result | upper }}
                         </span>
                     </td>
-                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.75rem">{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</td>
+                    <td style="font-weight:800; color:var(--text-primary); text-transform: uppercase;">{{ p.user.username }}</td>
+                    <td style="font-family: monospace; text-transform: uppercase; font-size: 0.75rem;">{{ p.model_name }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -751,7 +962,7 @@
 
         <!-- Info about currently active model -->
         <div style="margin-bottom: 20px; padding: 12px 16px; border: 1px dashed var(--border-card); background: rgba(0,0,0,0.05); font-size: 0.8rem; text-transform: uppercase;">
-            <span>MODEL AKTIF SAAT INI: </span>
+            <span>ALGORITMA AKTIF SAAT INI: </span>
             <strong style="color: var(--m-blue-light); font-family: monospace; letter-spacing: 0.5px;">{{ active_model_version or 'model_default (Bawaan)' }}</strong>
         </div>
 
@@ -1183,6 +1394,12 @@
 
     // Dropdown detail akurasi model retrain
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.chart-box h3').forEach((heading) => {
+            if (heading.textContent.includes('MODEL ML')) {
+                heading.textContent = heading.textContent.replace('MODEL ML', 'ALGORITMA ML');
+            }
+        });
+
         const rows = document.querySelectorAll('.retrain-row');
         rows.forEach(row => {
             row.addEventListener('click', function() {

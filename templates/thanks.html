@@ -72,6 +72,11 @@
         color: var(--m-red);
     }
 
+    .level-badge.batch {
+        border-color: var(--m-blue-dark);
+        color: var(--m-blue-dark);
+    }
+
     .result-model {
         font-size: 0.8rem;
         color: var(--text-secondary);
@@ -214,6 +219,7 @@
     .diagnostic-hero-grid.result-level-rendah .diagnostic-readout-main { color: var(--accent-emerald); }
     .diagnostic-hero-grid.result-level-sedang .diagnostic-readout-main { color: var(--m-blue-dark); }
     .diagnostic-hero-grid.result-level-tinggi .diagnostic-readout-main { color: var(--m-red); }
+    .diagnostic-hero-grid.result-level-batch .diagnostic-readout-main { color: var(--m-blue-dark); }
 
     .diagnostic-readout-copy {
         color: var(--text-secondary);
@@ -375,6 +381,140 @@
         letter-spacing: 0.5px;
     }
 
+    .batch-mini-chart {
+        height: 7px;
+        margin-top: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
+        overflow: hidden;
+        display: flex;
+    }
+
+    .batch-mini-fill {
+        height: 100%;
+        min-width: 2px;
+    }
+
+    .batch-mini-fill.rendah { background: var(--accent-emerald); }
+    .batch-mini-fill.sedang { background: var(--m-blue-dark); }
+    .batch-mini-fill.tinggi { background: var(--m-red); }
+    .batch-mini-fill.male { background: var(--m-blue-light); }
+    .batch-mini-fill.female { background: var(--m-blue-dark); }
+
+    .batch-mini-axis {
+        margin-top: 8px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 0.62rem;
+        color: var(--text-muted);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+
+    .batch-analysis-layout {
+        display: grid;
+        gap: 16px;
+        margin-top: 20px;
+    }
+
+    .batch-line-card {
+        padding: 22px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .batch-line-card::before {
+        content: '';
+        position: absolute;
+        inset: -1px -1px auto -1px;
+        height: 2px;
+        background: linear-gradient(90deg, var(--m-blue-light), var(--m-blue-dark), var(--m-red));
+    }
+
+    .batch-line-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+
+    .batch-line-title {
+        font-size: 0.86rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        margin-bottom: 7px;
+    }
+
+    .batch-line-copy,
+    .batch-line-note {
+        color: var(--text-muted);
+        font-size: 0.72rem;
+        line-height: 1.6;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+    }
+
+    .batch-line-meta {
+        flex: 0 0 auto;
+        padding: 8px 12px;
+        border: 1px solid var(--border-card);
+        color: var(--m-blue-light);
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: var(--bg-input);
+    }
+
+    .batch-line-canvas-wrap {
+        position: relative;
+        height: 320px;
+        margin-top: 6px;
+    }
+
+    .batch-line-note {
+        margin-top: 14px;
+    }
+
+    .batch-summary-strip {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .batch-summary-pill {
+        padding: 14px 12px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        min-height: 86px;
+        display: grid;
+        align-content: center;
+        gap: 6px;
+    }
+
+    .batch-summary-pill span {
+        color: var(--text-muted);
+        font-size: 0.64rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .batch-summary-pill strong {
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     .chart-card.full {
         grid-column: 1 / -1;
     }
@@ -384,6 +524,10 @@
         animation: fadeInUp 0.5s ease 0.4s forwards;
         opacity: 0;
         margin-bottom: 40px;
+    }
+
+    .features-comparison-container.batch-mode > .chart-title:first-child {
+        display: none;
     }
 
     .batch-detail-container {
@@ -679,6 +823,11 @@
         .summary-row { grid-template-columns: 1fr; gap: 14px; }
         .summary-card { padding: 20px; }
         .batch-stats-grid { grid-template-columns: 1fr 1fr; }
+        .batch-line-card { padding: 18px 14px; }
+        .batch-line-header { flex-direction: column; }
+        .batch-line-meta { width: 100%; text-align: center; }
+        .batch-line-canvas-wrap { height: 280px; }
+        .batch-summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .level-badge { padding: 12px 24px; }
         .chart-card { padding: 20px 16px; }
         .features-grid { grid-template-columns: 1fr; }
@@ -703,23 +852,16 @@
     {% set batch_rendah = batch_dist.get('Rendah', 0) %}
     {% set batch_sedang = batch_dist.get('Sedang', 0) %}
     {% set batch_tinggi = batch_dist.get('Tinggi', 0) %}
-    {% if batch_rendah >= batch_sedang and batch_rendah >= batch_tinggi %}
-        {% set dominant_level = 'Rendah' %}
-    {% elif batch_sedang >= batch_tinggi %}
-        {% set dominant_level = 'Sedang' %}
-    {% else %}
-        {% set dominant_level = 'Tinggi' %}
-    {% endif %}
     <div class="confetti-container" id="confetti"></div>
 
     <div class="result-hero">
         <div class="success-icon">✅</div>
         <h1>{% if is_batch %}LAPORAN UPLOAD CSV SELESAI{% else %}DETEKSI KECANDUAN SELESAI{% endif %}</h1>
-        {% set level_class = 'rendah' if result['diagnosis'] == 'Rendah' else ('sedang' if result['diagnosis'] == 'Sedang' else 'tinggi') %}
+        {% set level_class = 'batch' if is_batch else ('rendah' if result['diagnosis'] == 'Rendah' else ('sedang' if result['diagnosis'] == 'Sedang' else 'tinggi')) %}
         <div class="level-badge {{ level_class }}">
-            {% if is_batch %}LEVEL DOMINAN: {{ dominant_level }}{% else %}LEVEL DIAGNOSIS: {{ result['diagnosis'] }}{% endif %}
+            {% if is_batch %}BATCH CSV TERPROSES{% else %}LEVEL DIAGNOSIS: {{ result['diagnosis'] }}{% endif %}
         </div>
-        <div class="result-model">MODEL ANALISIS ML: <strong>{{ result['model'] | upper }}</strong>{% if is_batch %} | BATCH CSV: <strong>{{ result['batch_count'] }} DATA</strong> | STATUS: <strong>TERPROSES</strong>{% endif %}</div>
+        <div class="result-model">ALGORITMA MACHINE LEARNING: <strong>{{ result['model'] | upper }}</strong>{% if is_batch %} | BATCH CSV: <strong>{{ result['batch_count'] }} DATA</strong> | STATUS: <strong>TERPROSES</strong>{% endif %}</div>
     </div>
 
     <section class="diagnostic-hero-grid result-level-{{ level_class }}">
@@ -743,8 +885,8 @@
                     <strong>{% if is_batch %}{{ result['batch_count'] }} Data{% else %}{{ result['values'][2] | round | int }} Jam{% endif %}</strong>
                 </div>
                 <div class="diagnostic-metric">
-                    <span>{% if is_batch %}Dominan{% else %}Model{% endif %}</span>
-                    <strong>{% if is_batch %}{{ dominant_level | upper }}{% else %}{{ result['model'] | upper }}{% endif %}</strong>
+                    <span>{% if is_batch %}Algoritma{% else %}Algoritma{% endif %}</span>
+                    <strong>{{ result['model'] | upper }}</strong>
                 </div>
                 <div class="diagnostic-metric">
                     <span>{% if is_batch %}Rata-rata{% else %}Mode{% endif %}</span>
@@ -761,8 +903,8 @@
             <div class="summary-label">TOTAL BARIS CSV</div>
         </div>
         <div class="summary-card">
-            <div class="summary-value" style="{% if dominant_level == 'Rendah' %}color: var(--accent-emerald);{% elif dominant_level == 'Sedang' %}color: var(--m-blue-dark);{% else %}color: var(--m-red);{% endif %}">{{ dominant_level | upper }}</div>
-            <div class="summary-label">LEVEL DOMINAN</div>
+            <div class="summary-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_sleep'] | round(1) }} jam</div>
+            <div class="summary-label">RATA-RATA TIDUR</div>
         </div>
         <div class="summary-card">
             <div class="summary-value" style="color: var(--text-primary);">{{ result['feature_averages'][2] | round | int }} jam</div>
@@ -797,50 +939,51 @@
     </div>
 
     <!-- Redesigned Feature Indicators and Global Averages Section -->
-    <div class="features-comparison-container">
+    <div class="features-comparison-container {% if is_batch %}batch-mode{% endif %}">
         <div class="chart-title">📊 {% if is_batch %}STATISTIK UPLOAD CSV{% else %}EVALUASI PERBANDINGAN INDIKATOR FITUR{% endif %}</div>
 
         {% if is_batch %}
-        <div class="batch-stats-grid">
-            <div class="batch-stat-card">
-                <div class="stat-label">Total Baris</div>
-                <div class="stat-value" style="color: var(--m-blue-light);">{{ result['batch_count'] }}</div>
-                <div class="stat-subvalue">DATA CSV DIPROSES</div>
+        <div class="chart-title">KOMPOSISI STATISTIK CSV</div>
+        <div class="batch-analysis-layout">
+            <div class="batch-line-card">
+                <div class="batch-line-header">
+                    <div>
+                        <div class="batch-line-title">Grafik Pola Fitur Per Baris CSV</div>
+                        <div class="batch-line-copy">Membandingkan fitur berbasis jam agar pola tiap data input terlihat jelas dari baris pertama sampai terakhir.</div>
+                    </div>
+                    <div class="batch-line-meta">{{ result['batch_count'] }} Data CSV</div>
+                </div>
+                <div class="batch-line-canvas-wrap">
+                    <canvas id="batchLineChart"></canvas>
+                </div>
+                <div class="batch-line-note">Fitur notifikasi dan buka aplikasi tidak dicampur ke line chart utama karena skalanya berbeda jauh dari fitur berbasis jam.</div>
             </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Rendah</div>
-                <div class="stat-value" style="color: var(--accent-emerald);">{{ batch_rendah }}</div>
-                <div class="stat-subvalue">HASIL DIAGNOSIS</div>
-            </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Sedang</div>
-                <div class="stat-value" style="color: var(--m-blue-dark);">{{ batch_sedang }}</div>
-                <div class="stat-subvalue">HASIL DIAGNOSIS</div>
-            </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Tinggi</div>
-                <div class="stat-value" style="color: var(--m-red);">{{ batch_tinggi }}</div>
-                <div class="stat-subvalue">HASIL DIAGNOSIS</div>
-            </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Rata-rata Usia</div>
-                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_age'] | round | int }} THN</div>
-                <div class="stat-subvalue">SELURUH BARIS CSV</div>
-            </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Rata-rata Screen Time</div>
-                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_screen_time'] | round(1) }} JAM</div>
-                <div class="stat-subvalue">SELURUH BARIS CSV</div>
-            </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Komposisi Gender</div>
-                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['male_count'] }} / {{ result['batch_stats']['female_count'] }}</div>
-                <div class="stat-subvalue">LAKI-LAKI / PEREMPUAN</div>
-            </div>
-            <div class="batch-stat-card">
-                <div class="stat-label">Rata-rata Tidur</div>
-                <div class="stat-value" style="color: var(--text-primary);">{{ result['batch_stats']['avg_sleep'] | round(1) }} JAM</div>
-                <div class="stat-subvalue">SELURUH BARIS CSV</div>
+
+            <div class="batch-summary-strip">
+                <div class="batch-summary-pill">
+                    <span>Total Baris</span>
+                    <strong style="color: var(--m-blue-light);">{{ result['batch_count'] }} Data</strong>
+                </div>
+                <div class="batch-summary-pill">
+                    <span>Rendah</span>
+                    <strong style="color: var(--accent-emerald);">{{ batch_rendah }}</strong>
+                </div>
+                <div class="batch-summary-pill">
+                    <span>Sedang</span>
+                    <strong style="color: var(--m-blue-dark);">{{ batch_sedang }}</strong>
+                </div>
+                <div class="batch-summary-pill">
+                    <span>Tinggi</span>
+                    <strong style="color: var(--m-red);">{{ batch_tinggi }}</strong>
+                </div>
+                <div class="batch-summary-pill">
+                    <span>Rata-rata Screen</span>
+                    <strong>{{ result['batch_stats']['avg_screen_time'] | round(1) }} Jam</strong>
+                </div>
+                <div class="batch-summary-pill">
+                    <span>Gender L/P</span>
+                    <strong>{{ result['batch_stats']['male_count'] }} / {{ result['batch_stats']['female_count'] }}</strong>
+                </div>
             </div>
         </div>
         {% else %}
@@ -997,7 +1140,8 @@
 
     <div class="actions">
         <button onclick="exportPDF()" class="btn-primary" id="exportBtn">📥 EXPORT LAPORAN PDF</button>
-        <a href="{{ url_for('user.predict') }}" class="btn-secondary">🔄 PREDIKSI BARU</a>
+        <a href="{{ url_for('user.predict', reuse=1) }}" class="btn-secondary">🔄 COBA MODEL LAIN</a>
+        <a href="{{ url_for('user.predict', reset=1) }}" class="btn-secondary">INPUT BARU</a>
         <a href="{{ url_for('user.history_page') }}" class="btn-secondary">📋 RIWAYAT LOG</a>
         <a href="{{ url_for('user.dashboard') }}" class="btn-secondary">🏠 BERANDA</a>
     </div>
@@ -1035,12 +1179,17 @@
     const averages = {{ averages | tojson }};
     const isBatch = {{ result.get('batch_mode', false) | tojson }};
     const batchRows = {{ result.get('batch_rows', []) | tojson }};
+    const batchStats = {{ (result.get('batch_stats') or {}) | tojson }};
     const distribution = {{ result.get('distribution', {'Rendah': 0, 'Sedang': 0, 'Tinggi': 0}) | tojson }};
     const batchCount = {{ result.get('batch_count', 1) }};
     const labels = ['USIA', 'GENDER', 'SCREEN TIME', 'MEDIA SOSIAL', 'GAMING', 'KERJA/BELAJAR', 'JAM TIDUR', 'NOTIFIKASI', 'BUKA APLIKASI', 'WEEKEND SCREEN TIME'];
-    const predictionRaw = {{ result['prediction_raw'] }};
-    const diagnosis = "{{ result['diagnosis'] }}".toUpperCase();
-    const result_model = "{{ result['model'] }}";
+    const predictionRaw = {{ result['prediction_raw'] | tojson }};
+    const diagnosis = {{ result['diagnosis'] | tojson }}.toUpperCase();
+    const result_model = {{ result['model'] | tojson }};
+    const comparisonResults = {{ (result.get('comparison') or []) | tojson }};
+    const reportUser = {{ current_user.username | tojson }};
+    const activeModelVersion = {{ (active_model_version or 'unknown') | tojson }};
+    const inputMethod = {{ (result.get('input_method') or ('csv' if result.get('batch_mode', false) else 'manual')) | tojson }};
 
     const mBlueLight = '#16a34a';
     const mBlueDark = '#1c69d4';
@@ -1052,6 +1201,147 @@
     const levelLabels = ['RENDAH', 'SEDANG', 'TINGGI'];
     const gaugeValues = isBatch ? [distribution.Rendah || 0, distribution.Sedang || 0, distribution.Tinggi || 0] : [1, 1, 1];
     let myChart = null;
+    let batchLineChart = null;
+
+    function renderBatchLineChart(isLight) {
+        const canvas = document.getElementById('batchLineChart');
+        if (!canvas || !isBatch || !batchRows.length) return;
+
+        if (batchLineChart) {
+            batchLineChart.destroy();
+        }
+
+        const rowLabels = batchRows.map((row, index) => 'Data ' + (row.row_number || index + 1));
+        const valueAt = (row, index) => {
+            const value = Number(row.values?.[index] || 0);
+            return Number.isFinite(value) ? value : 0;
+        };
+        const gridColor = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.08)';
+        const tickColor = isLight ? '#475569' : '#94a3b8';
+
+        batchLineChart = new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: rowLabels,
+                datasets: [
+                    {
+                        label: 'Screen Time',
+                        data: batchRows.map(row => valueAt(row, 2)),
+                        borderColor: '#00bcd4',
+                        backgroundColor: 'rgba(0, 188, 212, 0.12)',
+                        tension: 0.35,
+                        fill: false,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Media Sosial',
+                        data: batchRows.map(row => valueAt(row, 3)),
+                        borderColor: '#1c69d4',
+                        backgroundColor: 'rgba(28, 105, 212, 0.12)',
+                        tension: 0.35,
+                        fill: false,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Gaming',
+                        data: batchRows.map(row => valueAt(row, 4)),
+                        borderColor: '#e22718',
+                        backgroundColor: 'rgba(226, 39, 24, 0.12)',
+                        tension: 0.35,
+                        fill: false,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Jam Tidur',
+                        data: batchRows.map(row => valueAt(row, 6)),
+                        borderColor: '#16a34a',
+                        backgroundColor: 'rgba(22, 163, 74, 0.12)',
+                        tension: 0.35,
+                        fill: false,
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    },
+                    {
+                        label: 'Weekend Screen',
+                        data: batchRows.map(row => valueAt(row, 9)),
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                        tension: 0.35,
+                        fill: false,
+                        borderWidth: 2,
+                        borderDash: [5, 4],
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: tickColor,
+                            usePointStyle: true,
+                            pointStyle: 'line',
+                            boxWidth: 28,
+                            font: { size: 11, weight: '800' },
+                            padding: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterTitle(items) {
+                                const row = batchRows[items?.[0]?.dataIndex];
+                                return row?.diagnosis ? 'Diagnosis: ' + row.diagnosis : '';
+                            },
+                            label(context) {
+                                return context.dataset.label + ': ' + Number(context.parsed.y || 0).toFixed(1) + ' jam';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: tickColor,
+                            font: { size: 10, weight: '800' },
+                            maxRotation: 0
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 24,
+                        ticks: {
+                            color: tickColor,
+                            font: { size: 10, weight: '800' },
+                            callback(value) {
+                                return value + ' jam';
+                            }
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    }
+                }
+            }
+        });
+    }
 
     function renderChart() {
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -1123,6 +1413,8 @@
                 } 
             }]
         });
+
+        renderBatchLineChart(isLight);
     }
 
     renderChart();
@@ -1306,52 +1598,126 @@
             // ── Warna tema ──────────────────────────────────────────
             const WHITE  = [255, 255, 255];
             const MUTED  = [100, 100, 100];
+            const TEXT_D = [20, 30, 45];
+            const TEXT_M = [71, 85, 105];
+            const SOFT_BG = [248, 250, 252];
+            const BORDER = [203, 213, 225];
             const GREEN_G = [22, 163, 74];
+            const BLUE_L = [0, 188, 212];
             const BLUE_D = [28, 105, 212];
             const RED_M  = [226, 39, 24];
             const levelColors = { 0: GREEN_G, 1: BLUE_D, 2: RED_M };
-            const diagColor = levelColors[predictionRaw] || WHITE;
+            const diagColor = levelColors[predictionRaw] || GREEN_G;
+            const pageLimit = H - 20;
+
+            const ensureSpace = (height) => {
+                if (y + height > pageLimit) {
+                    pdf.addPage();
+                    y = margin;
+                }
+            };
+
+            const sectionTitle = (title) => {
+                ensureSpace(11);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(9);
+                pdf.setTextColor(...TEXT_D);
+                pdf.text(title, margin, y);
+                pdf.setDrawColor(...BLUE_D);
+                pdf.setLineWidth(0.35);
+                pdf.line(margin, y + 2.5, W - margin, y + 2.5);
+                y += 7;
+            };
+
+            const formatFeatureValue = (key, value, forAverage = false) => {
+                const safeValue = Number(value) || 0;
+                if (key === 'gender') {
+                    return forAverage ? Math.round(safeValue * 100) + '% LAKI-LAKI' : (safeValue === 1 ? 'LAKI-LAKI' : 'PEREMPUAN');
+                }
+                const rounded = Math.round(safeValue * 10) / 10;
+                if (['daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'weekend_screen_time'].includes(key)) {
+                    return rounded + ' JAM';
+                }
+                if (key === 'age') return Math.round(safeValue) + ' THN';
+                if (key === 'notifications_per_day') return Math.round(safeValue) + ' NOTIF';
+                if (key === 'app_opens_per_day') return Math.round(safeValue) + ' KALI';
+                return String(rounded);
+            };
+
+            const recommendationText = () => {
+                if (isBatch) {
+                    return 'Laporan batch ini merangkum distribusi level hasil CSV, rata-rata fitur utama, dan detail diagnosis pada setiap baris input.';
+                }
+                if (diagnosis === 'TINGGI') {
+                    return 'Indikasi kecanduan berada pada level tinggi. Disarankan mengevaluasi durasi penggunaan harian, mengurangi aktivitas non-prioritas, dan membuat batas waktu aplikasi secara konsisten.';
+                }
+                if (diagnosis === 'SEDANG') {
+                    return 'Indikasi kecanduan berada pada level sedang. Pola penggunaan masih dapat dikendalikan, namun screen time, notifikasi, dan kebiasaan weekend perlu dipantau agar tidak meningkat.';
+                }
+                return 'Indikasi kecanduan berada pada level rendah. Pola penggunaan relatif terkendali, tetapi kebiasaan sehat seperti tidur cukup dan jeda layar tetap perlu dipertahankan.';
+            };
 
             // Solid blue bar top
             pdf.setFillColor(...BLUE_D); pdf.rect(margin, y, col, 2, 'F');
             y += 6;
 
             // ── HEADER ──────────────────────────────────────────────
-            pdf.setTextColor(...WHITE);
+            pdf.setTextColor(...BLUE_D);
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(18);
             pdf.text('SMARTADDICT ML', margin, y);
             pdf.setFontSize(8);
-            pdf.setTextColor(...MUTED);
+            pdf.setTextColor(...TEXT_M);
             pdf.text('LAPORAN HASIL PREDIKSI KECANDUAN SMARTPHONE', margin, y + 6);
             const now = new Date();
             pdf.text('GENERATED: ' + now.toLocaleDateString('id-ID', {day:'2-digit',month:'long',year:'numeric'}) + '  ' + now.toLocaleTimeString('id-ID'), margin, y + 11);
+            pdf.setFontSize(7);
+            pdf.setTextColor(...MUTED);
+            pdf.text('USER: ' + String(reportUser || '-').toUpperCase(), W - margin, y + 2, { align: 'right' });
+            pdf.text('MODE: ' + (inputMethod === 'csv' ? 'UPLOAD CSV' : 'INPUT MANUAL'), W - margin, y + 7, { align: 'right' });
+            pdf.text('MODEL VERSION: ' + String(activeModelVersion || 'unknown').toUpperCase(), W - margin, y + 12, { align: 'right' });
+            y += 20;
+
+            pdf.setFillColor(...SOFT_BG);
+            pdf.setDrawColor(...BORDER);
+            pdf.roundedRect(margin, y, col, 14, 1.5, 1.5, 'FD');
+            pdf.setFont('helvetica', 'bold');
+            pdf.setFontSize(7);
+            pdf.setTextColor(...TEXT_D);
+            pdf.text('RINGKASAN LAPORAN', margin + 4, y + 5);
+            pdf.setFont('helvetica', 'normal');
+            pdf.setTextColor(...TEXT_M);
+            pdf.text('Hasil ini dibuat dari input ' + (isBatch ? batchCount + ' baris CSV' : 'manual satu pengguna') + ' menggunakan model ' + String(result_model || '-').toUpperCase() + '.', margin + 4, y + 10);
             y += 20;
 
             // ── DIAGNOSIS UTAMA ──────────────────────────────────────
+            const heroAccent = isBatch ? BLUE_D : diagColor;
+            const heroTitle = isBatch ? 'BATCH CSV' : diagnosis;
+            const heroSubtitle = isBatch ? 'LAPORAN DISTRIBUSI LEVEL KECANDUAN SMARTPHONE' : 'LEVEL DIAGNOSIS KECANDUAN SMARTPHONE';
+
             pdf.setFillColor(15, 15, 15);
             pdf.rect(margin, y, col, 24, 'F');
-            pdf.setDrawColor(...diagColor);
+            pdf.setDrawColor(...heroAccent);
             pdf.setLineWidth(0.5);
             pdf.rect(margin, y, col, 24);
-            pdf.setFillColor(...diagColor); pdf.rect(margin, y, col, 1, 'F');
+            pdf.setFillColor(...heroAccent); pdf.rect(margin, y, col, 1, 'F');
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(22);
-            pdf.setTextColor(...diagColor);
-            pdf.text(diagnosis, W / 2, y + 12, { align: 'center' });
+            pdf.setTextColor(...heroAccent);
+            pdf.text(heroTitle, W / 2, y + 12, { align: 'center' });
             pdf.setFontSize(7);
             pdf.setTextColor(...MUTED);
-            pdf.text('LEVEL DIAGNOSIS KECANDUAN SMARTPHONE', W / 2, y + 19, { align: 'center' });
+            pdf.text(heroSubtitle, W / 2, y + 19, { align: 'center' });
             y += 30;
 
             // ── SUMMARY STATS ────────────────────────────────────────
             const stats = isBatch ? [
-                { label: 'MODEL ML', value: String(result_model || 'ML').toUpperCase() },
+                { label: 'ALGORITMA ML', value: String(result_model || 'ML').toUpperCase() },
                 { label: 'TOTAL BARIS', value: batchCount + ' DATA' },
                 { label: 'RATA-RATA SCREEN TIME', value: Math.round(values[2]) + ' JAM/HARI' },
                 { label: 'RATA-RATA USIA', value: Math.round(values[0]) + ' TAHUN' },
             ] : [
-                { label: 'MODEL ML', value: String(result_model || 'ML').toUpperCase() },
+                { label: 'ALGORITMA ML', value: String(result_model || 'ML').toUpperCase() },
                 { label: 'SCREEN TIME', value: Math.round(values[2]) + ' JAM/HARI' },
                 { label: 'USIA PENGGUNA', value: Math.round(values[0]) + ' TAHUN' },
                 { label: 'JAM TIDUR', value: Math.round(values[6]) + ' JAM' },
@@ -1378,10 +1744,10 @@
             const el = document.getElementById('gaugeChart');
             if (el && el.width > 0 && el.height > 0) {
                 const imgData = el.toDataURL('image/png');
-                const cW = 80;
+                const cW = 68;
                 const cH = cW * el.height / el.width;
                 
-                if (y + cH + 12 > H - margin) { pdf.addPage(); y = margin; }
+                ensureSpace(cH + 16);
                 
                 pdf.setFillColor(10, 10, 10);
                 pdf.rect(margin + (col - cW) / 2, y, cW, cH + 10, 'F');
@@ -1398,14 +1764,89 @@
                 y += cH + 15;
             }
 
+            if (isBatch) {
+                const trendEl = document.getElementById('batchLineChart');
+                if (trendEl && trendEl.width > 0 && trendEl.height > 0) {
+                    const trendImg = trendEl.toDataURL('image/png');
+                    const trendW = col;
+                    const trendH = Math.min(76, trendW * trendEl.height / trendEl.width);
+
+                    sectionTitle('GRAFIK POLA FITUR CSV');
+                    ensureSpace(trendH + 10);
+                    pdf.setFillColor(...SOFT_BG);
+                    pdf.setDrawColor(...BORDER);
+                    pdf.rect(margin, y, trendW, trendH + 6, 'FD');
+                    pdf.addImage(trendImg, 'PNG', margin + 2, y + 3, trendW - 4, trendH);
+                    y += trendH + 12;
+                }
+            }
+
             // ── PARAMETER COMPARISON TABLE IN PDF ────────────────────────
+            if (isBatch) {
+                sectionTitle('RINGKASAN BATCH CSV');
+                ensureSpace(28);
+                const batchSummary = [
+                    { label: 'RENDAH', value: distribution.Rendah || 0, color: GREEN_G },
+                    { label: 'SEDANG', value: distribution.Sedang || 0, color: BLUE_D },
+                    { label: 'TINGGI', value: distribution.Tinggi || 0, color: RED_M },
+                    { label: 'GENDER L/P', value: (batchStats.male_count || 0) + '/' + (batchStats.female_count || 0), color: TEXT_D },
+                ];
+                const cardW = col / batchSummary.length;
+                batchSummary.forEach((item, i) => {
+                    const sx = margin + i * cardW;
+                    pdf.setFillColor(...SOFT_BG);
+                    pdf.setDrawColor(...BORDER);
+                    pdf.rect(sx, y, cardW - 2, 18, 'FD');
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFontSize(11);
+                    pdf.setTextColor(...item.color);
+                    pdf.text(String(item.value), sx + (cardW - 2) / 2, y + 8, { align: 'center' });
+                    pdf.setFontSize(6);
+                    pdf.setTextColor(...TEXT_M);
+                    pdf.text(item.label, sx + (cardW - 2) / 2, y + 13.5, { align: 'center' });
+                });
+                y += 26;
+            }
+
+            if (Array.isArray(comparisonResults) && comparisonResults.length) {
+                sectionTitle('PERBANDINGAN HASIL ANTAR MODEL');
+                const comparisonRowH = 7;
+                ensureSpace(8 + comparisonResults.length * comparisonRowH);
+                pdf.setFillColor(15, 15, 15);
+                pdf.rect(margin, y, col, comparisonRowH, 'F');
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(6.5);
+                pdf.setTextColor(...WHITE);
+                pdf.text('MODEL', margin + 4, y + 4.5);
+                pdf.text('HASIL DIAGNOSIS', margin + col * 0.58, y + 4.5, { align: 'center' });
+                pdf.text('CLASS RAW', margin + col - 4, y + 4.5, { align: 'right' });
+                y += comparisonRowH;
+
+                comparisonResults.forEach((item, i) => {
+                    ensureSpace(comparisonRowH + 2);
+                    const isSelected = String(item.model || '').toLowerCase() === String(result_model || '').toLowerCase();
+                    const rowFill = isSelected ? [238, 246, 255] : (i % 2 === 0 ? [248, 250, 252] : [255, 255, 255]);
+                    pdf.setFillColor(...rowFill);
+                    pdf.setDrawColor(...BORDER);
+                    pdf.rect(margin, y, col, comparisonRowH, 'FD');
+                    const modelLabel = String(item.model || '-').toUpperCase() + (isSelected ? ' (DIPILIH)' : '');
+                    const raw = Number(item.prediction_raw);
+                    const rowColor = raw === 0 ? GREEN_G : (raw === 1 ? BLUE_D : (raw === 2 ? RED_M : TEXT_M));
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.setFontSize(6.5);
+                    pdf.setTextColor(...TEXT_D);
+                    pdf.text(modelLabel, margin + 4, y + 4.5);
+                    pdf.setTextColor(...rowColor);
+                    pdf.text(String(item.diagnosis || '-').toUpperCase(), margin + col * 0.58, y + 4.5, { align: 'center' });
+                    pdf.setTextColor(...TEXT_M);
+                    pdf.text(String(item.prediction_raw ?? '-'), margin + col - 4, y + 4.5, { align: 'right' });
+                    y += comparisonRowH;
+                });
+                y += 6;
+            }
+
             console.log('[PDF] Rendering comparison table...');
-            if (y + 15 > H - margin) { pdf.addPage(); y = margin; }
-            pdf.setFont('helvetica', 'bold');
-            pdf.setFontSize(9);
-            pdf.setTextColor(...WHITE);
-            pdf.text('EVALUASI PERBANDINGAN PARAMETER FITUR', margin, y);
-            y += 6;
+            sectionTitle(isBatch ? 'RATA-RATA PARAMETER BATCH' : 'EVALUASI PERBANDINGAN PARAMETER FITUR');
 
             // Draw Table Header
             pdf.setFillColor(15, 15, 15);
@@ -1424,10 +1865,11 @@
             const questionKeys = ['age', 'gender', 'daily_screen_time_hours', 'social_media_hours', 'gaming_hours', 'work_study_hours', 'sleep_hours', 'notifications_per_day', 'app_opens_per_day', 'weekend_screen_time'];
             
             questionKeys.forEach((key, i) => {
-                if (y + 7 > H - margin) { pdf.addPage(); y = margin; }
+                ensureSpace(8);
                 const even = i % 2 === 0;
-                pdf.setFillColor(even ? 12 : 8, even ? 12 : 8, even ? 12 : 8);
-                pdf.rect(margin, y, col, 7, 'F');
+                pdf.setFillColor(even ? 248 : 255, even ? 250 : 255, even ? 252 : 255);
+                pdf.setDrawColor(...BORDER);
+                pdf.rect(margin, y, col, 7, 'FD');
                 
                 // Elegant brand stripe on each row
                 pdf.setFillColor(...BLUE_D);
@@ -1436,7 +1878,7 @@
                 // Label
                 pdf.setFont('helvetica', 'bold');
                 pdf.setFontSize(6.5);
-                pdf.setTextColor(...WHITE);
+                pdf.setTextColor(...TEXT_D);
                 pdf.text(questionLabels[i], margin + 4, y + 4.5);
                 
                 // Format values
@@ -1471,7 +1913,7 @@
                 // Draw cells
                 pdf.setFont('helvetica', 'normal');
                 pdf.setFontSize(6.5);
-                pdf.setTextColor(...MUTED);
+                pdf.setTextColor(...TEXT_M);
                 pdf.text(userDisp, margin + col / 2 - 10, y + 4.5, { align: 'right' });
                 pdf.text(avgDisp, margin + col * 3 / 4 - 10, y + 4.5, { align: 'right' });
                 
@@ -1482,7 +1924,7 @@
                     else if (pct < 80) pdf.setTextColor(...BLUE_L);
                     else pdf.setTextColor(...BLUE_D);
                 } else {
-                    pdf.setTextColor(...WHITE);
+                    pdf.setTextColor(...TEXT_D);
                 }
                 pdf.text(compDisp, margin + col - 4, y + 4.5, { align: 'right' });
                 
@@ -1491,12 +1933,7 @@
 
             if (isBatch && batchRows.length) {
                 y += 8;
-                if (y + 14 > H - margin) { pdf.addPage(); y = margin; }
-                pdf.setFont('helvetica', 'bold');
-                pdf.setFontSize(9);
-                pdf.setTextColor(...WHITE);
-                pdf.text('DETAIL HASIL PER BARIS CSV', margin, y);
-                y += 6;
+                sectionTitle('DETAIL HASIL PER BARIS CSV');
 
                 const batchHeaders = ['NO', 'USIA', 'GENDER', 'SCREEN', 'SOSMED', 'GAME', 'KERJA', 'TIDUR', 'NOTIF', 'APPS', 'WEEKEND', 'DIAG'];
                 const batchColWidths = [10, 14, 16, 16, 16, 14, 16, 14, 14, 14, 16, 20];
@@ -1517,7 +1954,7 @@
                 y += batchRowHeight;
 
                 batchRows.forEach((row, rowIndex) => {
-                    if (y + batchRowHeight > H - margin) {
+                    if (y + batchRowHeight > pageLimit) {
                         pdf.addPage();
                         y = margin;
                         pdf.setFillColor(15, 15, 15);
@@ -1572,6 +2009,7 @@
             }
 
             // ── FOOTER ────────────────────────────────────────────────
+            /*
             y += 6;
             if (y + 12 > H - margin) { pdf.addPage(); y = margin; }
             pdf.setFillColor(...BLUE_D); pdf.rect(margin, y, col, 0.5, 'F');
@@ -1580,6 +2018,33 @@
             pdf.setFont('helvetica', 'normal');
             pdf.setTextColor(...MUTED);
             pdf.text('SMARTADDICT ML — LAPORAN AKADEMIK DASAR ILMU DATA', W/2, y, { align: 'center' });
+
+            */
+            y += 8;
+            sectionTitle('CATATAN INTERPRETASI');
+            ensureSpace(28);
+            pdf.setFillColor(...SOFT_BG);
+            pdf.setDrawColor(...BORDER);
+            pdf.rect(margin, y, col, 24, 'FD');
+            pdf.setFont('helvetica', 'normal');
+            pdf.setFontSize(7);
+            pdf.setTextColor(...TEXT_M);
+            const notes = pdf.splitTextToSize(recommendationText() + ' Laporan ini bersifat pendukung analisis akademik dan tidak menggantikan evaluasi profesional.', col - 8);
+            pdf.text(notes, margin + 4, y + 6);
+            y += 30;
+
+            const totalPages = pdf.getNumberOfPages();
+            for (let pageNo = 1; pageNo <= totalPages; pageNo++) {
+                pdf.setPage(pageNo);
+                pdf.setDrawColor(...BLUE_D);
+                pdf.setLineWidth(0.35);
+                pdf.line(margin, H - 13, W - margin, H - 13);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(6);
+                pdf.setTextColor(...MUTED);
+                pdf.text('SMARTADDICT ML - LAPORAN AKADEMIK DASAR ILMU DATA', margin, H - 8);
+                pdf.text('HAL ' + pageNo + '/' + totalPages, W - margin, H - 8, { align: 'right' });
+            }
 
             console.log('[PDF] Saving file...');
             pdf.save('SMARTADDICT_LAPORAN_PREDIKSI.pdf');

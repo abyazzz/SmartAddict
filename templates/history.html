@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% block title %}RIWAYAT PREDIKSI - Smart Addict ML{% endblock %}
 {% block head %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
     .content {
         position: relative;
         z-index: 1;
-        max-width: 950px;
+        max-width: 1050px;
         margin: 0 auto;
         padding: 40px 24px 80px;
     }
@@ -16,6 +17,11 @@
         border-left: 4px solid var(--m-red);
         padding-left: 20px;
         animation: fadeInUp 0.4s ease forwards;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
         position: relative;
         overflow: hidden;
     }
@@ -34,7 +40,7 @@
         pointer-events: none;
     }
 
-    .page-header h1 {
+    .header-text h1 {
         font-size: 2.2rem;
         font-weight: 900;
         letter-spacing: 0.05em;
@@ -43,7 +49,7 @@
         color: var(--text-primary);
     }
 
-    .page-header p {
+    .header-text p {
         color: var(--text-secondary);
         font-size: 0.85rem;
         text-transform: uppercase;
@@ -54,7 +60,6 @@
         display: flex;
         align-items: center;
         gap: 16px;
-        margin-top: 24px;
         flex-wrap: wrap;
     }
 
@@ -94,6 +99,25 @@
     .btn-danger:hover {
         background: var(--m-red);
         color: #ffffff;
+    }
+
+    .btn-export {
+        padding: 8px 18px;
+        border-radius: 0px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        background: transparent;
+        border: 1px solid var(--m-blue-light);
+        color: var(--m-blue-light);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-export:hover {
+        background: var(--m-blue-light);
+        color: var(--bg-card);
     }
 
     .flash-msg {
@@ -146,7 +170,7 @@
 
     .filter-bar input {
         flex: 1;
-        min-width: 220px;
+        min-width: 200px;
     }
 
     .filter-bar select {
@@ -163,220 +187,212 @@
         color: var(--text-primary);
     }
 
-    .history-list {
-        display: grid;
-        gap: 16px;
-    }
-
-    .history-card {
-        padding: 0;
+    /* Table Styles */
+    .table-container {
         border-radius: 0px;
-        background: color-mix(in srgb, var(--bg-card) 86%, transparent);
+        background: color-mix(in srgb, var(--bg-card) 88%, transparent);
         border: 1px solid var(--border-card);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        display: flex;
-        flex-direction: column;
-        animation: fadeInUp 0.4s ease forwards;
+        overflow-x: auto;
+        animation: fadeInUp 0.4s ease 0.15s forwards;
         opacity: 0;
         position: relative;
-        overflow: hidden;
+        box-shadow: var(--card-shadow);
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     }
 
-    .history-card::before {
+    .table-container::before {
         content: '';
         position: absolute;
-        left: 0; top: 0; bottom: 0;
-        width: 4px;
-        z-index: 2;
+        top: -1px; left: -1px; right: -1px;
+        height: 2px;
+        background: transparent;
+        transition: background 0.3s ease;
+    }
+    .table-container:hover::before {
+        background: var(--m-blue-dark);
     }
 
-    .history-card:hover {
-        border-color: var(--text-muted);
-        box-shadow: 0 16px 42px rgba(0, 188, 212, 0.1);
+    .table-container:hover {
+        border-color: var(--m-blue-light);
+        box-shadow: 0 18px 46px rgba(0, 188, 212, 0.1);
         transform: translateY(-3px);
     }
 
-    .history-card.level-rendah::before { background: #16a34a; }
-    .history-card.level-sedang::before { background: var(--m-blue-dark); }
-    .history-card.level-tinggi::before { background: var(--m-red); }
-
-    .history-main-row {
-        display: grid;
-        grid-template-columns: 1fr auto auto;
-        gap: 16px;
-        align-items: center;
-        padding: 16px 20px;
-        cursor: pointer;
-        transition: background 0.2s ease;
-        user-select: none;
+    .h-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
     }
 
-    .history-main-row:hover {
-        background: var(--nav-active-bg);
-    }
-
-    .toggle-area {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        min-width: 0;
-    }
-
-    .expand-icon {
-        font-size: 0.6rem;
-        color: var(--text-muted);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: rotate(0deg);
-        display: inline-block;
-    }
-
-    .history-card.expanded .expand-icon {
-        transform: rotate(90deg);
-        color: var(--text-primary);
-    }
-
-    .history-timestamp {
-        font-size: 0.72rem;
-        color: var(--text-secondary);
+    .h-table th {
+        text-align: left;
+        padding: 12px 16px;
         font-weight: 800;
-        font-family: monospace;
-        letter-spacing: 1px;
-        white-space: nowrap;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--text-primary);
+        border-bottom: 1px solid var(--border-card);
+        background: var(--bg-input);
+        position: sticky;
+        top: 0;
+        z-index: 1;
     }
 
-    .history-summary-text {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        text-transform: uppercase;
+    .h-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border-card);
+        color: var(--text-secondary);
         letter-spacing: 0.5px;
     }
 
-    .history-model-chip {
-        font-size: 0.68rem;
-        color: var(--text-secondary);
-        font-weight: 800;
-        font-family: monospace;
-        text-transform: uppercase;
-        letter-spacing: 0.9px;
-        border: 1px solid var(--border-card);
-        padding: 4px 8px;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-
-    .history-details-panel {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: var(--bg-primary);
-        border-top: 0px solid var(--border-card);
-    }
-
-    .history-card.expanded .history-details-panel {
-        max-height: 400px;
-        border-top: 1px solid var(--border-card);
-    }
-
-    .history-card.expanded {
-        border-color: var(--text-muted);
-        box-shadow: var(--card-shadow);
-    }
-
-    .history-input-box {
-        padding: 20px;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 8px;
-    }
-
-    .input-badge {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--bg-input);
-        border: 1px solid var(--border-card);
-        border-radius: 0px;
-        padding: 8px 12px;
-        font-family: monospace;
-        font-size: 0.7rem;
-        transition: all 0.2s ease;
-    }
-
-    .input-badge:hover {
-        border-color: var(--text-muted);
-        background: var(--bg-card);
-    }
-
-    .input-badge .lbl {
-        color: var(--text-muted);
-        font-weight: 800;
-        margin-right: 6px;
-        text-transform: uppercase;
-    }
-
-    .input-badge .val {
+    .h-table tr:hover td {
         color: var(--text-primary);
-        font-weight: 900;
+        background: var(--nav-active-bg);
+        box-shadow: inset 3px 0 0 var(--m-blue-light);
     }
 
-    .result-badge {
-        padding: 6px 14px;
+    .h-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge-sm {
+        padding: 6px 12px;
         border-radius: 0px;
         font-size: 0.7rem;
         font-weight: 900;
-        text-align: center;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
-        min-width: 90px;
+        letter-spacing: 1px;
         border: 1px solid transparent;
+        display: inline-block;
     }
 
-    .result-badge.level-rendah {
-        border-color: #16a34a;
-        color: #16a34a;
-        box-shadow: 0 0 18px rgba(22, 163, 74, 0.08);
+    .badge-sm.r {
+        border-color: var(--accent-emerald, #16a34a);
+        color: var(--accent-emerald, #16a34a);
+        box-shadow: 0 0 16px rgba(52, 211, 153, 0.08);
     }
 
-    .result-badge.level-sedang {
+    .badge-sm.s {
         border-color: var(--m-blue-dark);
         color: var(--m-blue-dark);
-        box-shadow: 0 0 18px rgba(28, 105, 212, 0.1);
+        box-shadow: 0 0 16px rgba(28, 105, 212, 0.1);
     }
 
-    .result-badge.level-tinggi {
+    .badge-sm.t {
         border-color: var(--m-red);
         color: var(--m-red);
-        box-shadow: 0 0 18px rgba(226, 39, 24, 0.1);
+        box-shadow: 0 0 16px rgba(226, 39, 24, 0.1);
     }
 
-    .delete-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 0px;
+    .detail-btn {
+        background: none;
         border: 1px solid var(--border-card);
-        background: transparent;
         color: var(--text-muted);
         cursor: pointer;
-        display: flex;
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s ease;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.82rem;
+        width: 32px;
+        height: 28px;
+    }
+
+    .detail-btn:hover {
+        border-color: var(--m-blue-light);
+        color: var(--m-blue-light);
+        background: rgba(0, 188, 212, 0.06);
+    }
+
+    .pdf-btn {
+        background: none;
+        border: 1px solid var(--border-card);
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 6px 8px;
+        font-family: inherit;
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 28px;
+        margin-left: 4px;
+    }
+
+    .pdf-btn:hover {
+        border-color: var(--m-red);
+        color: var(--m-red);
+        background: rgba(226, 39, 24, 0.06);
+    }
+
+    .del-btn {
+        background: none;
+        border: 1px solid var(--border-card);
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 6px 10px;
+        font-size: 0.8rem;
         transition: all 0.2s ease;
     }
 
-    .delete-btn:hover {
+    .del-btn:hover {
         border-color: var(--m-red);
         color: var(--m-red);
         background: rgba(226, 39, 24, 0.05);
     }
 
-    /* Pager style styling */
+    .history-detail-row {
+        display: none;
+    }
+
+    .history-detail-row.is-open {
+        display: table-row;
+    }
+
+    .history-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 8px;
+        padding: 14px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-card);
+    }
+
+    .history-detail-item {
+        padding: 10px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
+        font-family: monospace;
+        font-size: 0.7rem;
+    }
+
+    .history-detail-item span {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .history-detail-item strong {
+        color: var(--text-primary);
+        text-transform: uppercase;
+    }
+
+    /* Pagination */
     .pagination-container {
         display: flex;
         align-items: center;
@@ -384,7 +400,7 @@
         gap: 12px;
         margin-top: 32px;
         animation: fadeInUp 0.4s ease 0.2s forwards;
-        opacity: 0;
+        opacity: 1;
     }
 
     .pager-btn {
@@ -395,21 +411,23 @@
         font-family: inherit;
         font-size: 0.72rem;
         font-weight: 800;
-        cursor: pointer;
         text-transform: uppercase;
         letter-spacing: 1.5px;
         transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
     }
 
-    .pager-btn:hover:not(:disabled) {
+    .pager-btn:hover {
         border-color: var(--text-primary);
         color: var(--text-primary);
         background: var(--nav-active-bg);
     }
 
-    .pager-btn:disabled {
+    .pager-btn.disabled {
         opacity: 0.25;
         cursor: not-allowed;
+        pointer-events: none;
     }
 
     .page-numbers {
@@ -427,8 +445,8 @@
         color: var(--text-secondary);
         font-size: 0.75rem;
         font-weight: 800;
-        cursor: pointer;
         transition: all 0.2s ease;
+        text-decoration: none;
     }
 
     .page-num:hover {
@@ -441,6 +459,17 @@
         color: var(--m-blue-light);
         background: var(--nav-active-bg);
         box-shadow: 0 0 10px rgba(0, 102, 177, 0.15);
+    }
+
+    .no-match {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1px dashed var(--border-card);
+        display: none;
     }
 
     .empty-state {
@@ -476,20 +505,8 @@
         letter-spacing: 1px;
     }
 
-    .no-match {
-        text-align: center;
-        padding: 40px;
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border: 1px dashed var(--border-card);
-        display: none;
-    }
-
     .filter-bar,
-    .history-card,
-    .pagination-container,
+    .table-container,
     .empty-state {
         opacity: 1;
     }
@@ -501,13 +518,216 @@
 
     @media (max-width: 768px) {
         .content { padding: 32px 16px 60px; }
+        .page-header { flex-direction: column; align-items: flex-start; }
         .page-header h1 { font-size: 1.6rem; }
         .page-header::after { display: none; }
-        .history-main-row { grid-template-columns: 1fr; }
-        .toggle-area { flex-wrap: wrap; }
-        .delete-btn { width: 100%; height: 38px; }
+        .header-actions { width: 100%; flex-wrap: wrap; }
         .filter-bar { flex-direction: column; }
         .filter-bar select, .filter-bar input { width: 100%; }
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 20px;
+    }
+
+    .modal-overlay.is-open {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .modal-content {
+        background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+        border: 1px solid var(--border-card);
+        border-top: 3px solid var(--m-blue-light);
+        border-radius: 0px;
+        width: 100%;
+        max-width: 520px;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 188, 212, 0.05);
+        position: relative;
+        padding: 28px;
+        transform: scale(0.92);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.is-open .modal-content {
+        transform: scale(1);
+    }
+
+    .modal-close-btn {
+        position: absolute;
+        top: 14px;
+        right: 18px;
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 1.4rem;
+        cursor: pointer;
+        transition: color 0.2s ease, transform 0.2s ease;
+        line-height: 1;
+    }
+
+    .modal-close-btn:hover {
+        color: var(--m-red);
+        transform: rotate(90deg);
+    }
+
+    .modal-header {
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border-card);
+        padding-bottom: 12px;
+    }
+
+    .modal-header h3 {
+        font-size: 1.15rem;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+
+    .modal-meta {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .level-badge-modal {
+        display: inline-block;
+        padding: 6px 16px;
+        font-size: 0.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border: 1px solid transparent;
+        margin-bottom: 20px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .level-badge-modal.r {
+        border-color: var(--accent-emerald, #16a34a);
+        color: var(--accent-emerald, #16a34a);
+        background: rgba(22, 163, 74, 0.05);
+    }
+
+    .level-badge-modal.s {
+        border-color: var(--m-blue-dark);
+        color: var(--m-blue-dark);
+        background: rgba(28, 105, 212, 0.05);
+    }
+
+    .level-badge-modal.t {
+        border-color: var(--m-red);
+        color: var(--m-red);
+        background: rgba(226, 39, 24, 0.05);
+    }
+
+    .modal-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .modal-grid-item {
+        padding: 10px 14px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
+        font-size: 0.78rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-grid-item span {
+        color: var(--text-muted);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.68rem;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-grid-item strong {
+        color: var(--text-primary);
+        font-family: monospace;
+        font-size: 0.78rem;
+    }
+
+    .modal-recommendation {
+        background: rgba(0, 188, 212, 0.03);
+        border: 1px solid var(--border-card);
+        border-left: 3.5px solid var(--m-blue-light);
+        padding: 14px;
+        margin-bottom: 24px;
+    }
+
+    .modal-overlay.is-open .level-badge-modal.t ~ .modal-recommendation {
+        border-left-color: var(--m-red);
+        background: rgba(226, 39, 24, 0.02);
+    }
+    .modal-overlay.is-open .level-badge-modal.r ~ .modal-recommendation {
+        border-left-color: var(--accent-emerald);
+        background: rgba(22, 163, 74, 0.02);
+    }
+
+    .rec-label {
+        display: block;
+        font-size: 0.68rem;
+        font-weight: 900;
+        color: var(--text-primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .modal-recommendation p {
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        line-height: 1.5;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-secondary {
+        background: none;
+        border: 1px solid var(--border-card);
+        color: var(--text-secondary);
+        padding: 8px 20px;
+        font-family: inherit;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+        background: var(--nav-active-bg);
     }
 </style>
 {% endblock %}
@@ -515,16 +735,19 @@
 {% block content %}
 <main class="content">
     <div class="page-header">
-        <h1>RIWAYAT PREDIKSI</h1>
-        <p>LOG DATA & KEPUTUSAN DIAGNOSIS KECANDUAN PENGGUNA</p>
-        {% if predictions %}
+        <div class="header-text">
+            <h1>RIWAYAT PREDIKSI</h1>
+            <p>LOG DATA & KEPUTUSAN DIAGNOSIS KECANDUAN PENGGUNA</p>
+        </div>
         <div class="header-actions">
-            <div class="count-badge">📊 <span id="visibleCount">{{ predictions|length }}</span> LOG RECORDED</div>
+            <div class="count-badge">📊 <span id="vc">{{ predictions|length }}</span> / {{ pagination.total if pagination else predictions|length }} LOGS</div>
+            {% if predictions %}
+            <a href="{{ url_for('user.download_history') }}" class="btn-export">UNDUH CSV</a>
             <form method="post" action="{{ url_for('user.clear_my_history') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT?')">
                 <button type="submit" class="btn-danger">🗑️ HAPUS SELURUH LOG</button>
             </form>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
     {% with messages = get_flashed_messages() %}
@@ -537,77 +760,94 @@
 
     {% if predictions %}
     <div class="filter-bar">
-        <select id="filterModel" onchange="applyFilters()">
-            <option value="">SEMUA MODEL ML</option>
+        <select id="fM" onchange="af()">
+            <option value="">SEMUA ALGORITMA ML</option>
             <option value="Decision Tree">DECISION TREE</option>
             <option value="K-Nearest Neighbors">K-NEAREST NEIGHBORS</option>
             <option value="Neural Network">NEURAL NETWORK</option>
             <option value="Support Vector Machine">SUPPORT VECTOR MACHINE</option>
         </select>
-        <select id="filterLevel" onchange="applyFilters()">
+        <select id="fL" onchange="af()">
             <option value="">SEMUA LEVEL</option>
             <option value="Rendah">🟩 RENDAH</option>
             <option value="Sedang">🟪 SEDANG</option>
             <option value="Tinggi">🟥 TINGGI</option>
         </select>
-        <input type="text" id="filterSearch" placeholder="🔍 CARI KUNCI RIWAYAT..." oninput="applyFilters()">
+        <input type="text" id="fS" placeholder="🔍 CARI KATA KUNCI..." oninput="af()">
     </div>
 
-    <div class="history-list" id="historyList">
-        {% for entry in predictions %}
-        {% set level_class = 'level-rendah' if entry.result == 'Rendah' else ('level-sedang' if entry.result == 'Sedang' else 'level-tinggi') %}
-        {% set inputs = entry.input_list %}
-        <div class="history-card {{ level_class }}" style="animation-delay: {{ loop.index0 * 0.05 }}s" data-model="{{ entry.model_name }}" data-level="{{ entry.result }}" data-text="{{ entry.model_name }} {{ entry.result }} {{ entry.timestamp }}">
-            <div class="history-main-row" onclick="toggleCard(this.closest('.history-card'))">
-                <div class="toggle-area">
-                    <span class="expand-icon">▶</span>
-                    <span class="history-timestamp">🕐 {{ entry.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</span>
-                    {% set is_new = inputs|length >= 10 %}
-                    <span class="history-summary-text">
-                        {% if is_new %}
-                            • Usia: {{ inputs[0] | round | int }} thn • Screen Time: {{ inputs[2] | round | int }} jam
-                        {% else %}
-                            • Data: {{ inputs | length }} fitur
-                        {% endif %}
-                    </span>
-                    <span class="history-model-chip">MODEL: {{ entry.model_name | upper }}</span>
-                </div>
-                <div class="result-badge {{ level_class }}">{{ entry.result }}</div>
-                        <form method="post" action="{{ url_for('user.delete_prediction', pred_id=entry.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')" onclick="event.stopPropagation()">
-                    <button type="submit" class="delete-btn" title="Hapus Log">🗑</button>
-                </form>
-            </div>
-            
-            <div class="history-details-panel">
-                <div class="history-input-box">
-                    {% if is_new %}
-                        <div class="input-badge"><span class="lbl">USIA</span><span class="val">{{ inputs[0] | round | int }} thn</span></div>
-                        <div class="input-badge"><span class="lbl">GENDER</span><span class="val">{{ 'LAKI-LAKI' if inputs[1]|round|int == 1 else 'PEREMPUAN' }}</span></div>
-                        <div class="input-badge"><span class="lbl">SCREEN TIME</span><span class="val">{{ inputs[2] | round | int }} jam</span></div>
-                        <div class="input-badge"><span class="lbl">MEDSOS</span><span class="val">{{ inputs[3] | round | int }} jam</span></div>
-                        <div class="input-badge"><span class="lbl">GAMING</span><span class="val">{{ inputs[4] | round | int }} jam</span></div>
-                        <div class="input-badge"><span class="lbl">KERJA/BELAJAR</span><span class="val">{{ inputs[5] | round | int }} jam</span></div>
-                        <div class="input-badge"><span class="lbl">TIDUR</span><span class="val">{{ inputs[6] | round | int }} jam</span></div>
-                        <div class="input-badge"><span class="lbl">NOTIF</span><span class="val">{{ inputs[7] | round | int }}</span></div>
-                        <div class="input-badge"><span class="lbl">BUKA APP</span><span class="val">{{ inputs[8] | round | int }} kali</span></div>
-                        <div class="input-badge"><span class="lbl">WEEKEND</span><span class="val">{{ inputs[9] | round | int }} jam</span></div>
-                    {% else %}
+    <div class="table-container">
+        <table class="h-table">
+            <thead>
+                <tr>
+                    <th>WAKTU SISTEM</th>
+                    <th>MODEL ML</th>
+                    <th>INPUTAN</th>
+                    <th>HASIL PREDIKSI</th>
+                    <th>TINDAKAN</th>
+                </tr>
+            </thead>
+            <tbody id="tb">
+                {% for p in predictions %}
+                {% set inputs = p.input_list %}
+                <tr data-m="{{ p.model_name }}" data-l="{{ p.result }}" data-t="{{ current_user.username }} {{ p.model_name }} {{ p.result }} {{ p.timestamp }}">
+                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.75rem">{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</td>
+                    <td style="font-family: monospace; text-transform: uppercase; font-size: 0.75rem;">{{ p.model_name }}</td>
+                    <td style="font-size:0.72rem; color:var(--text-muted); font-family:monospace; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="{{ inputs }}">
+                        [
                         {% for val in inputs %}
-                        <div class="input-badge"><span class="lbl">F{{ loop.index }}</span><span class="val">{{ val | round(1) }}</span></div>
+                          {{ val | round(1) }}{% if not loop.last %}, {% endif %}
                         {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+                        ]
+                    </td>
+                    <td>
+                        <span class="badge-sm {% if p.result == 'Rendah' %}r{% elif p.result == 'Sedang' %}s{% else %}t{% endif %}">
+                            {{ p.result | upper }}
+                        </span>
+                    </td>
+                    <td>
+                        <button type="button" class="detail-btn" onclick="showDetailModal('{{ p.model_name }}', '{{ p.result }}', '{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}', {{ inputs | tojson }})" title="LIHAT DETAIL">👁️</button>
+                        <button type="button" class="pdf-btn" onclick="exportRowPDF('{{ current_user.username }}', '{{ p.model_name }}', '{{ p.result }}', '{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}', {{ inputs | tojson }})" title="EXPORT PDF">📄</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <div class="pagination-container" id="paginationContainer">
-        <button class="pager-btn" id="prevBtn" onclick="changePage(-1)">◀ PREV</button>
-        <div class="page-numbers" id="pageNumbers"></div>
-        <button class="pager-btn" id="nextBtn" onclick="changePage(1)">NEXT ▶</button>
+    <!-- Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+    <div class="pagination-container">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('user.history_page', page=pagination.prev_num) }}" class="pager-btn">◀ PREV</a>
+        {% else %}
+        <span class="pager-btn disabled">◀ PREV</span>
+        {% endif %}
+
+        <div class="page-numbers">
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                    <span class="page-num active">{{ page_num }}</span>
+                    {% else %}
+                    <a href="{{ url_for('user.history_page', page=page_num) }}" class="page-num">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-muted);">...</span>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if pagination.has_next %}
+        <a href="{{ url_for('user.history_page', page=pagination.next_num) }}" class="pager-btn">NEXT ▶</a>
+        {% else %}
+        <span class="pager-btn disabled">NEXT ▶</span>
+        {% endif %}
     </div>
-    <div class="no-match" id="noMatch">TIDAK ADA DATA LOG YANG COCOK DENGAN FILTER.</div>
+    {% endif %}
+    <!-- End Pagination -->
+
+    <div class="no-match" id="nm">TIDAK ADA DATA LOG YANG COCOK DENGAN FILTER.</div>
     {% else %}
     <div class="empty-state">
         <div class="empty-icon">📭</div>
@@ -616,101 +856,298 @@
         <a href="{{ url_for('user.predict') }}" class="btn-primary">🚀 MULAI ANALISIS PREDIKSI</a>
     </div>
     {% endif %}
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal-overlay" onclick="closeDetailModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="hideDetailModal()">&times;</button>
+            <div class="modal-header">
+                <h3>DETAIL INPUT PREDIKSI</h3>
+                <div class="modal-meta">
+                    <span id="modalMetaTime"></span> | <span id="modalMetaModel"></span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="modalPredictionBadge" class="level-badge-modal"></div>
+                <div class="modal-grid">
+                    <div class="modal-grid-item"><span>Usia</span><strong id="m-usia">-</strong></div>
+                    <div class="modal-grid-item"><span>Gender</span><strong id="m-gender">-</strong></div>
+                    <div class="modal-grid-item"><span>Screen Time</span><strong id="m-screen">-</strong></div>
+                    <div class="modal-grid-item"><span>Media Sosial</span><strong id="m-sosmed">-</strong></div>
+                    <div class="modal-grid-item"><span>Gaming</span><strong id="m-gaming">-</strong></div>
+                    <div class="modal-grid-item"><span>Kerja/Belajar</span><strong id="m-kerja">-</strong></div>
+                    <div class="modal-grid-item"><span>Tidur</span><strong id="m-tidur">-</strong></div>
+                    <div class="modal-grid-item"><span>Notifikasi</span><strong id="m-notif">-</strong></div>
+                    <div class="modal-grid-item"><span>Buka Aplikasi</span><strong id="m-buka">-</strong></div>
+                    <div class="modal-grid-item"><span>Weekend</span><strong id="m-weekend">-</strong></div>
+                </div>
+                <div class="modal-recommendation">
+                    <span class="rec-label">REKOMENDASI & TINDAKAN LANJUT:</span>
+                    <p id="modalRecommendationText"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="hideDetailModal()">TUTUP</button>
+            </div>
+        </div>
+    </div>
 </main>
 {% endblock %}
 
 {% block scripts %}
 <script>
-let currentPage = 1;
-const itemsPerPage = 5;
+function af() {
+    const m = document.getElementById('fM').value.toLowerCase();
+    const l = document.getElementById('fL').value.toLowerCase();
+    const s = document.getElementById('fS').value.toLowerCase();
+    let v = 0;
 
-function toggleCard(card) {
-    card.classList.toggle('expanded');
-}
-
-function updatePagination() {
-    const cards = Array.from(document.querySelectorAll('.history-card'));
-    const visibleCards = cards.filter(card => card.getAttribute('data-filtered-out') !== 'true');
-    const totalPages = Math.ceil(visibleCards.length / itemsPerPage) || 1;
-    
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-    
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    
-    cards.forEach(card => {
-        card.style.display = 'none';
+    document.querySelectorAll('#tb tr[data-m]').forEach(r => {
+        const mm = r.dataset.m.toLowerCase();
+        const ll = r.dataset.l.toLowerCase();
+        const tt = r.dataset.t.toLowerCase();
+        const ok = (!m || mm.includes(m)) && (!l || ll === l) && (!s || tt.includes(s));
+        r.style.display = ok ? '' : 'none';
+        if (ok) v++;
     });
+    document.getElementById('vc').textContent = v;
+    document.getElementById('nm').style.display = v === 0 ? 'block' : 'none';
+}
+
+function showDetailModal(modelName, result, timestamp, values) {
+    const modal = document.getElementById('detailModal');
+    if (!modal) return;
+
+    // Fill metadata
+    document.getElementById('modalMetaTime').textContent = timestamp;
+    document.getElementById('modalMetaModel').textContent = modelName.toUpperCase();
+
+    // Fill Prediction Badge
+    const badge = document.getElementById('modalPredictionBadge');
+    badge.textContent = result.toUpperCase();
+    badge.className = 'level-badge-modal'; // reset
+    if (result === 'Rendah') badge.classList.add('r');
+    else if (result === 'Sedang') badge.classList.add('s');
+    else badge.classList.add('t');
+
+    // Fill Grid Items
+    document.getElementById('m-usia').textContent = Math.round(values[0]) + ' thn';
+    document.getElementById('m-gender').textContent = Math.round(values[1]) === 1 ? 'Laki-laki' : 'Perempuan';
+    document.getElementById('m-screen').textContent = (Math.round(values[2]*10)/10) + ' jam';
+    document.getElementById('m-sosmed').textContent = (Math.round(values[3]*10)/10) + ' jam';
+    document.getElementById('m-gaming').textContent = (Math.round(values[4]*10)/10) + ' jam';
+    document.getElementById('m-kerja').textContent = (Math.round(values[5]*10)/10) + ' jam';
+    document.getElementById('m-tidur').textContent = (Math.round(values[6]*10)/10) + ' jam';
+    document.getElementById('m-notif').textContent = Math.round(values[7]);
+    document.getElementById('m-buka').textContent = Math.round(values[8]) + ' kali';
+    document.getElementById('m-weekend').textContent = (Math.round(values[9]*10)/10) + ' jam';
+
+    // Fill Recommendation
+    let rec = 'Indikasi kecanduan berada pada level rendah. Pola penggunaan relatif terkendali, tetapi kebiasaan sehat seperti tidur cukup dan jeda layar tetap perlu dipertahankan.';
+    if (result === 'Tinggi') {
+        rec = 'Indikasi kecanduan berada pada level tinggi. Disarankan mengevaluasi durasi penggunaan harian, mengurangi aktivitas non-prioritas, dan membuat batas waktu aplikasi secara konsisten.';
+    } else if (result === 'Sedang') {
+        rec = 'Indikasi kecanduan berada pada level sedang. Pola penggunaan masih dapat dikendalikan, namun screen time, notifikasi, dan kebiasaan weekend perlu dipantau agar tidak meningkat.';
+    }
+    document.getElementById('modalRecommendationText').textContent = rec;
+
+    // Show modal
+    modal.classList.add('is-open');
+}
+
+function hideDetailModal() {
+    const modal = document.getElementById('detailModal');
+    if (modal) modal.classList.remove('is-open');
+}
+
+function closeDetailModal(event) {
+    if (event.target === event.currentTarget) {
+        hideDetailModal();
+    }
+}
+
+function exportRowPDF(username, modelName, result, timestamp, values) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('❌ jsPDF library tidak termuat. Silakan periksa koneksi internet Anda.');
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const W = 210, H = 297;
+    const margin = 14;
+    const col = W - margin * 2;
+    let y = margin;
+
+    // Warna tema
+    const WHITE  = [255, 255, 255];
+    const MUTED  = [100, 100, 100];
+    const TEXT_D = [20, 30, 45];
+    const TEXT_M = [71, 85, 105];
+    const SOFT_BG = [248, 250, 252];
+    const BORDER = [203, 213, 225];
+    const GREEN_G = [22, 163, 74];
+    const BLUE_L = [0, 188, 212];
+    const BLUE_D = [28, 105, 212];
+    const RED_M  = [226, 39, 24];
+    const levelColors = { 'Rendah': GREEN_G, 'Sedang': BLUE_D, 'Tinggi': RED_M };
+    const diagColor = levelColors[result] || GREEN_G;
+
+    // 1. Solid blue bar top
+    pdf.setFillColor(...BLUE_D); pdf.rect(margin, y, col, 2, 'F');
+    y += 6;
+
+    // 2. HEADER
+    pdf.setTextColor(...BLUE_D);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(18);
+    pdf.text('SMARTADDICT ML', margin, y);
+    pdf.setFontSize(8);
+    pdf.setTextColor(...TEXT_M);
+    pdf.text('LAPORAN HASIL PREDIKSI KECANDUAN SMARTPHONE', margin, y + 6);
+    pdf.text('WAKTU SISTEM: ' + timestamp, margin, y + 11);
     
-    visibleCards.forEach((card, index) => {
-        if (index >= startIndex && index < endIndex) {
-            card.style.display = '';
-        }
+    pdf.setFontSize(7);
+    pdf.setTextColor(...MUTED);
+    pdf.text('USER: ' + String(username).toUpperCase(), W - margin, y + 2, { align: 'right' });
+    pdf.text('MODE: DETAIL RIWAYAT PENGGUNA', W - margin, y + 7, { align: 'right' });
+    pdf.text('MODEL ML: ' + String(modelName).toUpperCase(), W - margin, y + 12, { align: 'right' });
+    y += 20;
+
+    // 3. RINGKASAN
+    pdf.setFillColor(...SOFT_BG);
+    pdf.setDrawColor(...BORDER);
+    pdf.roundedRect(margin, y, col, 14, 1.5, 1.5, 'FD');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(7);
+    pdf.setTextColor(...TEXT_D);
+    pdf.text('RINGKASAN LAPORAN', margin + 4, y + 5);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(...TEXT_M);
+    pdf.text('Laporan ini menunjukkan hasil prediksi level kecanduan smartphone berdasarkan data yang Anda input sebelumnya.', margin + 4, y + 10);
+    y += 20;
+
+    // 4. DIAGNOSIS UTAMA
+    pdf.setFillColor(15, 15, 15);
+    pdf.rect(margin, y, col, 24, 'F');
+    pdf.setDrawColor(...diagColor);
+    pdf.setLineWidth(0.5);
+    pdf.rect(margin, y, col, 24);
+    pdf.setFillColor(...diagColor); pdf.rect(margin, y, col, 1, 'F');
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(22);
+    pdf.setTextColor(...diagColor);
+    pdf.text(String(result).toUpperCase(), W / 2, y + 12, { align: 'center' });
+    pdf.setFontSize(7);
+    pdf.setTextColor(...MUTED);
+    pdf.text('LEVEL DIAGNOSIS KECANDUAN SMARTPHONE', W / 2, y + 19, { align: 'center' });
+    y += 30;
+
+    // 5. SUMMARY STATS
+    const stats = [
+        { label: 'ALGORITMA ML', value: String(modelName).toUpperCase() },
+        { label: 'SCREEN TIME', value: (Math.round(values[2] * 10) / 10) + ' JAM/HARI' },
+        { label: 'USIA PENGGUNA', value: Math.round(values[0]) + ' TAHUN' },
+        { label: 'JAM TIDUR', value: (Math.round(values[6] * 10) / 10) + ' JAM' },
+    ];
+    const statW = col / stats.length;
+    stats.forEach((s, i) => {
+        const sx = margin + i * statW;
+        pdf.setFillColor(12, 12, 12);
+        pdf.rect(sx, y, statW - 2, 18, 'F');
+        pdf.setDrawColor(40, 40, 40);
+        pdf.setLineWidth(0.3);
+        pdf.rect(sx, y, statW - 2, 18);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(10);
+        pdf.setTextColor(...WHITE);
+        pdf.text(s.value, sx + (statW - 2) / 2, y + 9, { align: 'center' });
+        pdf.setFontSize(6);
+        pdf.setTextColor(...MUTED);
+        pdf.text(s.label, sx + (statW - 2) / 2, y + 14, { align: 'center' });
     });
-    
-    const pageNumbersDiv = document.getElementById('pageNumbers');
-    if (pageNumbersDiv) {
-        pageNumbersDiv.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            const span = document.createElement('span');
-            span.textContent = i;
-            span.className = 'page-num' + (i === currentPage ? ' active' : '');
-            span.onclick = () => { currentPage = i; updatePagination(); };
-            pageNumbersDiv.appendChild(span);
-        }
-    }
-    
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    if (prevBtn) prevBtn.disabled = currentPage === 1;
-    if (nextBtn) nextBtn.disabled = currentPage === totalPages;
-    
-    const visibleCount = document.getElementById('visibleCount');
-    const noMatch = document.getElementById('noMatch');
-    if (visibleCount) visibleCount.textContent = visibleCards.length;
-    if (noMatch) noMatch.style.display = visibleCards.length === 0 ? 'block' : 'none';
-    
-    const pagerContainer = document.getElementById('paginationContainer');
-    if (pagerContainer) {
-        pagerContainer.style.display = totalPages <= 1 ? 'none' : 'flex';
-    }
-}
+    y += 24;
 
-function changePage(direction) {
-    currentPage += direction;
-    updatePagination();
-}
+    // 6. DETAIL FITUR INPUT
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(9);
+    pdf.setTextColor(...TEXT_D);
+    pdf.text('DETAIL FITUR INPUT PENGGUNA', margin, y);
+    pdf.setDrawColor(...BLUE_D);
+    pdf.setLineWidth(0.35);
+    pdf.line(margin, y + 2.5, W - margin, y + 2.5);
+    y += 8;
 
-function applyFilters() {
-    const model = document.getElementById('filterModel').value.toLowerCase();
-    const level = document.getElementById('filterLevel').value.toLowerCase();
-    const search = document.getElementById('filterSearch').value.toLowerCase();
-    const cards = document.querySelectorAll('.history-card');
-    
-    cards.forEach(card => {
-        const m = card.dataset.model.toLowerCase();
-        const l = card.dataset.level.toLowerCase();
-        const t = card.dataset.text.toLowerCase();
-        const show = (!model || m.includes(model)) && (!level || l === level) && (!search || t.includes(search));
-        
-        if (show) {
-            card.removeAttribute('data-filtered-out');
-        } else {
-            card.setAttribute('data-filtered-out', 'true');
-            card.classList.remove('expanded'); // collapse cards that get filtered out
+    const featureKeys = [
+        'Usia', 'Gender', 'Daily Screen Time', 'Social Media Use', 
+        'Gaming Time', 'Work/Study Time', 'Sleep Duration', 
+        'Notifications Per Day', 'App Opens Per Day', 'Weekend Screen Time'
+    ];
+
+    const formatFeatureValue = (index, value) => {
+        const safeValue = Number(value) || 0;
+        if (index === 1) return safeValue === 1 ? 'LAKI-LAKI' : 'PEREMPUAN';
+        if ([2, 3, 4, 5, 6, 9].includes(index)) return (Math.round(safeValue * 10) / 10) + ' JAM';
+        if (index === 0) return Math.round(safeValue) + ' THN';
+        if (index === 7) return Math.round(safeValue) + ' NOTIF';
+        if (index === 8) return Math.round(safeValue) + ' KALI';
+        return String(safeValue);
+    };
+
+    // Draw detail table
+    pdf.setFontSize(7.5);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setLineWidth(0.15);
+    pdf.setDrawColor(...BORDER);
+
+    featureKeys.forEach((key, i) => {
+        const valStr = formatFeatureValue(i, values[i]);
+        // Alternating row background
+        if (i % 2 === 0) {
+            pdf.setFillColor(...SOFT_BG);
+            pdf.rect(margin, y, col, 6.5, 'F');
         }
+        pdf.rect(margin, y, col, 6.5);
+        pdf.setTextColor(...TEXT_D);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('  ' + key.toUpperCase(), margin, y + 4.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(...TEXT_M);
+        pdf.text(valStr, W - margin - 4, y + 4.5, { align: 'right' });
+        y += 6.5;
     });
-    
-    currentPage = 1;
-    updatePagination();
-}
+    y += 6;
 
-// Initial Setup
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('historyList')) {
-        applyFilters();
+    // 7. REKOMENDASI & TIPS
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(9);
+    pdf.setTextColor(...TEXT_D);
+    pdf.text('REKOMENDASI & TINDAKAN LANJUT', margin, y);
+    pdf.setDrawColor(...BLUE_D);
+    pdf.setLineWidth(0.35);
+    pdf.line(margin, y + 2.5, W - margin, y + 2.5);
+    y += 8;
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(7.5);
+    pdf.setTextColor(...TEXT_M);
+
+    let recText = 'Indikasi kecanduan berada pada level rendah. Pola penggunaan relatif terkendali, tetapi kebiasaan sehat seperti tidur cukup and jeda layar tetap perlu dipertahankan.';
+    if (result === 'Tinggi') {
+        recText = 'Indikasi kecanduan berada pada level tinggi. Disarankan mengevaluasi durasi penggunaan harian, mengurangi aktivitas non-prioritas, dan membuat batas waktu aplikasi secara konsisten.';
+    } else if (result === 'Sedang') {
+        recText = 'Indikasi kecanduan berada pada level sedang. Pola penggunaan masih dapat dikendalikan, namun screen time, notifikasi, dan kebiasaan weekend perlu dipantau agar tidak meningkat.';
     }
-});
+
+    const splitText = pdf.splitTextToSize(recText, col - 8);
+    pdf.setFillColor(...SOFT_BG);
+    pdf.setDrawColor(...diagColor);
+    pdf.setLineWidth(0.5);
+    pdf.rect(margin, y, col, splitText.length * 4 + 6, 'FD');
+    pdf.setTextColor(...TEXT_D);
+    pdf.text(splitText, margin + 4, y + 5);
+
+    // Save PDF
+    pdf.save('smartaddict_report_' + String(username).toLowerCase() + '_' + String(result).toLowerCase() + '.pdf');
+}
 </script>
 {% endblock %}

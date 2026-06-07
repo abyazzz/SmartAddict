@@ -99,6 +99,25 @@
         color: var(--bg-card);
     }
 
+    .btn-export {
+        padding: 8px 18px;
+        border-radius: 0px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        background: transparent;
+        border: 1px solid var(--m-blue-light);
+        color: var(--m-blue-light);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-export:hover {
+        background: var(--m-blue-light);
+        color: var(--bg-card);
+    }
+
     .filter-bar {
         display: flex;
         gap: 12px;
@@ -250,19 +269,62 @@
         box-shadow: 0 0 16px rgba(226, 39, 24, 0.1);
     }
 
-    .del-btn {
+    .detail-btn {
         background: none;
         border: 1px solid var(--border-card);
         color: var(--text-muted);
         cursor: pointer;
         padding: 6px 10px;
+        font-family: inherit;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
         transition: all 0.2s ease;
     }
 
-    .del-btn:hover {
-        border-color: var(--m-red);
-        color: var(--m-red);
-        background: rgba(226, 39, 24, 0.05);
+    .detail-btn:hover {
+        border-color: var(--m-blue-light);
+        color: var(--m-blue-light);
+        background: rgba(0, 188, 212, 0.06);
+    }
+
+    .history-detail-row {
+        display: none;
+    }
+
+    .history-detail-row.is-open {
+        display: table-row;
+    }
+
+    .history-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 8px;
+        padding: 14px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-card);
+    }
+
+    .history-detail-item {
+        padding: 10px;
+        background: var(--bg-input);
+        border: 1px solid var(--border-card);
+        font-family: monospace;
+        font-size: 0.7rem;
+    }
+
+    .history-detail-item span {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 900;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .history-detail-item strong {
+        color: var(--text-primary);
+        text-transform: uppercase;
     }
 
     .no-match {
@@ -277,15 +339,72 @@
     }
 
     /* Pagination Styles */
+    .pagination-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 32px;
+        animation: fadeInUp 0.4s ease 0.2s forwards;
+        opacity: 1;
+    }
+
+    .pager-btn {
+        background: transparent;
+        border: 1px solid var(--border-card);
+        color: var(--text-secondary);
+        padding: 8px 16px;
+        font-family: inherit;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
     .pager-btn:hover {
-        border-color: var(--text-primary) !important;
-        color: var(--text-primary) !important;
-        background: var(--nav-active-bg) !important;
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+        background: var(--nav-active-bg);
+    }
+
+    .pager-btn.disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 6px;
+    }
+
+    .page-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--border-card);
+        color: var(--text-secondary);
+        font-size: 0.75rem;
+        font-weight: 800;
+        transition: all 0.2s ease;
+        text-decoration: none;
     }
 
     .page-num:hover {
-        border-color: var(--text-primary) !important;
-        color: var(--text-primary) !important;
+        border-color: var(--text-primary);
+        color: var(--text-primary);
+    }
+
+    .page-num.active {
+        border-color: var(--m-blue-light);
+        color: var(--m-blue-light);
+        background: var(--nav-active-bg);
+        box-shadow: 0 0 10px rgba(0, 102, 177, 0.15);
     }
 
     .filter-bar,
@@ -300,6 +419,7 @@
 
     @media (max-width: 768px) {
         .content { padding: 32px 16px 60px; }
+        .page-header { flex-direction: column; align-items: flex-start; }
         .page-header::after { display: none; }
         .header-actions { width: 100%; flex-wrap: wrap; }
         .filter-bar { flex-direction: column; }
@@ -318,7 +438,8 @@
         <div class="header-actions">
             <span class="admin-badge" style="margin-right: 8px;">🛡️ ADMIN</span>
             <div class="count-badge">📊 <span id="vc">{{ predictions|length }}</span> / {{ pagination.total if pagination else predictions|length }} LOGS</div>
-            {% if predictions %}
+            {% if predictions or selected_username %}
+            <a href="{{ url_for('admin.admin_history_download', username=selected_username) }}" class="btn-export">UNDUH CSV</a>
             <form method="post" action="{{ url_for('admin.admin_clear_all') }}" style="display:inline" onsubmit="return confirm('APAKAH ANDA YAKIN INGIN MENGHAPUS SELURUH LOG RIWAYAT DI SISTEM?')">
                 <button type="submit" class="btn-danger">🗑️ HAPUS SEMUA RIWAYAT</button>
             </form>
@@ -336,10 +457,16 @@
     {% endif %}
     {% endwith %}
 
-    {% if predictions %}
+    {% if predictions or selected_username %}
     <div class="filter-bar">
+        <select id="fU" onchange="filterUser(this.value)">
+            <option value="">SEMUA PENGGUNA</option>
+            {% for u in all_users %}
+            <option value="{{ u.username }}" {% if selected_username == u.username %}selected{% endif %}>{{ u.username | upper }}</option>
+            {% endfor %}
+        </select>
         <select id="fM" onchange="af()">
-            <option value="">SEMUA MODEL ML</option>
+            <option value="">SEMUA ALGORITMA ML</option>
             <option>Decision Tree</option>
             <option>K-Nearest Neighbors</option>
             <option>Neural Network</option>
@@ -358,82 +485,83 @@
         <table class="h-table">
             <thead>
                 <tr>
-                    <th>USER PENGGUNA</th>
-                    <th>MODEL ANALISIS</th>
-                    <th>HASIL DIAGNOSIS</th>
-                    <th>MATRIKS DATA INPUT</th>
                     <th>WAKTU SISTEM</th>
+                    <th>NAMA</th>
+                    <th>MODEL ML</th>
+                    <th>INPUTAN</th>
+                    <th>HASIL PREDIKSI</th>
                     <th>TINDAKAN</th>
                 </tr>
             </thead>
             <tbody id="tb">
                 {% for p in predictions %}
-                <tr data-m="{{ p.model_name }}" data-l="{{ p.result }}" data-t="{{ p.user.username }} {{ p.model_name }} {{ p.result }}">
+                {% set inputs = p.input_list %}
+                <tr data-m="{{ p.model_name }}" data-l="{{ p.result }}" data-t="{{ p.user.username }} {{ p.model_name }} {{ p.result }} {{ p.timestamp }}">
+                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.75rem">{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</td>
                     <td style="font-weight:800; color:var(--text-primary); text-transform: uppercase;">{{ p.user.username }}</td>
                     <td style="font-family: monospace; text-transform: uppercase; font-size: 0.75rem;">{{ p.model_name }}</td>
+                    <td style="font-size:0.72rem; color:var(--text-muted); font-family:monospace; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="{{ inputs }}">
+                        [
+                        {% for val in inputs %}
+                          {{ val | round(1) }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                        ]
+                    </td>
                     <td>
                         <span class="badge-sm {% if p.result == 'Rendah' %}r{% elif p.result == 'Sedang' %}s{% else %}t{% endif %}">
                             {{ p.result | upper }}
                         </span>
                     </td>
-                    <td style="font-size:0.72rem; color:var(--text-muted); font-family:monospace; max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap" title="{{ p.input_list }}">
-                        [
-                        {% for val in p.input_list %}
-                          {{ val | round(1) }}{% if not loop.last %}, {% endif %}
-                        {% endfor %}
-                        ]
-                    </td>
-                    <td style="color:var(--text-muted); font-family: monospace; font-size:0.75rem">{{ p.timestamp.strftime('%Y-%m-%d | %H:%M UTC') }}</td>
-                    <td>
-                        <form method="post" action="{{ url_for('user.delete_prediction', pred_id=p.id) }}" onsubmit="return confirm('HAPUS LOG DIAGNOSIS INI?')">
-                            <button class="del-btn" title="Hapus entry">🗑</button>
-                        </form>
+                    <td><button type="button" class="detail-btn" onclick="toggleHistoryDetail('admin-detail-{{ p.id }}')">DETAIL</button></td>
+                </tr>
+                <tr id="admin-detail-{{ p.id }}" class="history-detail-row">
+                    <td colspan="6">
+                        <div class="history-detail-grid">
+                            <div class="history-detail-item"><span>Usia</span><strong>{{ inputs[0] | round | int if inputs|length > 0 else '-' }} thn</strong></div>
+                            <div class="history-detail-item"><span>Gender</span><strong>{% if inputs|length > 1 %}{{ 'Laki-laki' if inputs[1]|round|int == 1 else 'Perempuan' }}{% else %}-{% endif %}</strong></div>
+                            <div class="history-detail-item"><span>Screen Time</span><strong>{{ inputs[2] | round(1) if inputs|length > 2 else '-' }} jam</strong></div>
+                            <div class="history-detail-item"><span>Media Sosial</span><strong>{{ inputs[3] | round(1) if inputs|length > 3 else '-' }} jam</strong></div>
+                            <div class="history-detail-item"><span>Gaming</span><strong>{{ inputs[4] | round(1) if inputs|length > 4 else '-' }} jam</strong></div>
+                            <div class="history-detail-item"><span>Kerja/Belajar</span><strong>{{ inputs[5] | round(1) if inputs|length > 5 else '-' }} jam</strong></div>
+                            <div class="history-detail-item"><span>Tidur</span><strong>{{ inputs[6] | round(1) if inputs|length > 6 else '-' }} jam</strong></div>
+                            <div class="history-detail-item"><span>Notifikasi</span><strong>{{ inputs[7] | round | int if inputs|length > 7 else '-' }}</strong></div>
+                            <div class="history-detail-item"><span>Buka Aplikasi</span><strong>{{ inputs[8] | round | int if inputs|length > 8 else '-' }} kali</strong></div>
+                            <div class="history-detail-item"><span>Weekend</span><strong>{{ inputs[9] | round(1) if inputs|length > 9 else '-' }} jam</strong></div>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    
+
     <!-- Pagination -->
     {% if pagination and pagination.pages > 1 %}
-    <div class="pagination-container" style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 32px; animation: fadeInUp 0.4s ease 0.2s forwards; opacity: 1;">
+    <div class="pagination-container">
         {% if pagination.has_prev %}
-        <a href="{{ url_for('admin.admin_history', page=pagination.prev_num) }}" class="pager-btn" style="background: transparent; border: 1px solid var(--border-card); color: var(--text-secondary); padding: 8px 16px; font-family: inherit; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.2s ease; text-decoration: none; display: inline-block;">
-            ◀ PREV
-        </a>
+        <a href="{{ url_for('admin.admin_history', page=pagination.prev_num, username=selected_username) }}" class="pager-btn">◀ PREV</a>
         {% else %}
-        <span class="pager-btn" style="background: transparent; border: 1px solid var(--border-card); color: var(--text-secondary); padding: 8px 16px; font-family: inherit; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.25; cursor: not-allowed; display: inline-block;">
-            ◀ PREV
-        </span>
+        <span class="pager-btn disabled">◀ PREV</span>
         {% endif %}
-        
-        <div class="page-numbers" style="display: flex; gap: 6px;">
+
+        <div class="page-numbers">
             {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
                 {% if page_num %}
                     {% if page_num == pagination.page %}
-                    <span class="page-num active" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--m-blue-light); color: var(--m-blue-light); background: var(--nav-active-bg); font-size: 0.75rem; font-weight: 800; box-shadow: 0 0 10px rgba(0, 102, 177, 0.15);">
-                        {{ page_num }}
-                    </span>
+                    <span class="page-num active">{{ page_num }}</span>
                     {% else %}
-                    <a href="{{ url_for('admin.admin_history', page=page_num) }}" class="page-num" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--border-card); color: var(--text-secondary); font-size: 0.75rem; font-weight: 800; transition: all 0.2s ease; text-decoration: none;">
-                        {{ page_num }}
-                    </a>
+                    <a href="{{ url_for('admin.admin_history', page=page_num, username=selected_username) }}" class="page-num">{{ page_num }}</a>
                     {% endif %}
                 {% else %}
                     <span style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text-muted);">...</span>
                 {% endif %}
             {% endfor %}
         </div>
-        
+
         {% if pagination.has_next %}
-        <a href="{{ url_for('admin.admin_history', page=pagination.next_num) }}" class="pager-btn" style="background: transparent; border: 1px solid var(--border-card); color: var(--text-secondary); padding: 8px 16px; font-family: inherit; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.2s ease; text-decoration: none; display: inline-block;">
-            NEXT ▶
-        </a>
+        <a href="{{ url_for('admin.admin_history', page=pagination.next_num, username=selected_username) }}" class="pager-btn">NEXT ▶</a>
         {% else %}
-        <span class="pager-btn" style="background: transparent; border: 1px solid var(--border-card); color: var(--text-secondary); padding: 8px 16px; font-family: inherit; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.25; cursor: not-allowed; display: inline-block;">
-            NEXT ▶
-        </span>
+        <span class="pager-btn disabled">NEXT ▶</span>
         {% endif %}
     </div>
     {% endif %}
@@ -450,22 +578,44 @@
 
 {% block scripts %}
 <script>
+function filterUser(val) {
+    const url = new URL(window.location.href);
+    if (val) {
+        url.searchParams.set('username', val);
+    } else {
+        url.searchParams.delete('username');
+    }
+    url.searchParams.set('page', 1);
+    window.location.href = url.pathname + url.search;
+}
+
 function af(){
     const m = document.getElementById('fM').value.toLowerCase();
     const l = document.getElementById('fL').value.toLowerCase();
     const s = document.getElementById('fS').value.toLowerCase();
     let v = 0;
     
-    document.querySelectorAll('#tb tr').forEach(r => {
+    document.querySelectorAll('#tb tr[data-m]').forEach(r => {
         const mm = r.dataset.m.toLowerCase();
         const ll = r.dataset.l.toLowerCase();
         const tt = r.dataset.t.toLowerCase();
         const ok = (!m || mm.includes(m)) && (!l || ll === l) && (!s || tt.includes(s));
         r.style.display = ok ? '' : 'none';
+        const detailRow = r.nextElementSibling;
+        if (detailRow && detailRow.classList.contains('history-detail-row')) {
+            detailRow.style.display = ok && detailRow.classList.contains('is-open') ? 'table-row' : 'none';
+        }
         if (ok) v++;
     });
     document.getElementById('vc').textContent = v;
     document.getElementById('nm').style.display = v === 0 ? 'block' : 'none';
+}
+
+function toggleHistoryDetail(id) {
+    const row = document.getElementById(id);
+    if (!row) return;
+    row.classList.toggle('is-open');
+    row.style.display = row.classList.contains('is-open') ? 'table-row' : 'none';
 }
 </script>
 {% endblock %}

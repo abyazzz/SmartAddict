@@ -6,6 +6,7 @@ from flask_login import LoginManager, current_user, login_required
 
 from smartaddict.config import Config
 from smartaddict.extensions import db, login_manager
+from smartaddict.models.dashboard_feature import DashboardFeature
 from smartaddict.models.prediction import Prediction
 from smartaddict.models.predict_user_session import PredictUserSession
 from smartaddict.models.user import User
